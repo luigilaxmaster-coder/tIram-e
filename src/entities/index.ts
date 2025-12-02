@@ -4,8 +4,7 @@
  */
 
 /**
- * Price option for services
- * Used for storing multiple pricing tiers (e.g., Regular, Premium, Deluxe)
+ * Price Option interface for service variants
  */
 export interface PriceOption {
   name: string;
