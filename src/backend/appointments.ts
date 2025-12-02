@@ -1,6 +1,7 @@
 import { BaseCrudService } from '@/integrations';
-import { Appointments, Services, SlotLocks } from '@/entities';
+import { Appointments, Services, SlotLocks, Providers } from '@/entities';
 import { parseISO, addMinutes } from 'date-fns';
+import { sendConfirmationNotifications } from './notifications';
 
 interface CreateAppointmentPayload {
   providerId: string;
@@ -31,6 +32,12 @@ export async function createAppointment(payload: CreateAppointmentPayload): Prom
   const service = await BaseCrudService.getById<Services>('services', serviceId);
   if (!service) {
     throw new Error('Service not found');
+  }
+
+  // Get provider details
+  const provider = await BaseCrudService.getById<Providers>('providers', providerId);
+  if (!provider) {
+    throw new Error('Provider not found');
   }
 
   // Validate people count
@@ -88,9 +95,8 @@ export async function createAppointment(payload: CreateAppointmentPayload): Prom
       appointmentId: appointment._id,
     });
 
-    // TODO: Send confirmation email
-    // This would be implemented using Wix Triggered Emails
-    console.log('Appointment created, confirmation email should be sent to:', clientEmail);
+    // Send confirmation email and WhatsApp message
+    await sendConfirmationNotifications(appointment, provider, service);
 
     return { appointmentId: appointment._id };
   } catch (error: any) {
@@ -102,38 +108,4 @@ export async function createAppointment(payload: CreateAppointmentPayload): Prom
   }
 }
 
-export async function sendConfirmationEmail(appointmentId: string) {
-  // This would integrate with Wix Triggered Emails
-  // For now, we'll just log it
-  const appointment = await BaseCrudService.getById<Appointments>('appointments', appointmentId);
-  if (!appointment) {
-    throw new Error('Appointment not found');
-  }
-
-  console.log('Sending confirmation email to:', appointment.clientEmail);
-  // Implementation would use Wix Triggered Emails API
-}
-
-export async function sendReminderEmail(appointmentId: string, reminderType: '24h' | '2h') {
-  // This would integrate with Wix Triggered Emails
-  const appointment = await BaseCrudService.getById<Appointments>('appointments', appointmentId);
-  if (!appointment) {
-    throw new Error('Appointment not found');
-  }
-
-  console.log(`Sending ${reminderType} reminder email to:`, appointment.clientEmail);
-  // Implementation would use Wix Triggered Emails API
-
-  // Update reminder sent flag
-  if (reminderType === '24h') {
-    await BaseCrudService.update<Appointments>('appointments', {
-      _id: appointmentId,
-      reminder24hSent: true,
-    });
-  } else {
-    await BaseCrudService.update<Appointments>('appointments', {
-      _id: appointmentId,
-      reminder2hSent: true,
-    });
-  }
-}
+// ... keep existing code (sendConfirmationEmail and sendReminderEmail are now in notifications.ts)
