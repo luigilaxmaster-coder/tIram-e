@@ -50,6 +50,23 @@ export default function ProviderDashboard() {
     isActive: true,
   });
   const [priceOptions, setPriceOptions] = useState<PriceOption[]>([]);
+  
+  // Service schedule
+  interface ServiceScheduleDay {
+    dayOfWeek: number;
+    isActive: boolean;
+    startTime: string;
+    endTime: string;
+  }
+  const [serviceSchedule, setServiceSchedule] = useState<ServiceScheduleDay[]>([
+    { dayOfWeek: 0, isActive: false, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 1, isActive: true, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 2, isActive: true, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 3, isActive: true, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 4, isActive: true, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 5, isActive: true, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 6, isActive: false, startTime: '09:00', endTime: '17:00' },
+  ]);
 
   // Appointments filter
   const [appointmentFilter, setAppointmentFilter] = useState<'today' | 'week' | 'custom'>('today');
@@ -226,6 +243,17 @@ export default function ProviderDashboard() {
       } else {
         setPriceOptions([]);
       }
+      // Parse service schedule from JSON string
+      if (service.serviceSchedule) {
+        try {
+          const parsed = JSON.parse(service.serviceSchedule);
+          setServiceSchedule(Array.isArray(parsed) ? parsed : getDefaultSchedule());
+        } catch {
+          setServiceSchedule(getDefaultSchedule());
+        }
+      } else {
+        setServiceSchedule(getDefaultSchedule());
+      }
     } else {
       setEditingService(null);
       setServiceForm({
@@ -239,9 +267,20 @@ export default function ProviderDashboard() {
         isActive: true,
       });
       setPriceOptions([]);
+      setServiceSchedule(getDefaultSchedule());
     }
     setShowServiceModal(true);
   };
+
+  const getDefaultSchedule = () => [
+    { dayOfWeek: 0, isActive: false, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 1, isActive: true, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 2, isActive: true, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 3, isActive: true, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 4, isActive: true, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 5, isActive: true, startTime: '09:00', endTime: '17:00' },
+    { dayOfWeek: 6, isActive: false, startTime: '09:00', endTime: '17:00' },
+  ];
 
   const handleSaveService = async () => {
     if (!provider) return;
@@ -250,6 +289,7 @@ export default function ProviderDashboard() {
       const serviceData = {
         ...serviceForm,
         priceOptions: priceOptions.length > 0 ? JSON.stringify(priceOptions) : undefined,
+        serviceSchedule: JSON.stringify(serviceSchedule),
       };
 
       if (editingService) {
@@ -301,6 +341,16 @@ export default function ProviderDashboard() {
       updated[index].price = parseFloat(value as string) || 0;
     }
     setPriceOptions(updated);
+  };
+
+  const handleUpdateScheduleDay = (dayOfWeek: number, field: 'isActive' | 'startTime' | 'endTime', value: any) => {
+    const updated = serviceSchedule.map((day) => {
+      if (day.dayOfWeek === dayOfWeek) {
+        return { ...day, [field]: value };
+      }
+      return day;
+    });
+    setServiceSchedule(updated);
   };
 
   const handleDeleteService = async (serviceId: string) => {
@@ -1087,6 +1137,70 @@ export default function ProviderDashboard() {
                 <Label htmlFor="serviceActive" className="text-light-gray">
                   Active
                 </Label>
+              </div>
+            </div>
+
+            {/* Service Schedule */}
+            <div className="space-y-4 border-t border-white/10 pt-6">
+              <h3 className="text-lg font-heading font-semibold text-white">Service Availability Schedule</h3>
+              <p className="text-sm text-light-gray/70 font-paragraph">
+                Set the days and hours when this service is available for booking
+              </p>
+
+              <div className="space-y-3">
+                {serviceSchedule.map((day) => {
+                  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                  return (
+                    <motion.div
+                      key={day.dayOfWeek}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id={`day-${day.dayOfWeek}`}
+                          checked={day.isActive}
+                          onChange={(e) => handleUpdateScheduleDay(day.dayOfWeek, 'isActive', e.target.checked)}
+                          className="w-4 h-4"
+                        />
+                        <Label htmlFor={`day-${day.dayOfWeek}`} className="text-light-gray font-semibold flex-1">
+                          {dayNames[day.dayOfWeek]}
+                        </Label>
+                      </div>
+
+                      {day.isActive && (
+                        <div className="flex gap-3 ml-7">
+                          <div className="flex-1">
+                            <Label htmlFor={`start-${day.dayOfWeek}`} className="text-light-gray text-xs">
+                              Start Time
+                            </Label>
+                            <Input
+                              id={`start-${day.dayOfWeek}`}
+                              type="time"
+                              value={day.startTime}
+                              onChange={(e) => handleUpdateScheduleDay(day.dayOfWeek, 'startTime', e.target.value)}
+                              className="bg-deep-charcoal border-white/20 text-white mt-1"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <Label htmlFor={`end-${day.dayOfWeek}`} className="text-light-gray text-xs">
+                              End Time
+                            </Label>
+                            <Input
+                              id={`end-${day.dayOfWeek}`}
+                              type="time"
+                              value={day.endTime}
+                              onChange={(e) => handleUpdateScheduleDay(day.dayOfWeek, 'endTime', e.target.value)}
+                              className="bg-deep-charcoal border-white/20 text-white mt-1"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
 

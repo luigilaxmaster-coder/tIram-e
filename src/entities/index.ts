@@ -4,7 +4,7 @@
  */
 
 /**
- * Price option for services with multiple pricing tiers
+ * PriceOption interface for service price variants
  */
 export interface PriceOption {
   name: string;
@@ -107,6 +107,8 @@ export interface Services {
   bufferAfterMin?: number;
   /** @wixFieldType boolean */
   isActive?: boolean;
+  /** @wixFieldType text */
+  serviceSchedule?: string;
 }
 
 
@@ -130,4 +132,25 @@ export interface SlotLocks {
   appointmentId?: string;
   /** @wixFieldType datetime */
   createdAt?: Date | string;
+}
+
+
+/**
+ * Collection ID: workinghours
+ * Interface for ProviderWorkingHours
+ */
+export interface ProviderWorkingHours {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  providerId?: string;
+  /** @wixFieldType number */
+  dayOfWeek?: number;
+  /** @wixFieldType time */
+  startTime?: any;
+  /** @wixFieldType time */
+  endTime?: any;
+  /** @wixFieldType boolean */
+  isActive?: boolean;
 }
