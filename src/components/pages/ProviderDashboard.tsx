@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { BaseCrudService } from '@/integrations';
 import { Providers, Services, Appointments } from '@/entities';
 import { format, startOfDay, endOfDay, addDays, startOfWeek, endOfWeek, parseISO } from 'date-fns';
-import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check } from 'lucide-react';
+import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,7 +22,7 @@ export default function ProviderDashboard() {
   const [services, setServices] = useState<Services[]>([]);
   const [appointments, setAppointments] = useState<Appointments[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('today');
+  const [activeTab, setActiveTab] = useState('overview');
 
   // Profile editing
   const [editingProfile, setEditingProfile] = useState(false);
@@ -287,6 +287,16 @@ export default function ProviderDashboard() {
     }
   };
 
+  // Calculate stats
+  const todayAppointments = appointments.filter((a) => {
+    if (!a.startAt) return false;
+    const apptDate = typeof a.startAt === 'string' ? parseISO(a.startAt) : a.startAt;
+    return apptDate >= startOfDay(new Date()) && apptDate <= endOfDay(new Date());
+  });
+
+  const totalRevenue = services.reduce((sum, s) => sum + (s.price || 0), 0);
+  const confirmedAppointments = appointments.filter((a) => a.status === 'CONFIRMED').length;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-deep-charcoal flex items-center justify-center">
@@ -296,58 +306,279 @@ export default function ProviderDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-deep-charcoal text-foreground">
-      <div className="max-w-[100rem] mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-5xl font-heading font-bold text-white mb-8">Provider Dashboard</h1>
+    <div className="min-h-screen bg-gradient-to-br from-deep-charcoal via-deep-charcoal to-[#1a1a1a]">
+      {/* Header with gradient background */}
+      <div className="relative overflow-hidden border-b border-white/10">
+        <div className="absolute inset-0 bg-gradient-to-r from-neon-teal/5 to-transparent opacity-50" />
+        <div className="relative max-w-[100rem] mx-auto px-4 py-12">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h1 className="text-6xl font-heading font-bold text-white mb-2">
+                  {provider?.displayName || 'Dashboard'}
+                </h1>
+                <p className="text-light-gray font-paragraph">Welcome back! Manage your services and appointments</p>
+              </div>
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="hidden lg:block"
+              >
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-neon-teal/20 to-neon-teal/5 border border-neon-teal/30 flex items-center justify-center">
+                  <Zap className="w-12 h-12 text-neon-teal" />
+                </div>
+              </motion.div>
+            </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <TabsList className="bg-white/5 border border-white/10">
-              <TabsTrigger value="today" className="data-[state=active]:bg-neon-teal data-[state=active]:text-deep-charcoal">
-                Today
-              </TabsTrigger>
-              <TabsTrigger value="week" className="data-[state=active]:bg-neon-teal data-[state=active]:text-deep-charcoal">
-                This Week
-              </TabsTrigger>
-              <TabsTrigger value="services" className="data-[state=active]:bg-neon-teal data-[state=active]:text-deep-charcoal">
-                Services
-              </TabsTrigger>
-              <TabsTrigger value="profile" className="data-[state=active]:bg-neon-teal data-[state=active]:text-deep-charcoal">
-                Profile
-              </TabsTrigger>
-              <TabsTrigger value="appointments" className="data-[state=active]:bg-neon-teal data-[state=active]:text-deep-charcoal">
-                All Appointments
-              </TabsTrigger>
-            </TabsList>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[
+                {
+                  label: "Today's Appointments",
+                  value: todayAppointments.length,
+                  icon: Calendar,
+                  color: 'from-blue-500/20 to-blue-500/5',
+                  iconColor: 'text-blue-400',
+                },
+                {
+                  label: 'Total Services',
+                  value: services.length,
+                  icon: BarChart3,
+                  color: 'from-purple-500/20 to-purple-500/5',
+                  iconColor: 'text-purple-400',
+                },
+                {
+                  label: 'Confirmed Bookings',
+                  value: confirmedAppointments,
+                  icon: CheckCircle,
+                  color: 'from-green-500/20 to-green-500/5',
+                  iconColor: 'text-green-400',
+                },
+                {
+                  label: 'Potential Revenue',
+                  value: `$${totalRevenue.toFixed(2)}`,
+                  icon: TrendingUp,
+                  color: 'from-neon-teal/20 to-neon-teal/5',
+                  iconColor: 'text-neon-teal',
+                },
+              ].map((stat, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className={`bg-gradient-to-br ${stat.color} border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-light-gray font-paragraph text-sm mb-2">{stat.label}</p>
+                      <p className="text-3xl font-heading font-bold text-white">{stat.value}</p>
+                    </div>
+                    <div className={`w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center ${stat.iconColor}`}>
+                      <stat.icon className="w-6 h-6" />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </div>
 
-            {/* Today Tab */}
-            <TabsContent value="today">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
-                <h2 className="text-3xl font-heading font-bold text-white mb-6">Today's Appointments</h2>
-                {appointments.length === 0 ? (
-                  <p className="text-light-gray font-paragraph">No appointments for today.</p>
-                ) : (
-                  <div className="space-y-4">
-                    {appointments.map((appt) => (
-                      <div
-                        key={appt._id}
-                        className="bg-deep-charcoal border border-white/20 rounded-lg p-4 flex items-center justify-between"
-                      >
-                        <div>
-                          <p className="font-heading text-lg text-white">{appt.clientName}</p>
-                          <p className="font-paragraph text-sm text-light-gray">
-                            {appt.startAt && format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'h:mm a')} -{' '}
-                            {appt.endAt && format(typeof appt.endAt === 'string' ? parseISO(appt.endAt) : appt.endAt, 'h:mm a')}
+      {/* Main Content */}
+      <div className="max-w-[100rem] mx-auto px-4 py-12">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className="bg-white/5 border border-white/10 rounded-lg p-1 w-full grid grid-cols-5 gap-1">
+            {[
+              { value: 'overview', label: 'Overview', icon: BarChart3 },
+              { value: 'appointments', label: 'Appointments', icon: Calendar },
+              { value: 'services', label: 'Services', icon: Zap },
+              { value: 'profile', label: 'Profile', icon: Settings },
+            ].map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="data-[state=active]:bg-neon-teal data-[state=active]:text-deep-charcoal data-[state=active]:shadow-lg data-[state=active]:shadow-neon-teal/20 rounded-md transition-all"
+              >
+                <tab.icon className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">{tab.label}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-8">
+            {/* Upcoming Appointments */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-heading font-bold text-white flex items-center gap-2">
+                  <Calendar className="w-6 h-6 text-neon-teal" />
+                  Upcoming Appointments
+                </h2>
+                <Button
+                  onClick={() => setActiveTab('appointments')}
+                  variant="outline"
+                  className="border-white/20 text-white hover:bg-white/10"
+                >
+                  View All
+                </Button>
+              </div>
+
+              {todayAppointments.length === 0 ? (
+                <div className="text-center py-12">
+                  <AlertCircle className="w-12 h-12 text-light-gray/50 mx-auto mb-4" />
+                  <p className="text-light-gray font-paragraph">No appointments scheduled for today</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {todayAppointments.slice(0, 5).map((appt, idx) => (
+                    <motion.div
+                      key={appt._id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="bg-deep-charcoal border border-white/10 rounded-lg p-4 hover:border-neon-teal/30 transition-all group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className="w-12 h-12 rounded-full bg-neon-teal/20 flex items-center justify-center">
+                            <Clock className="w-6 h-6 text-neon-teal" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-heading font-semibold text-white">{appt.clientName}</p>
+                            <p className="text-sm text-light-gray">
+                              {appt.startAt && format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'h:mm a')} •{' '}
+                              {appt.peopleCount} {appt.peopleCount === 1 ? 'person' : 'people'}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="px-3 py-1 rounded-full text-xs font-paragraph bg-neon-teal/20 text-neon-teal">
+                          {appt.status}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Quick Actions */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            >
+              {/* Services Summary */}
+              <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm">
+                <h3 className="text-xl font-heading font-bold text-white mb-4 flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-neon-teal" />
+                  Services
+                </h3>
+                <p className="text-3xl font-heading font-bold text-neon-teal mb-4">{services.length}</p>
+                <Button
+                  onClick={() => setActiveTab('services')}
+                  className="w-full bg-neon-teal/20 text-neon-teal border border-neon-teal/30 hover:bg-neon-teal/30"
+                >
+                  Manage Services
+                </Button>
+              </div>
+
+              {/* Profile Status */}
+              <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm">
+                <h3 className="text-xl font-heading font-bold text-white mb-4 flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-neon-teal" />
+                  Public Profile
+                </h3>
+                <p className="text-sm text-light-gray mb-4 font-paragraph">
+                  Share your profile link with clients
+                </p>
+                <Button
+                  onClick={handleCopySlug}
+                  className="w-full bg-neon-teal text-deep-charcoal hover:opacity-90"
+                >
+                  {slugCopied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                  Copy Profile URL
+                </Button>
+              </div>
+            </motion.div>
+          </TabsContent>
+
+          {/* Appointments Tab */}
+          <TabsContent value="appointments" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-heading font-bold text-white">All Appointments</h2>
+                <Select
+                  value={appointmentFilter}
+                  onValueChange={(value: any) => setAppointmentFilter(value)}
+                >
+                  <SelectTrigger className="bg-deep-charcoal border-white/20 text-white w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="today">Today</SelectItem>
+                    <SelectItem value="week">This Week</SelectItem>
+                    <SelectItem value="custom">Custom Range</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {appointmentFilter === 'custom' && (
+                <div className="flex gap-4 mb-6">
+                  <Input
+                    type="date"
+                    value={customStartDate}
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                    className="bg-deep-charcoal border-white/20 text-white"
+                  />
+                  <Input
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    className="bg-deep-charcoal border-white/20 text-white"
+                  />
+                </div>
+              )}
+
+              {appointments.length === 0 ? (
+                <div className="text-center py-12">
+                  <AlertCircle className="w-12 h-12 text-light-gray/50 mx-auto mb-4" />
+                  <p className="text-light-gray font-paragraph">No appointments found</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {appointments.map((appt, idx) => (
+                    <motion.div
+                      key={appt._id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="bg-deep-charcoal border border-white/10 rounded-lg p-4 hover:border-neon-teal/30 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="font-heading font-semibold text-white">{appt.clientName}</p>
+                          <p className="text-sm text-light-gray">
+                            {appt.startAt &&
+                              format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'EEE, MMM d • h:mm a')}
                           </p>
-                          <p className="font-paragraph text-sm text-light-gray">{appt.clientEmail}</p>
-                          <p className="font-paragraph text-sm text-light-gray">{appt.clientPhone}</p>
-                          {appt.notes && <p className="font-paragraph text-sm text-light-gray mt-2">Notes: {appt.notes}</p>}
+                          <p className="text-xs text-light-gray/70 mt-1">{appt.clientEmail} • {appt.clientPhone}</p>
                         </div>
                         <div className="text-right">
                           <span
-                            className={`inline-block px-3 py-1 rounded text-sm font-paragraph ${
+                            className={`inline-block px-3 py-1 rounded-full text-xs font-paragraph ${
                               appt.status === 'CONFIRMED'
-                                ? 'bg-neon-teal/20 text-neon-teal'
+                                ? 'bg-green-500/20 text-green-400'
                                 : appt.status === 'CANCELLED'
                                 ? 'bg-destructive/20 text-destructive'
                                 : 'bg-light-gray/20 text-light-gray'
@@ -355,234 +586,219 @@ export default function ProviderDashboard() {
                           >
                             {appt.status}
                           </span>
-                          <p className="font-paragraph text-sm text-light-gray mt-2">
-                            {appt.peopleCount} {appt.peopleCount === 1 ? 'person' : 'people'}
-                          </p>
+                          <p className="text-sm text-light-gray mt-2">{appt.peopleCount} people</p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </TabsContent>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </TabsContent>
 
-            {/* Week Tab */}
-            <TabsContent value="week">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
-                <h2 className="text-3xl font-heading font-bold text-white mb-6">This Week's Appointments</h2>
-                {appointments.length === 0 ? (
-                  <p className="text-light-gray font-paragraph">No appointments for this week.</p>
-                ) : (
-                  <div className="space-y-6">
-                    {Array.from(
-                      appointments.reduce((acc, appt) => {
-                        const date = appt.startAt
-                          ? format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'yyyy-MM-dd')
-                          : 'unknown';
-                        if (!acc.has(date)) acc.set(date, []);
-                        acc.get(date)!.push(appt);
-                        return acc;
-                      }, new Map<string, Appointments[]>())
-                    ).map(([date, dayAppointments]) => (
-                      <div key={date}>
-                        <h3 className="text-xl font-heading font-semibold text-neon-teal mb-3">
-                          {format(parseISO(date), 'EEEE, MMMM d, yyyy')}
-                        </h3>
-                        <div className="space-y-3">
-                          {dayAppointments.map((appt) => (
-                            <div
-                              key={appt._id}
-                              className="bg-deep-charcoal border border-white/20 rounded-lg p-4 flex items-center justify-between"
-                            >
-                              <div>
-                                <p className="font-heading text-lg text-white">{appt.clientName}</p>
-                                <p className="font-paragraph text-sm text-light-gray">
-                                  {appt.startAt && format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'h:mm a')} -{' '}
-                                  {appt.endAt && format(typeof appt.endAt === 'string' ? parseISO(appt.endAt) : appt.endAt, 'h:mm a')}
-                                </p>
-                                <p className="font-paragraph text-sm text-light-gray">{appt.clientEmail}</p>
-                              </div>
-                              <span
-                                className={`inline-block px-3 py-1 rounded text-sm font-paragraph ${
-                                  appt.status === 'CONFIRMED'
-                                    ? 'bg-neon-teal/20 text-neon-teal'
-                                    : 'bg-light-gray/20 text-light-gray'
-                                }`}
-                              >
-                                {appt.status}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+          {/* Services Tab */}
+          <TabsContent value="services" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-heading font-bold text-white">Your Services</h2>
+                <Button onClick={() => handleOpenServiceModal()} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Service
+                </Button>
               </div>
-            </TabsContent>
 
-            {/* Services Tab */}
-            <TabsContent value="services">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-3xl font-heading font-bold text-white">Manage Services</h2>
+              {services.length === 0 ? (
+                <div className="text-center py-12">
+                  <AlertCircle className="w-12 h-12 text-light-gray/50 mx-auto mb-4" />
+                  <p className="text-light-gray font-paragraph mb-4">No services yet. Create your first service!</p>
                   <Button onClick={() => handleOpenServiceModal()} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
                     <Plus className="w-4 h-4 mr-2" />
-                    Add Service
+                    Create Service
                   </Button>
                 </div>
-                {services.length === 0 ? (
-                  <p className="text-light-gray font-paragraph">No services yet. Create your first service!</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {services.map((service) => (
-                      <div
-                        key={service._id}
-                        className="bg-deep-charcoal border border-white/20 rounded-lg p-6"
-                      >
-                        <div className="flex items-start justify-between mb-4">
-                          <h3 className="text-xl font-heading font-semibold text-white">{service.name}</h3>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleOpenServiceModal(service)}
-                              className="text-neon-teal hover:text-neon-teal/80"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteService(service._id)}
-                              className="text-destructive hover:text-destructive/80"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {services.map((service, idx) => (
+                    <motion.div
+                      key={service._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="bg-deep-charcoal border border-white/10 rounded-lg p-6 hover:border-neon-teal/30 transition-all group"
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-heading font-semibold text-white group-hover:text-neon-teal transition-colors">
+                            {service.name}
+                          </h3>
                           {service.category && (
-                            <p className="font-paragraph text-sm text-light-gray">Category: {service.category}</p>
+                            <p className="text-xs text-neon-teal/70 mt-1">{service.category}</p>
                           )}
-                          {service.durationMin && (
-                            <p className="font-paragraph text-sm text-light-gray">Duration: {service.durationMin} min</p>
-                          )}
-                          {service.price !== undefined && (
-                            <p className="font-paragraph text-sm text-light-gray">Price: ${service.price}</p>
-                          )}
-                          {service.maxPeoplePerBooking && (
-                            <p className="font-paragraph text-sm text-light-gray">Max People: {service.maxPeoplePerBooking}</p>
-                          )}
-                          <p className="font-paragraph text-sm">
-                            <span
-                              className={`inline-block px-2 py-1 rounded text-xs ${
-                                service.isActive !== false ? 'bg-neon-teal/20 text-neon-teal' : 'bg-light-gray/20 text-light-gray'
-                              }`}
-                            >
-                              {service.isActive !== false ? 'Active' : 'Inactive'}
-                            </span>
-                          </p>
+                        </div>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleOpenServiceModal(service)}
+                            className="p-2 rounded-lg bg-neon-teal/20 text-neon-teal hover:bg-neon-teal/30 transition-colors"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteService(service._id)}
+                            className="p-2 rounded-lg bg-destructive/20 text-destructive hover:bg-destructive/30 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
-                    ))}
+
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-light-gray flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-neon-teal/50" />
+                            Duration
+                          </span>
+                          <span className="font-heading font-semibold text-white">{service.durationMin} min</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-light-gray flex items-center gap-2">
+                            <DollarSign className="w-4 h-4 text-neon-teal/50" />
+                            Price
+                          </span>
+                          <span className="font-heading font-semibold text-neon-teal">${service.price}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-light-gray flex items-center gap-2">
+                            <Users className="w-4 h-4 text-neon-teal/50" />
+                            Max People
+                          </span>
+                          <span className="font-heading font-semibold text-white">{service.maxPeoplePerBooking}</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 pt-4 border-t border-white/10">
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-paragraph ${
+                            service.isActive !== false ? 'bg-green-500/20 text-green-400' : 'bg-light-gray/20 text-light-gray'
+                          }`}
+                        >
+                          {service.isActive !== false ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </TabsContent>
+
+          {/* Profile Tab */}
+          <TabsContent value="profile" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-heading font-bold text-white">Profile Settings</h2>
+                {!editingProfile ? (
+                  <Button onClick={() => setEditingProfile(true)} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button onClick={handleSaveProfile} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
+                      <Save className="w-4 h-4 mr-2" />
+                      Save
+                    </Button>
+                    <Button
+                      onClick={() => setEditingProfile(false)}
+                      variant="outline"
+                      className="border-white/20 text-white hover:bg-white/10"
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Cancel
+                    </Button>
                   </div>
                 )}
               </div>
-            </TabsContent>
 
-            {/* Profile Tab */}
-            <TabsContent value="profile">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-3xl font-heading font-bold text-white">Profile Settings</h2>
-                  {!editingProfile ? (
-                    <Button onClick={() => setEditingProfile(true)} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit Profile
-                    </Button>
-                  ) : (
-                    <div className="flex gap-2">
-                      <Button onClick={handleSaveProfile} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
-                        <Save className="w-4 h-4 mr-2" />
-                        Save
-                      </Button>
-                      <Button
-                        onClick={() => setEditingProfile(false)}
-                        variant="outline"
-                        className="border-white/20 text-white hover:bg-white/10"
-                      >
-                        <X className="w-4 h-4 mr-2" />
-                        Cancel
-                      </Button>
-                    </div>
-                  )}
+              <div className="space-y-6 max-w-2xl">
+                <div>
+                  <Label htmlFor="displayName" className="text-light-gray font-paragraph text-sm mb-2 block">
+                    Display Name
+                  </Label>
+                  <Input
+                    id="displayName"
+                    value={profileForm.displayName}
+                    onChange={(e) => setProfileForm({ ...profileForm, displayName: e.target.value })}
+                    disabled={!editingProfile}
+                    className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
+                  />
                 </div>
 
-                <div className="space-y-4 max-w-2xl">
-                  <div>
-                    <Label htmlFor="displayName" className="text-light-gray">
-                      Display Name
-                    </Label>
-                    <Input
-                      id="displayName"
-                      value={profileForm.displayName}
-                      onChange={(e) => setProfileForm({ ...profileForm, displayName: e.target.value })}
-                      disabled={!editingProfile}
-                      className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="slug" className="text-light-gray">
-                      Profile Slug (URL)
-                    </Label>
-                    <div className="flex gap-2">
+                <div>
+                  <Label htmlFor="slug" className="text-light-gray font-paragraph text-sm mb-2 block">
+                    Profile URL
+                  </Label>
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-light-gray text-sm">
+                        {window.location.origin}/p/
+                      </span>
                       <Input
                         id="slug"
                         value={profileForm.slug}
                         onChange={(e) => setProfileForm({ ...profileForm, slug: e.target.value })}
                         disabled={!editingProfile}
-                        className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
+                        className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50 pl-[200px]"
                       />
-                      <Button
-                        onClick={handleCopySlug}
-                        variant="outline"
-                        className="border-white/20 text-white hover:bg-white/10"
-                      >
-                        {slugCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      </Button>
                     </div>
-                    <p className="text-sm text-light-gray mt-1">
-                      Your public URL: {window.location.origin}/p/{profileForm.slug}
-                    </p>
+                    <Button
+                      onClick={handleCopySlug}
+                      variant="outline"
+                      className="border-white/20 text-white hover:bg-white/10"
+                    >
+                      {slugCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    </Button>
                   </div>
+                </div>
 
-                  <div>
-                    <Label htmlFor="categoryTags" className="text-light-gray">
-                      Categories
-                    </Label>
-                    <Input
-                      id="categoryTags"
-                      value={profileForm.categoryTags}
-                      onChange={(e) => setProfileForm({ ...profileForm, categoryTags: e.target.value })}
-                      disabled={!editingProfile}
-                      className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="categoryTags" className="text-light-gray font-paragraph text-sm mb-2 block">
+                    Categories
+                  </Label>
+                  <Input
+                    id="categoryTags"
+                    value={profileForm.categoryTags}
+                    onChange={(e) => setProfileForm({ ...profileForm, categoryTags: e.target.value })}
+                    disabled={!editingProfile}
+                    placeholder="e.g., Consulting, Coaching, Design"
+                    className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
+                  />
+                </div>
 
-                  <div>
-                    <Label htmlFor="addressText" className="text-light-gray">
-                      Address
-                    </Label>
-                    <Textarea
-                      id="addressText"
-                      value={profileForm.addressText}
-                      onChange={(e) => setProfileForm({ ...profileForm, addressText: e.target.value })}
-                      disabled={!editingProfile}
-                      className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
-                      rows={2}
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="addressText" className="text-light-gray font-paragraph text-sm mb-2 block">
+                    Address
+                  </Label>
+                  <Textarea
+                    id="addressText"
+                    value={profileForm.addressText}
+                    onChange={(e) => setProfileForm({ ...profileForm, addressText: e.target.value })}
+                    disabled={!editingProfile}
+                    className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
+                    rows={3}
+                  />
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="whatsappNumber" className="text-light-gray">
+                    <Label htmlFor="whatsappNumber" className="text-light-gray font-paragraph text-sm mb-2 block">
                       WhatsApp Number
                     </Label>
                     <Input
@@ -595,7 +811,7 @@ export default function ProviderDashboard() {
                   </div>
 
                   <div>
-                    <Label htmlFor="contactEmail" className="text-light-gray">
+                    <Label htmlFor="contactEmail" className="text-light-gray font-paragraph text-sm mb-2 block">
                       Contact Email
                     </Label>
                     <Input
@@ -609,97 +825,9 @@ export default function ProviderDashboard() {
                   </div>
                 </div>
               </div>
-            </TabsContent>
-
-            {/* All Appointments Tab */}
-            <TabsContent value="appointments">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
-                <h2 className="text-3xl font-heading font-bold text-white mb-6">All Appointments</h2>
-
-                <div className="flex gap-4 mb-6">
-                  <Select
-                    value={appointmentFilter}
-                    onValueChange={(value: any) => {
-                      setAppointmentFilter(value);
-                      if (value === 'today') {
-                        setActiveTab('today');
-                      } else if (value === 'week') {
-                        setActiveTab('week');
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="bg-deep-charcoal border-white/20 text-white w-48">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="today">Today</SelectItem>
-                      <SelectItem value="week">This Week</SelectItem>
-                      <SelectItem value="custom">Custom Range</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {appointmentFilter === 'custom' && (
-                    <>
-                      <Input
-                        type="date"
-                        value={customStartDate}
-                        onChange={(e) => setCustomStartDate(e.target.value)}
-                        className="bg-deep-charcoal border-white/20 text-white"
-                      />
-                      <Input
-                        type="date"
-                        value={customEndDate}
-                        onChange={(e) => setCustomEndDate(e.target.value)}
-                        className="bg-deep-charcoal border-white/20 text-white"
-                      />
-                    </>
-                  )}
-                </div>
-
-                {appointments.length === 0 ? (
-                  <p className="text-light-gray font-paragraph">No appointments found.</p>
-                ) : (
-                  <div className="space-y-4">
-                    {appointments.map((appt) => (
-                      <div
-                        key={appt._id}
-                        className="bg-deep-charcoal border border-white/20 rounded-lg p-4"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-heading text-lg text-white">{appt.clientName}</p>
-                            <p className="font-paragraph text-sm text-light-gray">
-                              {appt.startAt &&
-                                format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'EEEE, MMMM d, yyyy - h:mm a')}
-                            </p>
-                            <p className="font-paragraph text-sm text-light-gray">{appt.clientEmail} | {appt.clientPhone}</p>
-                            {appt.notes && <p className="font-paragraph text-sm text-light-gray mt-2">Notes: {appt.notes}</p>}
-                          </div>
-                          <div className="text-right">
-                            <span
-                              className={`inline-block px-3 py-1 rounded text-sm font-paragraph ${
-                                appt.status === 'CONFIRMED'
-                                  ? 'bg-neon-teal/20 text-neon-teal'
-                                  : appt.status === 'CANCELLED'
-                                  ? 'bg-destructive/20 text-destructive'
-                                  : 'bg-light-gray/20 text-light-gray'
-                              }`}
-                            >
-                              {appt.status}
-                            </span>
-                            <p className="font-paragraph text-sm text-light-gray mt-2">
-                              {appt.peopleCount} {appt.peopleCount === 1 ? 'person' : 'people'}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </motion.div>
+            </motion.div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Service Modal */}
@@ -823,7 +951,7 @@ export default function ProviderDashboard() {
               </Label>
             </div>
 
-            <div className="flex gap-2 justify-end">
+            <div className="flex gap-2 justify-end pt-4">
               <Button
                 onClick={() => setShowServiceModal(false)}
                 variant="outline"
