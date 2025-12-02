@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BaseCrudService } from '@/integrations';
-import { Providers, Services, Appointments, PriceOption } from '@/entities';
+import { Providers, Services, Appointments, PriceOption, WorkingHours } from '@/entities';
 import { format, startOfDay, endOfDay, addDays, startOfWeek, endOfWeek, parseISO } from 'date-fns';
 import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -425,11 +425,12 @@ export default function ProviderDashboard() {
       {/* Main Content */}
       <div className="max-w-[100rem] mx-auto px-4 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="bg-white/5 border border-white/10 rounded-lg p-1 w-full grid grid-cols-5 gap-1">
+          <TabsList className="bg-white/5 border border-white/10 rounded-lg p-1 w-full grid grid-cols-6 gap-1">
             {[
               { value: 'overview', label: 'Overview', icon: BarChart3 },
               { value: 'appointments', label: 'Appointments', icon: Calendar },
               { value: 'services', label: 'Services', icon: Zap },
+              { value: 'hours', label: 'Hours', icon: Clock },
               { value: 'profile', label: 'Profile', icon: Settings },
             ].map((tab) => (
               <TabsTrigger
