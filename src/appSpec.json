@@ -1,0 +1,1114 @@
+{
+  "id": "9d5f0d22-276d-4686-a29e-81420abb22c9",
+  "siteName": "TíramE",
+  "domainUrl": "tiendalibrosonline.com",
+  "brandingPresets": [
+    {
+      "presetId": "00000000-7ffc-4429-8637-32f4c4f6e72b",
+      "brandIdentity": {
+        "designSummary": "**The Neon Grid: A Fusion of Techy Aesthetics and Functional Design**\n\nThe Vision: We are building a scheduling app that feels both cutting-edge and intuitive. The design will embrace a dark mode aesthetic with vibrant, neon accents, creating a visually striking and technologically advanced experience. The layout will be clean and dynamic, using a modified grid system to ensure clarity and ease of use.\n\n**Execution Blueprint:**\n1. Modified Grid System: A 12-column grid will serve as the foundation, but elements will intentionally break the grid to create visual interest and highlight key information.\n2. Neon Accents: A vibrant neon teal (#00FFD4) will be used sparingly for interactive elements, highlights, and accents against a dark charcoal background (#222222).\n3. Glassmorphism: Components like buttons and containers will incorporate a frosted-glass effect to add depth and a modern, layered feel.\n4. Data Visualization: Use subtle animations to visualize data, such as appointment slots and service durations, enhancing the user's understanding and engagement.",
+        "toneOfVoice": "Techy, efficient, and forward-thinking",
+        "tones": [
+          "Sophisticated",
+          "Futuristic",
+          "Dynamic"
+        ],
+        "designStyle": {
+          "primaryStyle": [
+            "Techy",
+            "Modern"
+          ],
+          "supportingStyles": [
+            "Minimalist",
+            "Interactive"
+          ]
+        },
+        "palette": {
+          "colors": {
+            "primary": "#00FFD4",
+            "primaryForeground": "#222222",
+            "secondary": "#6678FF",
+            "secondaryForeground": "#FFFFFF",
+            "background": "#222222",
+            "foreground": "#FFFFFF",
+            "customColors": [
+              {
+                "name": "neonTeal",
+                "value": "#00FFD4"
+              },
+              {
+                "name": "deepCharcoal",
+                "value": "#222222"
+              },
+              {
+                "name": "lightGray",
+                "value": "#EAEAEA"
+              },
+              {
+                "name": "destructive",
+                "value": "#FF4136"
+              },
+              {
+                "name": "destructive-foreground",
+                "value": "#FFFFFF"
+              }
+            ]
+          },
+          "paletteUsageGuide": "Use neon teal (#00FFD4) sparingly for interactive elements and highlights. Deep charcoal (#222222) should be the primary background color. Light gray (#EAEAEA) can be used for subtle dividers and borders.",
+          "paletteAccessibilityNotes": "Ensure sufficient contrast between text and background colors, especially when using neon teal. Aim for a contrast ratio of at least 4.5:1 for normal text and 3:1 for large text."
+        },
+        "typography": {
+          "headings": {
+            "font": {
+              "role": "headings",
+              "fontFamily": "space grotesk",
+              "fontJustification": ""
+            },
+            "headingsSimilarFonts": [],
+            "headingsUsageGuide": "Use Space Grotesk for all headings to maintain a modern and techy feel. Adjust font weight and size to create a clear visual hierarchy.",
+            "headingsAccessibilityNotes": "Ensure headings are properly nested (H1, H2, H3, etc.) to maintain semantic structure and improve accessibility for screen readers."
+          },
+          "paragraphs": {
+            "font": {
+              "role": "paragraphs",
+              "fontFamily": "nunito sans",
+              "fontJustification": ""
+            },
+            "paragraphsSimilarFonts": [],
+            "paragraphsUsageGuide": "Use Nunito Sans for all body text to ensure readability and a clean, modern look. Adjust font size and line height for optimal legibility.",
+            "paragraphsAccessibilityNotes": "Ensure sufficient contrast between text and background colors. Use appropriate line height and letter spacing to improve readability for users with dyslexia."
+          },
+          "welcomeSectionTypography": {
+            "placement": "",
+            "implementation": ""
+          },
+          "fontSizes": [
+            {
+              "name": "xs",
+              "size": "0.75rem",
+              "lineHeight": "1",
+              "letterSpacing": "0.05em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "sm",
+              "size": "0.875rem",
+              "lineHeight": "1.25",
+              "letterSpacing": "0.02em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "base",
+              "size": "1rem",
+              "lineHeight": "1.5",
+              "letterSpacing": "0em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "lg",
+              "size": "1.125rem",
+              "lineHeight": "1.75",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "xl",
+              "size": "1.25rem",
+              "lineHeight": "1.75",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "500"
+            },
+            {
+              "name": "2xl",
+              "size": "1.5rem",
+              "lineHeight": "2",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "600"
+            },
+            {
+              "name": "3xl",
+              "size": "1.875rem",
+              "lineHeight": "2.25",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "4xl",
+              "size": "2.25rem",
+              "lineHeight": "2.5",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "5xl",
+              "size": "3rem",
+              "lineHeight": "1",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "6xl",
+              "size": "3.75rem",
+              "lineHeight": "1",
+              "letterSpacing": "-0.03em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "7xl",
+              "size": "4.5rem",
+              "lineHeight": "1",
+              "letterSpacing": "-0.03em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "8xl",
+              "size": "6rem",
+              "lineHeight": "1",
+              "letterSpacing": "-0.03em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "9xl",
+              "size": "8rem",
+              "lineHeight": "1",
+              "letterSpacing": "-0.04em",
+              "fontWeight": "700"
+            }
+          ]
+        },
+        "layout": {
+          "layoutDna": {
+            "densitySpectrum": "Medium",
+            "contrastSpectrum": "High",
+            "gridAlignmentSpectrum": "Intentionally Broken",
+            "negativeSpaceUsage": "Moderate",
+            "textVsImageEmphasis": "Balanced",
+            "complexitySpectrum": "Medium"
+          },
+          "grid": {
+            "compositionApproach": "Modified 12-Column Grid with Intentional Breaks",
+            "spacing": {
+              "columns": "12",
+              "rows": "Auto",
+              "gaps": "Base unit: 8px. All grid gaps are 16px (2x base unit)."
+            },
+            "margins": "16px",
+            "padding": "16px"
+          },
+          "heroSectionLayout": "**The Neon Data Stream**\nComposition (Tailwind Spec): Full-screen container (h-screen grid place-items-center). Headline 'TíramE: Schedule Smarter' (text-7xl font-bold text-white). A series of animated data points (absolute bottom-8 right-8 flex space-x-4).\nSignature Hook (Framer Motion Spec): Each data point (w-4 h-4 rounded-full bg-neonTeal) uses Framer Motion's `useTransform` and `useSpring` to create a flowing, wave-like animation tied to the scroll position. Initial state: `y: 10`. Animate state: `y: -10`. Transition: `repeat: Infinity, duration: 0.5, ease: linear`."
+        },
+        "components": {
+          "containers": "Method: Glassmorphism, Style: background-color: rgba(255, 255, 255, 0.05), border: 1px solid rgba(255, 255, 255, 0.1), border-radius: 12px, backdrop-filter: blur(10px)",
+          "images": "Layout Role: Asymmetrical placement, overlapping the main text column by 24px to create depth. | Gallery Type: Horizontal Scroll Filmstrip: A single-row gallery driven by horizontal scroll, where oversized items create a 'peek-a-boo' effect.",
+          "buttons": "Primary: background-color: #00FFD4, color: #222222, border-radius: 8px, padding: 12px 24px. Secondary: background-color: transparent, color: #00FFD4, border: 1px solid #00FFD4, border-radius: 8px."
+        },
+        "graphicElements": {
+          "icons": "",
+          "illustrations": "",
+          "stickers": ""
+        }
+      },
+      "originImagesUrls": []
+    },
+    {
+      "presetId": "732f99d8-433f-4288-a5ed-4d4fab83a0dd",
+      "brandIdentity": {
+        "designSummary": "This brand design embraces a minimalist and modern aesthetic characterized by spacious layouts, clean typography, and a restrained pastel color palette. The primary background colors are soft off-whites and pale blues, creating a calm and inviting canvas. Text and interactive elements predominantly use a deep navy blue, ensuring strong contrast and readability. Accent colors in subtle pastel purple and yellow appear in small UI elements, adding gentle vibrancy without overwhelming the design. Typography is geometric sans-serif, with large, bold headings paired with lighter, well-spaced body text to enhance clarity and hierarchy. The layout employs modular grids with generous negative space, balancing text and iconography in a harmonious, user-friendly manner. Buttons are solid, rounded rectangles with dark backgrounds and white text, emphasizing clear calls to action. Overall, the design conveys professionalism, approachability, and efficiency, making it highly adaptable for educational platforms, professional services, and technology brands seeking a clean and trustworthy online presence.",
+        "toneOfVoice": "Professional, approachable, clear, and trustworthy with a calm and efficient personality.",
+        "tones": [
+          "calm",
+          "trustworthy",
+          "professional",
+          "clean",
+          "modern",
+          "approachable",
+          "efficient",
+          "minimal",
+          "friendly",
+          "balanced"
+        ],
+        "designStyle": {
+          "primaryStyle": [
+            "Minimalism",
+            "Modernism"
+          ],
+          "supportingStyles": [
+            "Flat Design",
+            "Geometric"
+          ]
+        },
+        "palette": {
+          "colors": {
+            "primary": "#1E254E",
+            "primaryForeground": "#F7F9FF",
+            "secondary": "#A59FE6",
+            "secondaryForeground": "#1E254E",
+            "background": "#F7F9FF",
+            "customColors": [
+              {
+                "name": "softyellowaccent",
+                "value": "#FFF9B1"
+              },
+              {
+                "name": "foreground",
+                "value": "#1E254E"
+              },
+              {
+                "name": "destructive",
+                "value": "#DF3131"
+              },
+              {
+                "name": "destructiveforeground",
+                "value": "#FFFFFF"
+              }
+            ]
+          },
+          "paletteUsageGuide": "Use the 'background' color as the primary canvas for all pages to maintain a clean and calm atmosphere. The 'primary' color should be reserved for main text, headings, and key interactive elements such as buttons and links, paired with 'primaryForeground' for text on these elements to ensure readability. The 'secondary' color and its 'secondaryForeground' are ideal for subtle UI accents, secondary buttons, and category tags, providing gentle contrast without overpowering the primary content. Custom colors like 'softYellowAccent' and 'lightPurpleAccent' are best used sparingly for highlighting informational badges, icons, or subtle background gradients to add visual interest while preserving the minimalist tone. This palette ensures accessibility and visual harmony, supporting a professional and approachable brand presence.",
+          "paletteAccessibilityNotes": "The 'primary' color (#1E254E) on 'background' (#F7F9FF) achieves excellent contrast exceeding WCAG AA standards for both normal and large text. Buttons using 'primary' with 'primaryForeground' (#FFFFFF) also meet AAA contrast requirements. The 'secondary' color (#A59FE6) on 'background' provides sufficient contrast for UI accents and secondary text, meeting WCAG AA for large text. Custom colors 'softYellowAccent' and 'lightPurpleAccent' are used in small UI elements and backgrounds where contrast requirements are less stringent but should be paired with 'primary' or 'primaryForeground' text to maintain readability and accessibility compliance."
+        },
+        "typography": {
+          "headings": {
+            "font": {
+              "role": "Primary Heading Font",
+              "fontFamily": "helvetica-w01-bold",
+              "fontJustification": ""
+            },
+            "headingsSimilarFonts": [
+              "rubik-v2",
+              "poppins-v2",
+              "open sans"
+            ],
+            "headingsUsageGuide": "Use the heading font for all major titles and section headers to establish clear content hierarchy. Headings should be large and bold with ample spacing to enhance readability and visual impact. Pair headings with the paragraph font to create a balanced typographic rhythm. Ensure headings use the 'primary' color for maximum contrast against the 'background'. Maintain consistent letter spacing and line height to preserve clarity across devices and screen sizes.",
+            "headingsAccessibilityNotes": "Headings in 'primary' color on 'background' meet WCAG AAA contrast standards, ensuring excellent readability for all users."
+          },
+          "paragraphs": {
+            "font": {
+              "role": "Main Body Text Font",
+              "fontFamily": "helvetica-w01-roman",
+              "fontJustification": ""
+            },
+            "paragraphsSimilarFonts": [
+              "rubik-v2",
+              "open sans",
+              "poppins-v2"
+            ],
+            "paragraphsUsageGuide": "Use the paragraph font for all body copy, descriptions, and supporting text. Maintain a lighter font weight and moderate size to ensure comfortable reading. Paragraph text should use the 'primary' color or a slightly lighter shade if needed for secondary information, always ensuring sufficient contrast with the 'background'. Combine with headings to create a clear typographic hierarchy and consistent user experience. Line height and letter spacing should be optimized for legibility on all screen sizes.",
+            "paragraphsAccessibilityNotes": "Paragraph text in 'primary' color on 'background' meets WCAG AA contrast requirements for normal text, supporting accessibility and readability."
+          },
+          "welcomeSectionTypography": {
+            "placement": "Bottom-Third Anchor",
+            "implementation": "The welcome section typography is anchored in the bottom third of the layout, creating a grounded and approachable introduction. Large, bold headings occupy the lower left quadrant, balanced by supporting text and call-to-action buttons placed nearby with ample negative space. This placement draws the eye naturally from the headline to the action, leveraging the spacious layout and clean typography to create a welcoming and clear entry point for users."
+          },
+          "fontSizes": [
+            {
+              "name": "xs",
+              "size": "0.75rem",
+              "lineHeight": "1.25",
+              "letterSpacing": "0.02em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "sm",
+              "size": "0.875rem",
+              "lineHeight": "1.35",
+              "letterSpacing": "0.015em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "base",
+              "size": "1rem",
+              "lineHeight": "1.5",
+              "letterSpacing": "0.01em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "lg",
+              "size": "1.125rem",
+              "lineHeight": "1.5",
+              "letterSpacing": "0.005em",
+              "fontWeight": "500"
+            },
+            {
+              "name": "xl",
+              "size": "1.25rem",
+              "lineHeight": "1.5",
+              "letterSpacing": "0em",
+              "fontWeight": "600"
+            },
+            {
+              "name": "2xl",
+              "size": "1.5rem",
+              "lineHeight": "1.4",
+              "letterSpacing": "-0.005em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "3xl",
+              "size": "1.875rem",
+              "lineHeight": "1.3",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "4xl",
+              "size": "2.25rem",
+              "lineHeight": "1.2",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "800"
+            },
+            {
+              "name": "5xl",
+              "size": "3rem",
+              "lineHeight": "1.1",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "800"
+            },
+            {
+              "name": "6xl",
+              "size": "3.75rem",
+              "lineHeight": "1.1",
+              "letterSpacing": "-0.025em",
+              "fontWeight": "900"
+            },
+            {
+              "name": "7xl",
+              "size": "4.5rem",
+              "lineHeight": "1",
+              "letterSpacing": "-0.03em",
+              "fontWeight": "900"
+            },
+            {
+              "name": "8xl",
+              "size": "6rem",
+              "lineHeight": "1",
+              "letterSpacing": "-0.035em",
+              "fontWeight": "900"
+            },
+            {
+              "name": "9xl",
+              "size": "8rem",
+              "lineHeight": "1",
+              "letterSpacing": "-0.04em",
+              "fontWeight": "900"
+            }
+          ]
+        },
+        "layout": {
+          "layoutDna": {
+            "densitySpectrum": "Balanced",
+            "contrastSpectrum": "High-Contrast",
+            "gridAlignmentSpectrum": "Modular",
+            "negativeSpaceUsage": "Generous",
+            "textVsImageEmphasis": "Balanced",
+            "complexitySpectrum": "Simple & Clean"
+          },
+          "grid": {
+            "compositionApproach": "Column-based",
+            "spacing": {
+              "columns": "12-column grid",
+              "rows": "Defined content rows",
+              "gaps": "Consistent medium gaps"
+            },
+            "margins": "Generous page margins",
+            "padding": "Consistent padding within containers"
+          }
+        },
+        "components": {
+          "containers": "Containers use subtle rounded corners and light backgrounds with gentle shadows or borders to separate content blocks. They maintain consistent padding and spacing to preserve the clean and spacious feel. Background colors often use 'background' or custom pastel accents to differentiate sections without overwhelming the user.",
+          "images": "Images are used sparingly and are well-integrated with text content, often aligned to the right or left of text blocks. They maintain natural proportions and are framed with generous white space to avoid clutter. Image treatments are minimal, focusing on clarity and relevance.",
+          "buttons": "Buttons are solid with rounded corners, primarily using the 'primary' color for backgrounds and 'primaryForeground' for text. Secondary buttons use lighter backgrounds with 'secondary' color text and borders. Buttons have clear hover states and sufficient padding for easy interaction."
+        },
+        "graphicElements": {
+          "icons": "Icons are minimalistic, line-based, and use the 'primary' or 'secondary' colors depending on context. They are small, simple, and consistent in style, supporting content without distraction.",
+          "illustrations": "Illustrations are minimal or absent in the UI, with the design favoring photographic or video content where applicable. When present, they use the custom pastel colors to maintain harmony.",
+          "stickers": "Stickers or badges are small, color-coded UI elements using 'softYellowAccent' or 'lightPurpleAccent' to categorize or highlight content. They have rounded corners and subtle shadows to stand out gently."
+        }
+      },
+      "originImagesUrls": [
+        "https://wixmp-fe53c9ff592a4da924211f23.wixmp.com/uploads/1752409506686-Screenshot%202025-07-13%20at%2015.24.32.png"
+      ]
+    },
+    {
+      "presetId": "d43c039b-f9fa-4d41-9862-d355152d0db4",
+      "brandIdentity": {
+        "designSummary": "This brand design embraces a modern, minimalistic aesthetic with a strong focus on clarity and user engagement. The layout is spacious and balanced, featuring generous white space and a clean white background that enhances readability and visual comfort. Typography is a key element, utilizing large, geometric sans-serif fonts for headings that convey professionalism and approachability, paired with clean, legible body text. The primary brand color is a vibrant purple used consistently for interactive elements such as buttons and highlighted text, providing energetic contrast against the neutral background. UI components like cards and buttons feature rounded corners and subtle shadows, adding softness and depth without cluttering the interface. The overall visual tone is tech-forward, innovative, and user-friendly, designed to communicate trust and ease of use across diverse digital platforms.",
+        "toneOfVoice": "Professional, approachable, innovative, clear, and user-centric.",
+        "tones": [
+          "clean",
+          "modern",
+          "friendly",
+          "professional",
+          "innovative",
+          "minimal",
+          "accessible",
+          "energetic",
+          "trustworthy",
+          "balanced"
+        ],
+        "designStyle": {
+          "primaryStyle": [
+            "Minimalism",
+            "Modern Tech"
+          ],
+          "supportingStyles": [
+            "Geometric Sans-Serif Typography",
+            "Soft UI (rounded corners, subtle shadows)"
+          ]
+        },
+        "palette": {
+          "colors": {
+            "primary": "#5C2EE2",
+            "primaryForeground": "#FFFFFF",
+            "secondary": "#F5F5F7",
+            "secondaryForeground": "#000000",
+            "background": "#FFFFFF",
+            "customColors": [
+              {
+                "name": "cardbackground",
+                "value": "#F5F5F7"
+              },
+              {
+                "name": "textprimary",
+                "value": "#000000"
+              },
+              {
+                "name": "buttonbackground",
+                "value": "#5C2EE2"
+              },
+              {
+                "name": "buttonforeground",
+                "value": "#FFFFFF"
+              },
+              {
+                "name": "inputbackground",
+                "value": "#FFFFFF"
+              },
+              {
+                "name": "inputborder",
+                "value": "#E0E0E0"
+              },
+              {
+                "name": "foreground",
+                "value": "#5C2EE2"
+              },
+              {
+                "name": "destructive",
+                "value": "#DF3131"
+              },
+              {
+                "name": "destructiveforeground",
+                "value": "#FFFFFF"
+              }
+            ]
+          },
+          "paletteUsageGuide": "Use the 'primary' color predominantly for call-to-action buttons, interactive elements, and key highlights to draw user attention. The 'primaryForeground' color should be used for text and icons placed on 'primary' backgrounds to ensure readability. The 'background' color provides a clean, neutral canvas for the entire site, while 'secondary' and 'cardBackground' colors are used for UI containers and cards to create subtle separation and layering without harsh contrast. Text should primarily use 'textPrimary' for maximum legibility. Buttons and interactive elements should combine 'buttonBackground' with 'buttonForeground' for clear visibility and accessibility. Input fields and other form elements should use 'inputBackground' with subtle 'inputBorder' colors to maintain a clean and unobtrusive appearance. This palette ensures a harmonious balance between vibrancy and neutrality, supporting a modern and accessible user experience.",
+          "paletteAccessibilityNotes": "The 'primaryForeground' on 'primary' background achieves WCAG AA and AAA contrast ratios, ensuring text on buttons is highly legible. The 'textPrimary' on 'background' also meets WCAG AAA standards for body text readability. 'SecondaryForeground' on 'secondary' backgrounds provides sufficient contrast for UI containers and cards. Overall, the palette supports strong accessibility compliance for text and interactive elements."
+        },
+        "typography": {
+          "headings": {
+            "font": {
+              "role": "Primary Heading Font",
+              "fontFamily": "poppins-v2",
+              "fontJustification": ""
+            },
+            "headingsSimilarFonts": [
+              "rubik-v2",
+              "raleway",
+              "work-sans-v2"
+            ],
+            "headingsUsageGuide": "Use the heading font for all primary titles and section headers to establish clear hierarchy and brand personality. Pair with the paragraph font for body text to maintain readability and visual harmony. Maintain ample spacing above and below headings to enhance legibility and separation. Use 'primary' color for emphasis or black for neutral headings depending on context. Avoid overly tight letter spacing to preserve clarity.",
+            "headingsAccessibilityNotes": "Headings using 'textPrimary' on 'background' or 'primaryForeground' on 'primary' backgrounds meet WCAG AA and AAA contrast standards, ensuring accessibility for users with visual impairments."
+          },
+          "paragraphs": {
+            "font": {
+              "role": "Main Body Text Font",
+              "fontFamily": "open sans",
+              "fontJustification": ""
+            },
+            "paragraphsSimilarFonts": [
+              "nunito sans",
+              "raleway",
+              "work-sans-v2"
+            ],
+            "paragraphsUsageGuide": "Use the paragraph font for all body text, descriptions, and secondary information. Maintain consistent line height and letter spacing to enhance readability. Combine with heading fonts to create a balanced typographic hierarchy. Text color should primarily be 'textPrimary' on 'background' or 'secondary' containers. Avoid using paragraph fonts in all caps or overly bold weights to preserve legibility.",
+            "paragraphsAccessibilityNotes": "Body text using 'textPrimary' on 'background' or 'secondary' backgrounds meets WCAG AA and AAA contrast requirements for normal and large text sizes."
+          },
+          "welcomeSectionTypography": {
+            "placement": "Top-Third Anchor",
+            "implementation": "The welcome section places large, bold headings anchored in the top third of the viewport, aligned left with generous white space around. This placement draws immediate attention to the core message while leaving ample room below for supporting UI elements and calls to action. The heading uses the 'primary' color selectively to highlight key phrases, creating visual interest and guiding the user's eye. The call-to-action button is positioned near the heading with consistent spacing, using the 'primary' color background and 'primaryForeground' text for prominence. This typographic strategy balances impact with clarity, ensuring the welcome message is both inviting and easy to read."
+          },
+          "fontSizes": [
+            {
+              "name": "xs",
+              "size": "0.75rem",
+              "lineHeight": "1.25",
+              "letterSpacing": "0.02em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "sm",
+              "size": "0.875rem",
+              "lineHeight": "1.35",
+              "letterSpacing": "0.015em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "base",
+              "size": "1rem",
+              "lineHeight": "1.5",
+              "letterSpacing": "0.01em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "lg",
+              "size": "1.125rem",
+              "lineHeight": "1.5",
+              "letterSpacing": "0.005em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "xl",
+              "size": "1.25rem",
+              "lineHeight": "1.5",
+              "letterSpacing": "0em",
+              "fontWeight": "600"
+            },
+            {
+              "name": "2xl",
+              "size": "1.5rem",
+              "lineHeight": "1.4",
+              "letterSpacing": "-0.005em",
+              "fontWeight": "600"
+            },
+            {
+              "name": "3xl",
+              "size": "1.875rem",
+              "lineHeight": "1.3",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "4xl",
+              "size": "2.25rem",
+              "lineHeight": "1.2",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "5xl",
+              "size": "3rem",
+              "lineHeight": "1.1",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "6xl",
+              "size": "3.75rem",
+              "lineHeight": "1.1",
+              "letterSpacing": "-0.025em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "7xl",
+              "size": "4.5rem",
+              "lineHeight": "1",
+              "letterSpacing": "-0.03em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "8xl",
+              "size": "6rem",
+              "lineHeight": "1",
+              "letterSpacing": "-0.035em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "9xl",
+              "size": "8rem",
+              "lineHeight": "1",
+              "letterSpacing": "-0.04em",
+              "fontWeight": "700"
+            }
+          ]
+        },
+        "layout": {
+          "layoutDna": {
+            "densitySpectrum": "Balanced",
+            "contrastSpectrum": "High-Contrast",
+            "gridAlignmentSpectrum": "Strict Grid",
+            "negativeSpaceUsage": "Generous",
+            "textVsImageEmphasis": "Balanced",
+            "complexitySpectrum": "Simple & Clean"
+          },
+          "grid": {
+            "compositionApproach": "Column-based",
+            "spacing": {
+              "columns": "12-column grid",
+              "rows": "Defined content rows",
+              "gaps": "Consistent medium gaps"
+            },
+            "margins": "Generous page margins",
+            "padding": "Consistent padding within containers"
+          }
+        },
+        "components": {
+          "containers": "Containers use a light gray background ('cardBackground') with subtle drop shadows and rounded corners to create a soft, elevated effect. Padding inside containers is consistent to maintain content clarity and separation. Borders are minimal or absent, relying on shadows and spacing for definition.",
+          "images": "Images and UI mockups are presented with rounded corners and subtle shadows to integrate smoothly with the overall soft UI style. They are balanced with text content to maintain visual harmony and avoid clutter.",
+          "buttons": "Buttons are pill-shaped with solid 'primary' color backgrounds and 'primaryForeground' text. They have subtle hover states that slightly darken the background color for interactivity feedback. Secondary buttons use a transparent background with a 'primary' color border and text, maintaining consistency and accessibility."
+        },
+        "graphicElements": {
+          "icons": "Icons are minimal, monochrome, and use the 'textPrimary' color to maintain visual consistency and clarity. They are sized appropriately to complement text without overpowering it.",
+          "illustrations": "Illustrations are minimal or abstract, using soft gradients and subtle overlays that do not compete with the UI elements. They support the tech-forward and innovative brand personality.",
+          "stickers": "No prominent use of stickers or badges is observed; if used, they should be subtle and consistent with the 'primary' color palette."
+        }
+      },
+      "originImagesUrls": [
+        "https://wixmp-fe53c9ff592a4da924211f23.wixmp.com/uploads/1752414444673-Screenshot%202025-07-13%20at%2016.46.21%201.jpg"
+      ]
+    },
+    {
+      "presetId": "cb8e0452-ae91-4eda-9dc5-2eaad304dba7",
+      "brandIdentity": {
+        "designSummary": "The design features a modern dark mode aesthetic with a solid black background that creates a sleek and immersive environment. Vibrant neon green and bright blue accent colors energize the interface, highlighting interactive elements and branding. Typography is geometric, clean, and sans-serif, with large, bold headings that mix white and neon green to emphasize key messages. The layout is spacious and balanced, using a centered column grid with generous negative space and rounded corners on containers and buttons to soften the high-tech feel. The footer employs a modular grid with distinct colored blocks, maintaining visual consistency and clarity. Overall, the design conveys a cutting-edge, digital culture vibe suitable for a gaming or tech conference, combining high contrast, minimalism, and vibrant accents for a friendly yet professional look.",
+        "toneOfVoice": "Futuristic, innovative, approachable, and tech-savvy with a casual yet professional personality.",
+        "tones": [
+          "Futuristic",
+          "Innovative",
+          "Energetic",
+          "Casual",
+          "Professional",
+          "Tech-savvy",
+          "Minimal",
+          "High-contrast",
+          "Clean",
+          "Approachable"
+        ],
+        "designStyle": {
+          "primaryStyle": [
+            "Dark Mode",
+            "Minimalism",
+            "Techno-Futuristic"
+          ],
+          "supportingStyles": [
+            "Geometric",
+            "Modular",
+            "Neon Accent"
+          ]
+        },
+        "palette": {
+          "colors": {
+            "primary": "#50FA9E",
+            "primaryForeground": "#000000",
+            "secondary": "#2557D6",
+            "secondaryForeground": "#FFFFFF",
+            "background": "#000000",
+            "customColors": [
+              {
+                "name": "brandaccent",
+                "value": "#FFC09F"
+              },
+              {
+                "name": "surfacedark",
+                "value": "#1F1F1F"
+              },
+              {
+                "name": "foreground",
+                "value": "#FFFFFF"
+              },
+              {
+                "name": "destructive",
+                "value": "#DF3131"
+              },
+              {
+                "name": "destructiveforeground",
+                "value": "#ffffff"
+              }
+            ]
+          },
+          "paletteUsageGuide": "The color system is anchored by a deep 'background' which should cover the majority of the viewport to maintain the dark mode aesthetic. Use the 'primary' neon mint color sparingly for high-impact elements like primary buttons, key data highlights, or active states; always pair it with 'primaryForeground' (black) for text to ensure maximum legibility. The 'secondary' blue serves as a strong background for feature sections or secondary calls-to-action, paired with 'secondaryForeground' (white). The 'brandAccent' peach is utilized for variety in card backgrounds or illustrative elements, best paired with black text. Use the 'surfaceDark' for cards or footers to create subtle depth against the main 'background'. Main content text should always be in 'foreground' (white) to contrast against the black surroundings",
+          "paletteAccessibilityNotes": "The palette is designed for high contrast. The combination of 'background' and 'foreground' yields a perfect 21:1 ratio (AAA). The 'primary' color is sufficiently bright to pass AAA standards when used against the 'background', and it maintains excellent contrast with 'primaryForeground' text. The 'secondary' color has been calibrated to meet WCAG AA standards (~4.5:1) when paired with 'secondaryForeground' (white). The 'brandAccent' peach provides high contrast against black text, making it safe for content containers."
+        },
+        "typography": {
+          "headings": {
+            "font": {
+              "role": "Primary Heading Font",
+              "fontFamily": "rubik-v2",
+              "fontJustification": ""
+            },
+            "headingsSimilarFonts": [
+              "work-sans-v2",
+              "open sans",
+              "poppins-v2"
+            ],
+            "headingsUsageGuide": "Use the heading font in large sizes with bold weight to create impactful titles and section headers. Mix white and 'accentNeonGreen' colors to highlight key words or phrases, enhancing visual hierarchy. Pair headings with paragraph fonts by maintaining clear spacing and contrast. Ensure headings remain legible on dark backgrounds by using 'primaryForeground' or 'accentNeonGreen' colors. Avoid overly condensed or decorative styles to preserve clarity.",
+            "headingsAccessibilityNotes": "Headings in 'primaryForeground' white or 'accentNeonGreen' on 'primary' black background meet WCAG AAA contrast standards, ensuring excellent readability for all users."
+          },
+          "paragraphs": {
+            "font": {
+              "role": "Main Body Text Font",
+              "fontFamily": "rubik-v2",
+              "fontJustification": ""
+            },
+            "paragraphsSimilarFonts": [
+              "work-sans-v2",
+              "open sans",
+              "poppins-v2"
+            ],
+            "paragraphsUsageGuide": "Use the paragraph font in regular weight and moderate sizes for body text, descriptions, and navigation links. Maintain high contrast by using 'primaryForeground' white on 'primary' black or 'secondary' blue backgrounds. Ensure sufficient line height and letter spacing for comfortable reading. Pair paragraphs with bold headings to create clear content hierarchy. Avoid using accent colors for large blocks of text to maintain readability.",
+            "paragraphsAccessibilityNotes": "Paragraph text in 'primaryForeground' white on 'primary' black or 'secondary' blue backgrounds meets WCAG AA or higher contrast standards, supporting accessibility."
+          },
+          "welcomeSectionTypography": {
+            "placement": "Centered",
+            "implementation": "The welcome section uses a large, bold heading centered horizontally and vertically within the viewport. The heading text is split with a mix of 'primaryForeground' white and 'accentNeonGreen' colors to emphasize key words. Supporting text is placed below the heading in smaller white font, maintaining strong contrast. Interactive badges and date tags are positioned near the heading with rounded shapes and neon green backgrounds, reinforcing the futuristic theme. The overall typographic placement creates a strong focal point that immediately communicates the event's identity."
+          },
+          "fontSizes": [
+            {
+              "name": "xs",
+              "size": "0.75rem",
+              "lineHeight": "1.2",
+              "letterSpacing": "0.02em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "sm",
+              "size": "0.875rem",
+              "lineHeight": "1.3",
+              "letterSpacing": "0.02em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "base",
+              "size": "1rem",
+              "lineHeight": "1.5",
+              "letterSpacing": "0.025em",
+              "fontWeight": "400"
+            },
+            {
+              "name": "lg",
+              "size": "1.125rem",
+              "lineHeight": "1.5",
+              "letterSpacing": "0.025em",
+              "fontWeight": "500"
+            },
+            {
+              "name": "xl",
+              "size": "1.25rem",
+              "lineHeight": "1.5",
+              "letterSpacing": "0.03em",
+              "fontWeight": "600"
+            },
+            {
+              "name": "2xl",
+              "size": "1.5rem",
+              "lineHeight": "1.4",
+              "letterSpacing": "0.03em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "3xl",
+              "size": "1.875rem",
+              "lineHeight": "1.3",
+              "letterSpacing": "0.035em",
+              "fontWeight": "700"
+            },
+            {
+              "name": "4xl",
+              "size": "2.25rem",
+              "lineHeight": "1.2",
+              "letterSpacing": "0.04em",
+              "fontWeight": "800"
+            },
+            {
+              "name": "5xl",
+              "size": "3rem",
+              "lineHeight": "1.1",
+              "letterSpacing": "0.04em",
+              "fontWeight": "800"
+            },
+            {
+              "name": "6xl",
+              "size": "3.75rem",
+              "lineHeight": "1.1",
+              "letterSpacing": "0.045em",
+              "fontWeight": "900"
+            },
+            {
+              "name": "7xl",
+              "size": "4.5rem",
+              "lineHeight": "1.05",
+              "letterSpacing": "0.05em",
+              "fontWeight": "900"
+            },
+            {
+              "name": "8xl",
+              "size": "6rem",
+              "lineHeight": "1.05",
+              "letterSpacing": "0.05em",
+              "fontWeight": "900"
+            },
+            {
+              "name": "9xl",
+              "size": "8rem",
+              "lineHeight": "1",
+              "letterSpacing": "0.06em",
+              "fontWeight": "900"
+            }
+          ]
+        },
+        "layout": {
+          "layoutDna": {
+            "densitySpectrum": "Balanced",
+            "contrastSpectrum": "High-Contrast",
+            "gridAlignmentSpectrum": "Strict Grid",
+            "negativeSpaceUsage": "Generous",
+            "textVsImageEmphasis": "Text-Focused",
+            "complexitySpectrum": "Simple & Clean"
+          },
+          "grid": {
+            "compositionApproach": "Column-based",
+            "spacing": {
+              "columns": "12-column grid",
+              "rows": "Defined content rows",
+              "gaps": "Consistent medium gaps"
+            },
+            "margins": "Generous page margins",
+            "padding": "Consistent padding within containers"
+          }
+        },
+        "components": {
+          "containers": "Containers have rounded corners with solid backgrounds in black, neon green, blue, or peach depending on context. They maintain consistent padding and spacing, creating modular blocks that organize content clearly. The use of bright accent backgrounds for interactive or navigational containers draws user attention effectively.",
+          "images": "Images are minimal or abstract, often replaced by graphic elements or logos. When present, images are framed within rounded containers or circular shapes to maintain design consistency.",
+          "buttons": "Buttons are rounded with solid backgrounds in 'accentNeonGreen' or outlined in white. Text on buttons is white or black depending on background for maximum contrast. Buttons have clear hover states and are sized for easy interaction."
+        },
+        "graphicElements": {
+          "icons": "Icons are simple, modern, and use the 'accentNeonGreen' color to stand out against dark backgrounds. They have rounded shapes consistent with the overall design language and are used sparingly to support navigation and calls to action.",
+          "illustrations": "No prominent illustrations are used; the design relies on abstract shapes and logos to convey brand identity.",
+          "stickers": "Badges and stickers use rounded pill shapes with 'accentNeonGreen' backgrounds and black text, providing clear, friendly labels for event types and dates."
+        }
+      },
+      "originImagesUrls": [
+        "https://wixmp-fe53c9ff592a4da924211f23.wixmp.com/uploads/1750335929106-Screenshot%202025-06-05%20at%2015.42.54%201.png"
+      ]
+    }
+  ],
+  "brandBook": {
+    "tones": [
+      "Sophisticated",
+      "Futuristic",
+      "Dynamic"
+    ],
+    "designStyle": {
+      "primaryStyle": [
+        "Techy",
+        "Modern"
+      ],
+      "supportingStyles": [
+        "Minimalist",
+        "Interactive"
+      ]
+    },
+    "toneOfVoice": "Techy, efficient, and forward-thinking",
+    "components": {
+      "images": "Layout Role: Asymmetrical placement, overlapping the main text column by 24px to create depth. | Gallery Type: Horizontal Scroll Filmstrip: A single-row gallery driven by horizontal scroll, where oversized items create a 'peek-a-boo' effect.",
+      "buttons": "Primary: background-color: #00FFD4, color: #222222, border-radius: 8px, padding: 12px 24px. Secondary: background-color: transparent, color: #00FFD4, border: 1px solid #00FFD4, border-radius: 8px.",
+      "containers": "Method: Glassmorphism, Style: background-color: rgba(255, 255, 255, 0.05), border: 1px solid rgba(255, 255, 255, 0.1), border-radius: 12px, backdrop-filter: blur(10px)"
+    },
+    "typography": {
+      "headings": {
+        "font": {
+          "role": "headings",
+          "fontFamily": "space grotesk",
+          "fontJustification": ""
+        },
+        "headingsUsageGuide": "Use Space Grotesk for all headings to maintain a modern and techy feel. Adjust font weight and size to create a clear visual hierarchy.",
+        "headingsSimilarFonts": [],
+        "headingsAccessibilityNotes": "Ensure headings are properly nested (H1, H2, H3, etc.) to maintain semantic structure and improve accessibility for screen readers."
+      },
+      "fontSizes": [
+        {
+          "name": "xs",
+          "size": "0.75rem",
+          "letterSpacing": "0.05em",
+          "lineHeight": "1",
+          "fontWeight": "400"
+        },
+        {
+          "name": "sm",
+          "size": "0.875rem",
+          "letterSpacing": "0.02em",
+          "lineHeight": "1.25",
+          "fontWeight": "400"
+        },
+        {
+          "name": "base",
+          "size": "1rem",
+          "letterSpacing": "0em",
+          "lineHeight": "1.5",
+          "fontWeight": "400"
+        },
+        {
+          "name": "lg",
+          "size": "1.125rem",
+          "letterSpacing": "-0.01em",
+          "lineHeight": "1.75",
+          "fontWeight": "400"
+        },
+        {
+          "name": "xl",
+          "size": "1.25rem",
+          "letterSpacing": "-0.01em",
+          "lineHeight": "1.75",
+          "fontWeight": "500"
+        },
+        {
+          "name": "2xl",
+          "size": "1.5rem",
+          "letterSpacing": "-0.02em",
+          "lineHeight": "2",
+          "fontWeight": "600"
+        },
+        {
+          "name": "3xl",
+          "size": "1.875rem",
+          "letterSpacing": "-0.02em",
+          "lineHeight": "2.25",
+          "fontWeight": "700"
+        },
+        {
+          "name": "4xl",
+          "size": "2.25rem",
+          "letterSpacing": "-0.02em",
+          "lineHeight": "2.5",
+          "fontWeight": "700"
+        },
+        {
+          "name": "5xl",
+          "size": "3rem",
+          "letterSpacing": "-0.02em",
+          "lineHeight": "1",
+          "fontWeight": "700"
+        },
+        {
+          "name": "6xl",
+          "size": "3.75rem",
+          "letterSpacing": "-0.03em",
+          "lineHeight": "1",
+          "fontWeight": "700"
+        },
+        {
+          "name": "7xl",
+          "size": "4.5rem",
+          "letterSpacing": "-0.03em",
+          "lineHeight": "1",
+          "fontWeight": "700"
+        },
+        {
+          "name": "8xl",
+          "size": "6rem",
+          "letterSpacing": "-0.03em",
+          "lineHeight": "1",
+          "fontWeight": "700"
+        },
+        {
+          "name": "9xl",
+          "size": "8rem",
+          "letterSpacing": "-0.04em",
+          "lineHeight": "1",
+          "fontWeight": "700"
+        }
+      ],
+      "paragraphs": {
+        "font": {
+          "role": "paragraphs",
+          "fontFamily": "nunito sans",
+          "fontJustification": ""
+        },
+        "paragraphsUsageGuide": "Use Nunito Sans for all body text to ensure readability and a clean, modern look. Adjust font size and line height for optimal legibility.",
+        "paragraphsSimilarFonts": [],
+        "paragraphsAccessibilityNotes": "Ensure sufficient contrast between text and background colors. Use appropriate line height and letter spacing to improve readability for users with dyslexia."
+      },
+      "welcomeSectionTypography": {
+        "placement": "",
+        "implementation": ""
+      }
+    },
+    "originImagesUrls": [],
+    "layout": {
+      "grid": {
+        "margins": "16px",
+        "padding": "16px",
+        "spacing": {
+          "gaps": "Base unit: 8px. All grid gaps are 16px (2x base unit).",
+          "rows": "Auto",
+          "columns": "12"
+        },
+        "compositionApproach": "Modified 12-Column Grid with Intentional Breaks"
+      },
+      "layoutDna": {
+        "contrastSpectrum": "High",
+        "densitySpectrum": "Medium",
+        "textVsImageEmphasis": "Balanced",
+        "complexitySpectrum": "Medium",
+        "gridAlignmentSpectrum": "Intentionally Broken",
+        "negativeSpaceUsage": "Moderate"
+      },
+      "heroSectionLayout": "**The Neon Data Stream**\nComposition (Tailwind Spec): Full-screen container (h-screen grid place-items-center). Headline 'TíramE: Schedule Smarter' (text-7xl font-bold text-white). A series of animated data points (absolute bottom-8 right-8 flex space-x-4).\nSignature Hook (Framer Motion Spec): Each data point (w-4 h-4 rounded-full bg-neonTeal) uses Framer Motion's `useTransform` and `useSpring` to create a flowing, wave-like animation tied to the scroll position. Initial state: `y: 10`. Animate state: `y: -10`. Transition: `repeat: Infinity, duration: 0.5, ease: linear`."
+    },
+    "graphicElements": {
+      "icons": "",
+      "stickers": "",
+      "illustrations": ""
+    },
+    "designSummary": "**The Neon Grid: A Fusion of Techy Aesthetics and Functional Design**\n\nThe Vision: We are building a scheduling app that feels both cutting-edge and intuitive. The design will embrace a dark mode aesthetic with vibrant, neon accents, creating a visually striking and technologically advanced experience. The layout will be clean and dynamic, using a modified grid system to ensure clarity and ease of use.\n\n**Execution Blueprint:**\n1. Modified Grid System: A 12-column grid will serve as the foundation, but elements will intentionally break the grid to create visual interest and highlight key information.\n2. Neon Accents: A vibrant neon teal (#00FFD4) will be used sparingly for interactive elements, highlights, and accents against a dark charcoal background (#222222).\n3. Glassmorphism: Components like buttons and containers will incorporate a frosted-glass effect to add depth and a modern, layered feel.\n4. Data Visualization: Use subtle animations to visualize data, such as appointment slots and service durations, enhancing the user's understanding and engagement.",
+    "palette": {
+      "colors": {
+        "background": "#222222",
+        "secondary": "#6678FF",
+        "customColors": [
+          {
+            "name": "neonTeal",
+            "value": "#00FFD4"
+          },
+          {
+            "name": "deepCharcoal",
+            "value": "#222222"
+          },
+          {
+            "name": "lightGray",
+            "value": "#EAEAEA"
+          },
+          {
+            "name": "destructive",
+            "value": "#FF4136"
+          },
+          {
+            "name": "destructive-foreground",
+            "value": "#FFFFFF"
+          }
+        ],
+        "foreground": "#FFFFFF",
+        "secondaryForeground": "#FFFFFF",
+        "primaryForeground": "#222222",
+        "primary": "#00FFD4"
+      },
+      "paletteUsageGuide": "Use neon teal (#00FFD4) sparingly for interactive elements and highlights. Deep charcoal (#222222) should be the primary background color. Light gray (#EAEAEA) can be used for subtle dividers and borders.",
+      "paletteAccessibilityNotes": "Ensure sufficient contrast between text and background colors, especially when using neon teal. Aim for a contrast ratio of at least 4.5:1 for normal text and 3:1 for large text."
+    }
+  },
+  "initialPrompt": "Actúa como un Senior Wix Velo Engineer y Product Architect. Construye una app web llamada “TíramE” para agendar citas en perfiles públicos. Requisitos estrictos:\n\nFUNCIONAMIENTO:\n- Cada proveedor (PRO) tiene un perfil público con link único: /p/{slug}.\n- El PRO trabaja todos los días de 06:00 AM a 12:00 AM (24:00) con intervalos de 30 minutos.\n- Los clientes pueden reservar un slot. Cuando un slot se reserva, queda ocupado inmediatamente y ningún otro cliente puede usar esa misma hora.\n- El cliente debe ingresar: nombre, email (obligatorio), teléfono (obligatorio), cantidad de personas (según el servicio), nota opcional.\n- La página del PRO debe mostrar un catálogo de servicios con filtros detallados.\n- Al reservar: enviar email de confirmación y luego un recordatorio automático 24h antes (y opcional 2h antes).\n- Timezone default: America/Santo_Domingo.\n\nPÁGINAS:\n1) Dynamic Public Provider Page: /p/{slug}\n   - Muestra info del PRO (nombre, dirección, WhatsApp, categorías).\n   - Section “Servicios” con filtros: búsqueda por texto, categoría, duración, precio, personas; repeater de servicios.\n   - Section “Agenda” con selector de semana y slots disponibles por día.\n   - Al elegir servicio + slot: abrir modal de reserva con formulario y botón Reservar.\n   - Después de reservar: mostrar pantalla/estado de confirmación.\n\n2) PRO Dashboard: /pro/dashboard (solo miembros PRO)\n   - Tabs: Hoy (lista), Semana (lista por día), Servicios (CRUD), Perfil (slug/link), Citas (lista rango).\n   - PRO solo puede ver sus citas.\n\nCOLECCIONES (Wix Data):\nA) Providers:\n- memberId, slug (UNIQUE), displayName, categoryTags[], addressText, whatsappNumber, contactEmail, timezone, isActive, createdAt, updatedAt\nPermisos: Read Anyone, Create/Update Owner\n\nB) Services:\n- providerId(ref Providers), name, category, durationMin, price(optional), maxPeoplePerBooking, bufferBeforeMin, bufferAfterMin, isActive\nPermisos: Read Anyone, Create/Update Owner\n\nC) Appointments:\n- providerId(ref), serviceId(ref), startAt(datetime), endAt(datetime),\n  clientName, clientEmail, clientPhone, peopleCount, notes,\n  status (CONFIRMED/CANCELLED/NO_SHOW/COMPLETED), createdAt,\n  reminder24hSent(bool), reminder2hSent(bool)\nPermisos: Admin only (crear solo vía backend con suppressAuth); Read/Update: Owner + Admin\n\nD) SlotLocks (ANTI DOBLE-RESERVA):\n- lockKey (UNIQUE), providerId(ref), startAt, endAt, appointmentId(ref nullable), createdAt\nPermisos: Admin only\n\nBACKEND MODULES (crear en /backend):\n1) /backend/availability.jsw\n- getProviderBySlug(slug): retorna provider\n- listActiveServices(providerId, filters): retorna servicios filtrados\n- getWeekAvailability(providerId, serviceId, weekStartISO):\n  - Generar slots diarios de 06:00–24:00 cada 30 min\n  - Calcular endAt del slot basado en durationMin + buffers del service\n  - Consultar Appointments (status != CANCELLED) y SlotLocks en el rango semanal\n  - Remover slots que se solapen: (slotStart < busyEnd) && (slotEnd > busyStart)\n  - Retornar estructura: [{date, slots:[{startAtISO,endAtISO}]}]\n\n2) /backend/appointments.jsw\n- createAppointment(payload):\n  - Validar email/teléfono/nombre\n  - Obtener service y validar peopleCount <= maxPeoplePerBooking\n  - Calcular endAt\n  - Crear lockKey = providerId + \"|\" + startAtISO e insertar en SlotLocks (campo lockKey UNIQUE)\n    - Si falla duplicado => retornar error “SLOT_TAKEN”\n  - Insertar en Appointments status CONFIRMED\n  - Actualizar SlotLocks.appointmentId\n  - Enviar triggered email de confirmación al cliente\n  - Retornar appointmentId\n\nEMAILS + RECORDATORIOS:\n- Usar Triggered Emails de Wix para confirmación y recordatorio.\n- Implementar /backend/jobs.js con wix-cron:\n  - Cada 10 minutos ejecutar:\n    - Buscar citas CONFIRMED con startAt en ventana now+24h y reminder24hSent=false => enviar email => set reminder24hSent=true\n    - Buscar citas CONFIRMED con startAt en ventana now+2h y reminder2hSent=false => enviar email => set reminder2hSent=true\n\nUI STATE:\n- Cargar disponibilidad con estados: loading/empty/error.\n- Cuando createAppointment devuelva SLOT_TAKEN, refrescar disponibilidad y mostrar mensaje “Esa hora ya fue tomada, elige otra”.\n\nENTREGABLE:\n- Implementa las páginas con IDs claros de elementos (inputs, repeater, botones, modal).\n- Implementa los backend modules y cron.\n- Asegura que el slot no pueda reservarse dos veces.",
+  "status": "READY",
+  "revision": "10",
+  "createdDate": "2025-12-02T04:37:47.258Z",
+  "updatedDate": "2025-12-02T04:38:09.601Z",
+  "attachments": {
+    "contentImagesUrls": [],
+    "inspirationImagesUrls": []
+  },
+  "selectedBrandingPresetId": "00000000-7ffc-4429-8637-32f4c4f6e72b",
+  "plan": "{\n  \"sections\": [\n    {\n      \"id\": \"overview\",\n      \"title\": \"## Overview\",\n      \"content\": \"This plan outlines the creation of 'TíramE', a web application for scheduling appointments with public provider profiles. It includes dynamic provider pages with service catalogs and booking functionalities, a dedicated dashboard for providers, and robust backend logic for availability management, appointment creation, and automated email reminders.\"\n    },\n    {\n      \"id\": \"key-features\",\n      \"title\": \"## Key features\",\n      \"content\": \"- **View Provider Information**: Displays public profile details including name, address, WhatsApp, and categories.\\n- **View Service Listing**: Shows a catalog of services offered by a provider.\\n- **Filter Services**: Allows filtering services by text, category, duration, price, and number of people.\\n- **View Service Details**: Displays detailed information for a specific service.\\n- **View Availability Slots**: Shows available appointment slots for a selected service and date.\\n- **Submit Appointment Form**: Allows clients to book an appointment by providing name, email, phone, number of people, and optional notes.\\n- **View Appointment Confirmation**: Displays a confirmation message after a successful booking.\\n- **Manage Provider Profile**: Allows providers to manage their public profile details and unique slug.\\n- **Manage Provider Services**: Enables providers to create, read, update, and delete their services.\\n- **View Provider Appointments**: Lists appointments for the provider, filterable by date (today, week, custom range).\\n- **Create Appointment**: Backend function to handle the booking process, including slot locking and confirmation emails.\\n- **Send Appointment Confirmation Email**: Automatically sends a confirmation email to the client upon booking.\\n- **Send Appointment Reminder Emails**: Automatically sends reminder emails 24 hours and optionally 2 hours before the appointment.\\n- **Manage Slot Locks**: Backend mechanism to prevent double-booking by temporarily locking slots during the booking process.\",\n      \"metadata\": [\n        { \"id\": \"view-provider-information\", \"name\": \"View Provider Information\" },\n        { \"id\": \"view-service-listing\", \"name\": \"View Service Listing\" },\n        { \"id\": \"filter-services\", \"name\": \"Filter Services\" },\n        { \"id\": \"view-service-details\", \"name\": \"View Service Details\" },\n        { \"id\": \"view-availability-slots\", \"name\": \"View Availability Slots\" },\n        { \"id\": \"submit-appointment-form\", \"name\": \"Submit Appointment Form\" },\n        { \"id\": \"view-appointment-confirmation\", \"name\": \"View Appointment Confirmation\" },\n        { \"id\": \"manage-provider-profile\", \"name\": \"Manage Provider Profile\" },\n        { \"id\": \"manage-provider-services\", \"name\": \"Manage Provider Services\" },\n        { \"id\": \"view-provider-appointments\", \"name\": \"View Provider Appointments\" },\n        { \"id\": \"create-appointment\", \"name\": \"Create Appointment\" },\n        { \"id\": \"send-appointment-confirmation-email\", \"name\": \"Send Appointment Confirmation Email\" },\n        { \"id\": \"send-appointment-reminder-emails\", \"name\": \"Send Appointment Reminder Emails\" },\n        { \"id\": \"manage-slot-locks\", \"name\": \"Manage Slot Locks\" }\n      ]\n    },\n    {\n      \"id\": \"structure\",\n      \"title\": \"## Structure\",\n      \"content\": \"- **Public Provider Page**: Displays provider information, services with filters, and an agenda for booking appointments.\\n- **Appointment Confirmation Page**: Shown to the client after a successful booking.\\n- **Provider Dashboard**: A private area for providers to manage their profile, services, and appointments.\\n- **Provider Services Management Page**: A section within the dashboard for CRUD operations on services.\\n- **Provider Appointments Management Page**: A section within the dashboard to view upcoming and past appointments.\"\n    }\n  ],\n  \"apps\": [\n    {\n      \"id\": \"wix-cms\",\n      \"keyFeatures\": [\n        { \"id\": \"view-provider-information\", \"name\": \"View Provider Information\" },\n        { \"id\": \"view-service-listing\", \"name\": \"View Service Listing\" },\n        { \"id\": \"filter-services\", \"name\": \"Filter Services\" },\n        { \"id\": \"view-service-details\", \"name\": \"View Service Details\" },\n        { \"id\": \"view-availability-slots\", \"name\": \"View Availability Slots\" },\n        { \"id\": \"submit-appointment-form\", \"name\": \"Submit Appointment Form\" },\n        { \"id\": \"view-appointment-confirmation\", \"name\": \"View Appointment Confirmation\" },\n        { \"id\": \"manage-provider-profile\", \"name\": \"Manage Provider Profile\" },\n        { \"id\": \"manage-provider-services\", \"name\": \"Manage Provider Services\" },\n        { \"id\": \"view-provider-appointments\", \"name\": \"View Provider Appointments\" },\n        { \"id\": \"create-appointment\", \"name\": \"Create Appointment\" },\n        { \"id\": \"send-appointment-confirmation-email\", \"name\": \"Send Appointment Confirmation Email\" },\n        { \"id\": \"send-appointment-reminder-emails\", \"name\": \"Send Appointment Reminder Emails\" },\n        { \"id\": \"manage-slot-locks\", \"name\": \"Manage Slot Locks\" }\n      ]\n    }\n  ],\n  \"version\": \"2.5\"\n}",
+  "designerData": {
+    "designerId": "59076a1d-61da-4711-8035-592d26c5d5fe",
+    "designerName": "Linus",
+    "selectionMethod": "UNSELECTED"
+  }
+}
