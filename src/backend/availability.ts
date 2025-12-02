@@ -1,6 +1,8 @@
 import { BaseCrudService } from '@/integrations';
-import { Providers, Services, Appointments, SlotLocks, ProviderWorkingHours } from '@/entities';
-import { parseISO, addMinutes, format, startOfDay, addDays, getDay } from 'date-fns';
+import { Providers, Services, Appointments, SlotLocks } from '@/entities';
+import { parseISO, addMinutes, format, startOfDay, addDays } from 'date-fns';
+const WORK_START_HOUR = 6; // 6 AM
+const WORK_END_HOUR = 24; // 12 AM (midnight)
 const SLOT_INTERVAL_MIN = 30;
 
 interface AvailabilitySlot {
@@ -44,49 +46,6 @@ export async function listActiveServices(providerId: string, filters?: any) {
   }
 
   return services;
-}
-
-/**
- * Get working hours for a provider on a specific day
- */
-async function getWorkingHoursForDay(providerId: string, dayOfWeek: number): Promise<{ startHour: number; startMin: number; endHour: number; endMin: number } | null> {
-  const { items: allWorkingHours } = await BaseCrudService.getAll<ProviderWorkingHours>('workinghours');
-  const workingHour = allWorkingHours.find(
-    (wh) => wh.providerId === providerId && wh.dayOfWeek === dayOfWeek && wh.isActive !== false
-  );
-
-  if (!workingHour || !workingHour.startTime || !workingHour.endTime) {
-    return null;
-  }
-
-  // Parse time strings (format: "HH:mm")
-  let startTimeStr = workingHour.startTime;
-  let endTimeStr = workingHour.endTime;
-
-  // Handle case where time might be an object with hours/minutes properties
-  if (typeof startTimeStr === 'object' && startTimeStr !== null) {
-    startTimeStr = `${String(startTimeStr.hours || 0).padStart(2, '0')}:${String(startTimeStr.minutes || 0).padStart(2, '0')}`;
-  }
-  if (typeof endTimeStr === 'object' && endTimeStr !== null) {
-    endTimeStr = `${String(endTimeStr.hours || 0).padStart(2, '0')}:${String(endTimeStr.minutes || 0).padStart(2, '0')}`;
-  }
-
-  // Ensure strings are in correct format
-  if (typeof startTimeStr !== 'string' || typeof endTimeStr !== 'string') {
-    console.warn(`Invalid time format for provider ${providerId} on day ${dayOfWeek}:`, { startTimeStr, endTimeStr });
-    return null;
-  }
-
-  const [startHour, startMin] = startTimeStr.split(':').map(Number);
-  const [endHour, endMin] = endTimeStr.split(':').map(Number);
-
-  // Validate parsed values
-  if (isNaN(startHour) || isNaN(startMin) || isNaN(endHour) || isNaN(endMin)) {
-    console.warn(`Failed to parse time for provider ${providerId} on day ${dayOfWeek}:`, { startTimeStr, endTimeStr });
-    return null;
-  }
-
-  return { startHour, startMin, endHour, endMin };
 }
 
 export async function getWeekAvailability(
@@ -143,59 +102,43 @@ export async function getWeekAvailability(
   for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
     const currentDay = addDays(weekStart, dayOffset);
     const dayStart = startOfDay(currentDay);
-    const dayOfWeek = getDay(currentDay); // 0 = Sunday, 1 = Monday, etc.
 
     const slots: AvailabilitySlot[] = [];
 
-    // Get working hours for this day
-    const workingHours = await getWorkingHoursForDay(providerId, dayOfWeek);
+    // Generate slots from 6 AM to 12 AM (midnight)
+    for (let hour = WORK_START_HOUR; hour < WORK_END_HOUR; hour++) {
+      for (let minute = 0; minute < 60; minute += SLOT_INTERVAL_MIN) {
+        const slotStart = new Date(dayStart);
+        slotStart.setHours(hour, minute, 0, 0);
 
-    if (!workingHours) {
-      // No working hours defined for this day, skip it
-      availability.push({
-        date: format(currentDay, 'yyyy-MM-dd'),
-        slots: [],
-      });
-      continue;
-    }
+        // Calculate slot end based on service duration + buffers
+        const totalDuration =
+          (service.durationMin || 30) +
+          (service.bufferBeforeMin || 0) +
+          (service.bufferAfterMin || 0);
+        const slotEnd = addMinutes(slotStart, totalDuration);
 
-    const { startHour, startMin, endHour, endMin } = workingHours;
+        // Check if slot end exceeds work hours
+        if (slotEnd.getHours() > WORK_END_HOUR || (slotEnd.getHours() === WORK_END_HOUR && slotEnd.getMinutes() > 0)) {
+          continue;
+        }
 
-    // Calculate slot duration
-    const totalDuration =
-      (service.durationMin || 30) +
-      (service.bufferBeforeMin || 0) +
-      (service.bufferAfterMin || 0);
+        // Check if slot is in the past
+        if (slotStart < new Date()) {
+          continue;
+        }
 
-    // Convert working hours to minutes for easier calculation
-    const workStartMinutes = startHour * 60 + startMin;
-    const workEndMinutes = endHour * 60 + endMin;
-
-    // Generate slots based on working hours
-    for (let slotMinutes = workStartMinutes; slotMinutes + totalDuration <= workEndMinutes; slotMinutes += SLOT_INTERVAL_MIN) {
-      const slotHour = Math.floor(slotMinutes / 60);
-      const slotMin = slotMinutes % 60;
-
-      const slotStart = new Date(dayStart);
-      slotStart.setHours(slotHour, slotMin, 0, 0);
-
-      const slotEnd = addMinutes(slotStart, totalDuration);
-
-      // Check if slot is in the past
-      if (slotStart < new Date()) {
-        continue;
-      }
-
-      // Check for overlaps with busy periods
-      const isOverlapping = busyPeriods.some((busy) => {
-        return slotStart < busy.end && slotEnd > busy.start;
-      });
-
-      if (!isOverlapping) {
-        slots.push({
-          startAtISO: slotStart.toISOString(),
-          endAtISO: slotEnd.toISOString(),
+        // Check for overlaps with busy periods
+        const isOverlapping = busyPeriods.some((busy) => {
+          return slotStart < busy.end && slotEnd > busy.start;
         });
+
+        if (!isOverlapping) {
+          slots.push({
+            startAtISO: slotStart.toISOString(),
+            endAtISO: slotEnd.toISOString(),
+          });
+        }
       }
     }
 
