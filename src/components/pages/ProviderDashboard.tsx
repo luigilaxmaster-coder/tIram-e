@@ -9,9 +9,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BaseCrudService } from '@/integrations';
-import { Providers, Services, Appointments } from '@/entities';
+import { Providers, Services, Appointments, PriceOption } from '@/entities';
 import { format, startOfDay, endOfDay, addDays, startOfWeek, endOfWeek, parseISO } from 'date-fns';
-import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap } from 'lucide-react';
+import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 
@@ -49,6 +49,7 @@ export default function ProviderDashboard() {
     bufferAfterMin: 0,
     isActive: true,
   });
+  const [priceOptions, setPriceOptions] = useState<PriceOption[]>([]);
 
   // Appointments filter
   const [appointmentFilter, setAppointmentFilter] = useState<'today' | 'week' | 'custom'>('today');
@@ -214,6 +215,17 @@ export default function ProviderDashboard() {
         bufferAfterMin: service.bufferAfterMin || 0,
         isActive: service.isActive !== false,
       });
+      // Parse price options from JSON string
+      if (service.priceOptions) {
+        try {
+          const parsed = JSON.parse(service.priceOptions);
+          setPriceOptions(Array.isArray(parsed) ? parsed : []);
+        } catch {
+          setPriceOptions([]);
+        }
+      } else {
+        setPriceOptions([]);
+      }
     } else {
       setEditingService(null);
       setServiceForm({
@@ -226,6 +238,7 @@ export default function ProviderDashboard() {
         bufferAfterMin: 0,
         isActive: true,
       });
+      setPriceOptions([]);
     }
     setShowServiceModal(true);
   };
@@ -234,12 +247,17 @@ export default function ProviderDashboard() {
     if (!provider) return;
 
     try {
+      const serviceData = {
+        ...serviceForm,
+        priceOptions: priceOptions.length > 0 ? JSON.stringify(priceOptions) : undefined,
+      };
+
       if (editingService) {
         await BaseCrudService.update<Services>('services', {
           _id: editingService._id,
-          ...serviceForm,
+          ...serviceData,
         });
-        setServices(services.map((s) => (s._id === editingService._id ? { ...s, ...serviceForm } : s)));
+        setServices(services.map((s) => (s._id === editingService._id ? { ...s, ...serviceData } : s)));
         toast({
           title: 'Success',
           description: 'Service updated successfully',
@@ -247,7 +265,7 @@ export default function ProviderDashboard() {
       } else {
         const newService: Services = {
           _id: `${provider._id}-${crypto.randomUUID()}`,
-          ...serviceForm,
+          ...serviceData,
         };
         await BaseCrudService.create('services', newService);
         setServices([...services, newService]);
@@ -265,6 +283,24 @@ export default function ProviderDashboard() {
         variant: 'destructive',
       });
     }
+  };
+
+  const handleAddPriceOption = () => {
+    setPriceOptions([...priceOptions, { name: '', price: 0 }]);
+  };
+
+  const handleRemovePriceOption = (index: number) => {
+    setPriceOptions(priceOptions.filter((_, i) => i !== index));
+  };
+
+  const handleUpdatePriceOption = (index: number, field: 'name' | 'price', value: string | number) => {
+    const updated = [...priceOptions];
+    if (field === 'name') {
+      updated[index].name = value as string;
+    } else {
+      updated[index].price = parseFloat(value as string) || 0;
+    }
+    setPriceOptions(updated);
   };
 
   const handleDeleteService = async (serviceId: string) => {
@@ -670,6 +706,28 @@ export default function ProviderDashboard() {
                           </span>
                           <span className="font-heading font-semibold text-neon-teal">${service.price}</span>
                         </div>
+                        {service.priceOptions && (() => {
+                          try {
+                            const opts = JSON.parse(service.priceOptions);
+                            if (Array.isArray(opts) && opts.length > 0) {
+                              return (
+                                <div className="text-sm">
+                                  <p className="text-light-gray mb-2">Variants:</p>
+                                  <div className="space-y-1">
+                                    {opts.map((opt: PriceOption, idx: number) => (
+                                      <div key={idx} className="text-xs text-light-gray/70">
+                                        {opt.name}: ${opt.price}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            }
+                          } catch {
+                            return null;
+                          }
+                          return null;
+                        })()}
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-light-gray flex items-center gap-2">
                             <Users className="w-4 h-4 text-neon-teal/50" />
@@ -832,126 +890,207 @@ export default function ProviderDashboard() {
 
       {/* Service Modal */}
       <Dialog open={showServiceModal} onOpenChange={setShowServiceModal}>
-        <DialogContent className="bg-deep-charcoal border-white/20 text-white max-w-2xl">
+        <DialogContent className="bg-deep-charcoal border-white/20 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-heading text-2xl">
               {editingService ? 'Edit Service' : 'Create New Service'}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="serviceName" className="text-light-gray">
-                Service Name *
-              </Label>
-              <Input
-                id="serviceName"
-                value={serviceForm.name}
-                onChange={(e) => setServiceForm({ ...serviceForm, name: e.target.value })}
-                className="bg-deep-charcoal border-white/20 text-white"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="serviceCategory" className="text-light-gray">
-                Category
-              </Label>
-              <Input
-                id="serviceCategory"
-                value={serviceForm.category}
-                onChange={(e) => setServiceForm({ ...serviceForm, category: e.target.value })}
-                className="bg-deep-charcoal border-white/20 text-white"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-6">
+            {/* Basic Info */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-heading font-semibold text-white">Basic Information</h3>
+              
               <div>
-                <Label htmlFor="serviceDuration" className="text-light-gray">
-                  Duration (minutes) *
+                <Label htmlFor="serviceName" className="text-light-gray">
+                  Service Name *
                 </Label>
                 <Input
-                  id="serviceDuration"
-                  type="number"
-                  min="1"
-                  value={serviceForm.durationMin}
-                  onChange={(e) => setServiceForm({ ...serviceForm, durationMin: parseInt(e.target.value) })}
+                  id="serviceName"
+                  value={serviceForm.name}
+                  onChange={(e) => setServiceForm({ ...serviceForm, name: e.target.value })}
                   className="bg-deep-charcoal border-white/20 text-white"
                 />
               </div>
 
               <div>
-                <Label htmlFor="servicePrice" className="text-light-gray">
-                  Price ($)
+                <Label htmlFor="serviceCategory" className="text-light-gray">
+                  Category
                 </Label>
                 <Input
-                  id="servicePrice"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={serviceForm.price}
-                  onChange={(e) => setServiceForm({ ...serviceForm, price: parseFloat(e.target.value) })}
+                  id="serviceCategory"
+                  value={serviceForm.category}
+                  onChange={(e) => setServiceForm({ ...serviceForm, category: e.target.value })}
                   className="bg-deep-charcoal border-white/20 text-white"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="serviceDuration" className="text-light-gray">
+                    Duration (minutes) *
+                  </Label>
+                  <Input
+                    id="serviceDuration"
+                    type="number"
+                    min="1"
+                    value={serviceForm.durationMin}
+                    onChange={(e) => setServiceForm({ ...serviceForm, durationMin: parseInt(e.target.value) })}
+                    className="bg-deep-charcoal border-white/20 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="servicePrice" className="text-light-gray">
+                    Base Price ($)
+                  </Label>
+                  <Input
+                    id="servicePrice"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={serviceForm.price}
+                    onChange={(e) => setServiceForm({ ...serviceForm, price: parseFloat(e.target.value) })}
+                    className="bg-deep-charcoal border-white/20 text-white"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="maxPeople" className="text-light-gray">
-                  Max People *
-                </Label>
-                <Input
-                  id="maxPeople"
-                  type="number"
-                  min="1"
-                  value={serviceForm.maxPeoplePerBooking}
-                  onChange={(e) => setServiceForm({ ...serviceForm, maxPeoplePerBooking: parseInt(e.target.value) })}
-                  className="bg-deep-charcoal border-white/20 text-white"
-                />
+            {/* Price Options */}
+            <div className="space-y-4 border-t border-white/10 pt-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-heading font-semibold text-white">Price Variants</h3>
+                <Button
+                  onClick={handleAddPriceOption}
+                  size="sm"
+                  className="bg-neon-teal/20 text-neon-teal border border-neon-teal/30 hover:bg-neon-teal/30"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Variant
+                </Button>
+              </div>
+              
+              <p className="text-sm text-light-gray/70 font-paragraph">
+                Add different price options for this service (e.g., Regular, Premium, Deluxe)
+              </p>
+
+              {priceOptions.length === 0 ? (
+                <div className="bg-white/5 border border-white/10 rounded-lg p-4 text-center">
+                  <p className="text-light-gray/70 font-paragraph text-sm">No price variants yet. Add one to get started!</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {priceOptions.map((option, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex gap-3 items-end bg-white/5 border border-white/10 rounded-lg p-4"
+                    >
+                      <div className="flex-1">
+                        <Label htmlFor={`optionName-${idx}`} className="text-light-gray text-xs">
+                          Variant Name
+                        </Label>
+                        <Input
+                          id={`optionName-${idx}`}
+                          placeholder="e.g., Regular, Premium, Deluxe"
+                          value={option.name}
+                          onChange={(e) => handleUpdatePriceOption(idx, 'name', e.target.value)}
+                          className="bg-deep-charcoal border-white/20 text-white mt-1"
+                        />
+                      </div>
+                      <div className="w-32">
+                        <Label htmlFor={`optionPrice-${idx}`} className="text-light-gray text-xs">
+                          Price ($)
+                        </Label>
+                        <Input
+                          id={`optionPrice-${idx}`}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={option.price}
+                          onChange={(e) => handleUpdatePriceOption(idx, 'price', e.target.value)}
+                          className="bg-deep-charcoal border-white/20 text-white mt-1"
+                        />
+                      </div>
+                      <Button
+                        onClick={() => handleRemovePriceOption(idx)}
+                        size="sm"
+                        variant="outline"
+                        className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Additional Settings */}
+            <div className="space-y-4 border-t border-white/10 pt-6">
+              <h3 className="text-lg font-heading font-semibold text-white">Additional Settings</h3>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="maxPeople" className="text-light-gray">
+                    Max People *
+                  </Label>
+                  <Input
+                    id="maxPeople"
+                    type="number"
+                    min="1"
+                    value={serviceForm.maxPeoplePerBooking}
+                    onChange={(e) => setServiceForm({ ...serviceForm, maxPeoplePerBooking: parseInt(e.target.value) })}
+                    className="bg-deep-charcoal border-white/20 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="bufferBefore" className="text-light-gray">
+                    Buffer Before (min)
+                  </Label>
+                  <Input
+                    id="bufferBefore"
+                    type="number"
+                    min="0"
+                    value={serviceForm.bufferBeforeMin}
+                    onChange={(e) => setServiceForm({ ...serviceForm, bufferBeforeMin: parseInt(e.target.value) })}
+                    className="bg-deep-charcoal border-white/20 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="bufferAfter" className="text-light-gray">
+                    Buffer After (min)
+                  </Label>
+                  <Input
+                    id="bufferAfter"
+                    type="number"
+                    min="0"
+                    value={serviceForm.bufferAfterMin}
+                    onChange={(e) => setServiceForm({ ...serviceForm, bufferAfterMin: parseInt(e.target.value) })}
+                    className="bg-deep-charcoal border-white/20 text-white"
+                  />
+                </div>
               </div>
 
-              <div>
-                <Label htmlFor="bufferBefore" className="text-light-gray">
-                  Buffer Before (min)
-                </Label>
-                <Input
-                  id="bufferBefore"
-                  type="number"
-                  min="0"
-                  value={serviceForm.bufferBeforeMin}
-                  onChange={(e) => setServiceForm({ ...serviceForm, bufferBeforeMin: parseInt(e.target.value) })}
-                  className="bg-deep-charcoal border-white/20 text-white"
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="serviceActive"
+                  checked={serviceForm.isActive}
+                  onChange={(e) => setServiceForm({ ...serviceForm, isActive: e.target.checked })}
+                  className="w-4 h-4"
                 />
-              </div>
-
-              <div>
-                <Label htmlFor="bufferAfter" className="text-light-gray">
-                  Buffer After (min)
+                <Label htmlFor="serviceActive" className="text-light-gray">
+                  Active
                 </Label>
-                <Input
-                  id="bufferAfter"
-                  type="number"
-                  min="0"
-                  value={serviceForm.bufferAfterMin}
-                  onChange={(e) => setServiceForm({ ...serviceForm, bufferAfterMin: parseInt(e.target.value) })}
-                  className="bg-deep-charcoal border-white/20 text-white"
-                />
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="serviceActive"
-                checked={serviceForm.isActive}
-                onChange={(e) => setServiceForm({ ...serviceForm, isActive: e.target.checked })}
-                className="w-4 h-4"
-              />
-              <Label htmlFor="serviceActive" className="text-light-gray">
-                Active
-              </Label>
-            </div>
-
-            <div className="flex gap-2 justify-end pt-4">
+            <div className="flex gap-2 justify-end pt-4 border-t border-white/10">
               <Button
                 onClick={() => setShowServiceModal(false)}
                 variant="outline"

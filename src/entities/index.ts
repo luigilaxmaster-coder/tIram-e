@@ -77,6 +77,11 @@ export interface Providers {
  * Collection ID: services
  * Interface for Services
  */
+export interface PriceOption {
+  name: string;
+  price: number;
+}
+
 export interface Services {
   _id: string;
   _createdDate?: Date;
@@ -97,6 +102,8 @@ export interface Services {
   bufferAfterMin?: number;
   /** @wixFieldType boolean */
   isActive?: boolean;
+  /** @wixFieldType text */
+  priceOptions?: string;
 }
 
 
