@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Mail, Tag, Calendar, Clock, Users, DollarSign, Search, X } from 'lucide-react';
-import { Providers, Services } from '@/entities';
+import { MapPin, Phone, Mail, Tag, Calendar, Clock, Users, DollarSign, Search, X, ChevronDown } from 'lucide-react';
+import { Providers, Services, PriceOption } from '@/entities';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -39,6 +39,7 @@ export default function ProviderPublicPage() {
 
   // Booking state
   const [selectedService, setSelectedService] = useState<Services | null>(null);
+  const [selectedPriceOption, setSelectedPriceOption] = useState<PriceOption | null>(null);
   const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [availability, setAvailability] = useState<DayAvailability[]>([]);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
@@ -198,6 +199,7 @@ export default function ProviderPublicPage() {
           clientPhone: bookingForm.clientPhone,
           peopleCount: bookingForm.peopleCount,
           notes: bookingForm.notes,
+          priceOption: selectedPriceOption || undefined,
         }),
       });
 
@@ -216,6 +218,7 @@ export default function ProviderPublicPage() {
       setBookingSuccess(true);
       setShowBookingModal(false);
       setSelectedSlot(null);
+      setSelectedPriceOption(null);
       await loadAvailability();
     } catch (err: any) {
       setBookingError(err.message);
@@ -391,6 +394,28 @@ export default function ProviderPublicPage() {
                         <span className="font-paragraph text-sm">${service.price}</span>
                       </div>
                     )}
+                    {service.priceOptions && (() => {
+                      try {
+                        const opts = JSON.parse(service.priceOptions);
+                        if (Array.isArray(opts) && opts.length > 0) {
+                          return (
+                            <div className="text-sm">
+                              <p className="text-light-gray/70 font-paragraph mb-2">Variants available:</p>
+                              <div className="space-y-1">
+                                {opts.map((opt: PriceOption, idx: number) => (
+                                  <div key={idx} className="text-xs text-light-gray/60 font-paragraph">
+                                    • {opt.name}: ${opt.price}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        }
+                      } catch {
+                        return null;
+                      }
+                      return null;
+                    })()}
                     {service.maxPeoplePerBooking && (
                       <div className="flex items-center gap-2 text-light-gray">
                         <Users className="w-4 h-4 text-neon-teal" />
@@ -516,6 +541,45 @@ export default function ProviderPublicPage() {
                   {bookingError}
                 </div>
               )}
+
+              {selectedService?.priceOptions && (() => {
+                try {
+                  const opts = JSON.parse(selectedService.priceOptions);
+                  if (Array.isArray(opts) && opts.length > 0) {
+                    return (
+                      <div>
+                        <Label htmlFor="priceOption" className="text-light-gray">
+                          Select Price Option *
+                        </Label>
+                        <Select 
+                          value={selectedPriceOption ? JSON.stringify(selectedPriceOption) : ''} 
+                          onValueChange={(val) => {
+                            if (val) {
+                              setSelectedPriceOption(JSON.parse(val));
+                            } else {
+                              setSelectedPriceOption(null);
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="bg-deep-charcoal border-white/20 text-white">
+                            <SelectValue placeholder="Choose a variant..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {opts.map((opt: PriceOption, idx: number) => (
+                              <SelectItem key={idx} value={JSON.stringify(opt)}>
+                                {opt.name} - ${opt.price}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    );
+                  }
+                } catch {
+                  return null;
+                }
+                return null;
+              })()}
 
               <div>
                 <Label htmlFor="clientName" className="text-light-gray">

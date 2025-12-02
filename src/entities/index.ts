@@ -4,6 +4,15 @@
  */
 
 /**
+ * Price option for services
+ * Used for storing multiple pricing tiers (e.g., Regular, Premium, Deluxe)
+ */
+export interface PriceOption {
+  name: string;
+  price: number;
+}
+
+/**
  * Collection ID: appointments
  * Interface for Appointments
  */
@@ -77,17 +86,14 @@ export interface Providers {
  * Collection ID: services
  * Interface for Services
  */
-export interface PriceOption {
-  name: string;
-  price: number;
-}
-
 export interface Services {
   _id: string;
   _createdDate?: Date;
   _updatedDate?: Date;
   /** @wixFieldType text */
   name?: string;
+  /** @wixFieldType text */
+  priceOptions?: string;
   /** @wixFieldType text */
   category?: string;
   /** @wixFieldType number */
@@ -102,8 +108,6 @@ export interface Services {
   bufferAfterMin?: number;
   /** @wixFieldType boolean */
   isActive?: boolean;
-  /** @wixFieldType text */
-  priceOptions?: string;
 }
 
 
