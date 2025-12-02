@@ -60,8 +60,31 @@ async function getWorkingHoursForDay(providerId: string, dayOfWeek: number): Pro
   }
 
   // Parse time strings (format: "HH:mm")
-  const [startHour, startMin] = workingHour.startTime.split(':').map(Number);
-  const [endHour, endMin] = workingHour.endTime.split(':').map(Number);
+  let startTimeStr = workingHour.startTime;
+  let endTimeStr = workingHour.endTime;
+
+  // Handle case where time might be an object with hours/minutes properties
+  if (typeof startTimeStr === 'object' && startTimeStr !== null) {
+    startTimeStr = `${String(startTimeStr.hours || 0).padStart(2, '0')}:${String(startTimeStr.minutes || 0).padStart(2, '0')}`;
+  }
+  if (typeof endTimeStr === 'object' && endTimeStr !== null) {
+    endTimeStr = `${String(endTimeStr.hours || 0).padStart(2, '0')}:${String(endTimeStr.minutes || 0).padStart(2, '0')}`;
+  }
+
+  // Ensure strings are in correct format
+  if (typeof startTimeStr !== 'string' || typeof endTimeStr !== 'string') {
+    console.warn(`Invalid time format for provider ${providerId} on day ${dayOfWeek}:`, { startTimeStr, endTimeStr });
+    return null;
+  }
+
+  const [startHour, startMin] = startTimeStr.split(':').map(Number);
+  const [endHour, endMin] = endTimeStr.split(':').map(Number);
+
+  // Validate parsed values
+  if (isNaN(startHour) || isNaN(startMin) || isNaN(endHour) || isNaN(endMin)) {
+    console.warn(`Failed to parse time for provider ${providerId} on day ${dayOfWeek}:`, { startTimeStr, endTimeStr });
+    return null;
+  }
 
   return { startHour, startMin, endHour, endMin };
 }
@@ -138,45 +161,41 @@ export async function getWeekAvailability(
 
     const { startHour, startMin, endHour, endMin } = workingHours;
 
+    // Calculate slot duration
+    const totalDuration =
+      (service.durationMin || 30) +
+      (service.bufferBeforeMin || 0) +
+      (service.bufferAfterMin || 0);
+
+    // Convert working hours to minutes for easier calculation
+    const workStartMinutes = startHour * 60 + startMin;
+    const workEndMinutes = endHour * 60 + endMin;
+
     // Generate slots based on working hours
-    for (let hour = startHour; hour < endHour; hour++) {
-      for (let minute = hour === startHour ? startMin : 0; minute < 60; minute += SLOT_INTERVAL_MIN) {
-        // Stop if we've reached the end time
-        if (hour === endHour || (hour === endHour - 1 && minute >= endMin)) {
-          break;
-        }
+    for (let slotMinutes = workStartMinutes; slotMinutes + totalDuration <= workEndMinutes; slotMinutes += SLOT_INTERVAL_MIN) {
+      const slotHour = Math.floor(slotMinutes / 60);
+      const slotMin = slotMinutes % 60;
 
-        const slotStart = new Date(dayStart);
-        slotStart.setHours(hour, minute, 0, 0);
+      const slotStart = new Date(dayStart);
+      slotStart.setHours(slotHour, slotMin, 0, 0);
 
-        // Calculate slot end based on service duration + buffers
-        const totalDuration =
-          (service.durationMin || 30) +
-          (service.bufferBeforeMin || 0) +
-          (service.bufferAfterMin || 0);
-        const slotEnd = addMinutes(slotStart, totalDuration);
+      const slotEnd = addMinutes(slotStart, totalDuration);
 
-        // Check if slot end exceeds working hours
-        if (slotEnd.getHours() > endHour || (slotEnd.getHours() === endHour && slotEnd.getMinutes() > endMin)) {
-          continue;
-        }
+      // Check if slot is in the past
+      if (slotStart < new Date()) {
+        continue;
+      }
 
-        // Check if slot is in the past
-        if (slotStart < new Date()) {
-          continue;
-        }
+      // Check for overlaps with busy periods
+      const isOverlapping = busyPeriods.some((busy) => {
+        return slotStart < busy.end && slotEnd > busy.start;
+      });
 
-        // Check for overlaps with busy periods
-        const isOverlapping = busyPeriods.some((busy) => {
-          return slotStart < busy.end && slotEnd > busy.start;
+      if (!isOverlapping) {
+        slots.push({
+          startAtISO: slotStart.toISOString(),
+          endAtISO: slotEnd.toISOString(),
         });
-
-        if (!isOverlapping) {
-          slots.push({
-            startAtISO: slotStart.toISOString(),
-            endAtISO: slotEnd.toISOString(),
-          });
-        }
       }
     }
 

@@ -691,7 +691,7 @@ export default function ProviderPublicPage() {
                 >
                   <LoadingSpinner />
                 </motion.div>
-              ) : availability.length === 0 ? (
+              ) : availability.length === 0 || availability.every((day) => day.slots.length === 0) ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -700,7 +700,14 @@ export default function ProviderPublicPage() {
                   <div className="inline-block p-4 bg-white/5 rounded-full mb-4">
                     <Calendar className="w-8 h-8 text-light-gray/50" />
                   </div>
-                  <p className="text-light-gray font-paragraph text-lg">No availability for this week.</p>
+                  <p className="text-light-gray font-paragraph text-lg mb-4">No availability for this week.</p>
+                  <p className="text-light-gray/60 font-paragraph text-sm mb-6">Try selecting a different week or service.</p>
+                  <Button
+                    onClick={() => setWeekStart(addDays(weekStart, 7))}
+                    className="bg-neon-teal/20 text-neon-teal border border-neon-teal/30 hover:bg-neon-teal/30"
+                  >
+                    Next Week →
+                  </Button>
                 </motion.div>
               ) : (
                 <motion.div
