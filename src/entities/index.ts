@@ -4,7 +4,7 @@
  */
 
 /**
- * PriceOption interface for service price variants
+ * Price option for services with multiple pricing tiers
  */
 export interface PriceOption {
   name: string;
@@ -78,6 +78,8 @@ export interface Providers {
   createdAt?: Date | string;
   /** @wixFieldType datetime */
   updatedAt?: Date | string;
+  /** @wixFieldType text */
+  googleCalendarData?: string;
 }
 
 

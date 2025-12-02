@@ -11,9 +11,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { BaseCrudService } from '@/integrations';
 import { Providers, Services, Appointments, PriceOption } from '@/entities';
 import { format, startOfDay, endOfDay, addDays, startOfWeek, endOfWeek, parseISO } from 'date-fns';
-import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus } from 'lucide-react';
+import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus, LogOut, Link2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { generateGoogleOAuthUrl, disconnectGoogleCalendar } from '@/backend/googleCalendar';
+
+interface ServiceScheduleDay {
+  dayOfWeek: number;
+  isActive: boolean;
+  startTime: string;
+  endTime: string;
+}
 
 export default function ProviderDashboard() {
   const { member } = useMember();
@@ -50,14 +58,6 @@ export default function ProviderDashboard() {
     isActive: true,
   });
   const [priceOptions, setPriceOptions] = useState<PriceOption[]>([]);
-  
-  // Service schedule
-  interface ServiceScheduleDay {
-    dayOfWeek: number;
-    isActive: boolean;
-    startTime: string;
-    endTime: string;
-  }
   const [serviceSchedule, setServiceSchedule] = useState<ServiceScheduleDay[]>([
     { dayOfWeek: 0, isActive: false, startTime: '09:00', endTime: '17:00' },
     { dayOfWeek: 1, isActive: true, startTime: '09:00', endTime: '17:00' },
@@ -67,6 +67,11 @@ export default function ProviderDashboard() {
     { dayOfWeek: 5, isActive: true, startTime: '09:00', endTime: '17:00' },
     { dayOfWeek: 6, isActive: false, startTime: '09:00', endTime: '17:00' },
   ]);
+
+  // Google Calendar integration
+  const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
+  const [googleCalendarEmail, setGoogleCalendarEmail] = useState<string | null>(null);
+  const [disconnectingGoogle, setDisconnectingGoogle] = useState(false);
 
   // Appointments filter
   const [appointmentFilter, setAppointmentFilter] = useState<'today' | 'week' | 'custom'>('today');
@@ -80,6 +85,7 @@ export default function ProviderDashboard() {
   useEffect(() => {
     if (provider) {
       loadAppointments();
+      checkGoogleCalendarStatus();
     }
   }, [provider, appointmentFilter, customStartDate, customEndDate]);
 
@@ -232,7 +238,6 @@ export default function ProviderDashboard() {
         bufferAfterMin: service.bufferAfterMin || 0,
         isActive: service.isActive !== false,
       });
-      // Parse price options from JSON string
       if (service.priceOptions) {
         try {
           const parsed = JSON.parse(service.priceOptions);
@@ -243,7 +248,6 @@ export default function ProviderDashboard() {
       } else {
         setPriceOptions([]);
       }
-      // Parse service schedule from JSON string
       if (service.serviceSchedule) {
         try {
           const parsed = JSON.parse(service.serviceSchedule);
@@ -351,6 +355,55 @@ export default function ProviderDashboard() {
       return day;
     });
     setServiceSchedule(updated);
+  };
+
+  const checkGoogleCalendarStatus = async () => {
+    if (!provider) return;
+
+    try {
+      if (provider.googleCalendarData) {
+        const calendarData = JSON.parse(provider.googleCalendarData);
+        setGoogleCalendarConnected(true);
+        setGoogleCalendarEmail(calendarData.calendarId || 'Connected');
+      } else {
+        setGoogleCalendarConnected(false);
+        setGoogleCalendarEmail(null);
+      }
+    } catch (error) {
+      console.error('Error checking Google Calendar status:', error);
+      setGoogleCalendarConnected(false);
+      setGoogleCalendarEmail(null);
+    }
+  };
+
+  const handleConnectGoogleCalendar = () => {
+    if (!provider) return;
+    const oauthUrl = generateGoogleOAuthUrl(provider._id);
+    window.location.href = oauthUrl;
+  };
+
+  const handleDisconnectGoogleCalendar = async () => {
+    if (!provider) return;
+
+    try {
+      setDisconnectingGoogle(true);
+      await disconnectGoogleCalendar(provider._id);
+      setGoogleCalendarConnected(false);
+      setGoogleCalendarEmail(null);
+      toast({
+        title: 'Success',
+        description: 'Google Calendar disconnected successfully',
+      });
+    } catch (error) {
+      console.error('Error disconnecting Google Calendar:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to disconnect Google Calendar',
+        variant: 'destructive',
+      });
+    } finally {
+      setDisconnectingGoogle(false);
+    }
   };
 
   const handleDeleteService = async (serviceId: string) => {
@@ -480,6 +533,7 @@ export default function ProviderDashboard() {
               { value: 'overview', label: 'Overview', icon: BarChart3 },
               { value: 'appointments', label: 'Appointments', icon: Calendar },
               { value: 'services', label: 'Services', icon: Zap },
+              { value: 'integrations', label: 'Integrations', icon: Link2 },
               { value: 'profile', label: 'Profile', icon: Settings },
             ].map((tab) => (
               <TabsTrigger
@@ -800,6 +854,89 @@ export default function ProviderDashboard() {
                   ))}
                 </div>
               )}
+            </motion.div>
+          </TabsContent>
+
+          {/* Integrations Tab */}
+          <TabsContent value="integrations" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm"
+            >
+              <h2 className="text-2xl font-heading font-bold text-white mb-8">Integrations</h2>
+
+              {/* Google Calendar Integration */}
+              <div className="space-y-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-deep-charcoal border border-white/10 rounded-lg p-6 hover:border-neon-teal/30 transition-all"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-heading font-semibold text-white mb-2">Google Calendar</h3>
+                      <p className="text-sm text-light-gray font-paragraph">
+                        Sync your appointments automatically to your Google Calendar
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-blue-400" />
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-6 border-t border-white/10">
+                    {googleCalendarConnected ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                          <CheckCircle className="w-5 h-5 text-green-400" />
+                          <div className="flex-1">
+                            <p className="text-sm font-paragraph text-green-400">Connected</p>
+                            <p className="text-xs text-light-gray/70 mt-1">{googleCalendarEmail}</p>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={handleDisconnectGoogleCalendar}
+                          disabled={disconnectingGoogle}
+                          variant="outline"
+                          className="w-full border-destructive/30 text-destructive hover:bg-destructive/10"
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          {disconnectingGoogle ? 'Disconnecting...' : 'Disconnect'}
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={handleConnectGoogleCalendar}
+                        className="w-full bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        <Link2 className="w-4 h-4 mr-2" />
+                        Connect Google Calendar
+                      </Button>
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* More integrations can be added here */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-deep-charcoal border border-white/10 rounded-lg p-6 opacity-50"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-heading font-semibold text-white/50 mb-2">Outlook Calendar</h3>
+                      <p className="text-sm text-light-gray/50 font-paragraph">
+                        Coming soon
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-blue-300/50" />
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
             </motion.div>
           </TabsContent>
 
