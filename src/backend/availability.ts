@@ -1,5 +1,5 @@
 import { BaseCrudService } from '@/integrations';
-import { Providers, Services, Appointments, SlotLocks, WorkingHours } from '@/entities';
+import { Providers, Services, Appointments, SlotLocks, ProviderWorkingHours } from '@/entities';
 import { parseISO, addMinutes, format, startOfDay, addDays, getDay } from 'date-fns';
 const SLOT_INTERVAL_MIN = 30;
 
@@ -50,7 +50,7 @@ export async function listActiveServices(providerId: string, filters?: any) {
  * Get working hours for a provider on a specific day
  */
 async function getWorkingHoursForDay(providerId: string, dayOfWeek: number): Promise<{ startHour: number; startMin: number; endHour: number; endMin: number } | null> {
-  const { items: allWorkingHours } = await BaseCrudService.getAll<WorkingHours>('workinghours');
+  const { items: allWorkingHours } = await BaseCrudService.getAll<ProviderWorkingHours>('workinghours');
   const workingHour = allWorkingHours.find(
     (wh) => wh.providerId === providerId && wh.dayOfWeek === dayOfWeek && wh.isActive !== false
   );

@@ -4,15 +4,6 @@
  */
 
 /**
- * Price Option Interface
- * Used for service price variants
- */
-export interface PriceOption {
-  name: string;
-  price: number;
-}
-
-/**
  * Collection ID: appointments
  * Interface for Appointments
  */
@@ -131,27 +122,6 @@ export interface SlotLocks {
   appointmentId?: string;
   /** @wixFieldType datetime */
   createdAt?: Date | string;
-}
-
-
-/**
- * Collection ID: workinghours
- * Interface for Working Hours
- */
-export interface WorkingHours {
-  _id: string;
-  _createdDate?: Date;
-  _updatedDate?: Date;
-  /** @wixFieldType text */
-  providerId?: string;
-  /** @wixFieldType number */
-  dayOfWeek?: number;
-  /** @wixFieldType time */
-  startTime?: string;
-  /** @wixFieldType time */
-  endTime?: string;
-  /** @wixFieldType boolean */
-  isActive?: boolean;
 }
 
 

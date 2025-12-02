@@ -9,8 +9,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BaseCrudService } from '@/integrations';
-import { Providers, Services, Appointments, PriceOption, WorkingHours } from '@/entities';
+import { Providers, Services, Appointments, ProviderWorkingHours } from '@/entities';
 import { format, startOfDay, endOfDay, addDays, startOfWeek, endOfWeek, parseISO } from 'date-fns';
+
+// PriceOption interface for service variants
+interface PriceOption {
+  name: string;
+  price: number;
+}
 import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +27,7 @@ export default function ProviderDashboard() {
   const [provider, setProvider] = useState<Providers | null>(null);
   const [services, setServices] = useState<Services[]>([]);
   const [appointments, setAppointments] = useState<Appointments[]>([]);
+  const [workingHours, setWorkingHours] = useState<ProviderWorkingHours[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -51,6 +58,18 @@ export default function ProviderDashboard() {
   });
   const [priceOptions, setPriceOptions] = useState<PriceOption[]>([]);
 
+  // Working hours editing
+  const [editingHours, setEditingHours] = useState(false);
+  const [hoursForm, setHoursForm] = useState<Record<number, { startTime: string; endTime: string; isActive: boolean }>>({
+    0: { startTime: '09:00', endTime: '17:00', isActive: false },
+    1: { startTime: '09:00', endTime: '17:00', isActive: true },
+    2: { startTime: '09:00', endTime: '17:00', isActive: true },
+    3: { startTime: '09:00', endTime: '17:00', isActive: true },
+    4: { startTime: '09:00', endTime: '17:00', isActive: true },
+    5: { startTime: '09:00', endTime: '17:00', isActive: true },
+    6: { startTime: '09:00', endTime: '17:00', isActive: false },
+  });
+
   // Appointments filter
   const [appointmentFilter, setAppointmentFilter] = useState<'today' | 'week' | 'custom'>('today');
   const [customStartDate, setCustomStartDate] = useState('');
@@ -63,6 +82,7 @@ export default function ProviderDashboard() {
   useEffect(() => {
     if (provider) {
       loadAppointments();
+      loadWorkingHours();
     }
   }, [provider, appointmentFilter, customStartDate, customEndDate]);
 
@@ -162,6 +182,74 @@ export default function ProviderDashboard() {
       setAppointments(filtered);
     } catch (error) {
       console.error('Error loading appointments:', error);
+    }
+  };
+
+  const loadWorkingHours = async () => {
+    if (!provider) return;
+
+    try {
+      const { items: allHours } = await BaseCrudService.getAll<ProviderWorkingHours>('workinghours');
+      const providerHours = allHours.filter((h) => h.providerId === provider._id);
+      setWorkingHours(providerHours);
+
+      // Populate form with existing hours
+      const newForm = { ...hoursForm };
+      providerHours.forEach((hour) => {
+        if (hour.dayOfWeek !== undefined && hour.startTime && hour.endTime) {
+          newForm[hour.dayOfWeek] = {
+            startTime: hour.startTime,
+            endTime: hour.endTime,
+            isActive: hour.isActive !== false,
+          };
+        }
+      });
+      setHoursForm(newForm);
+    } catch (error) {
+      console.error('Error loading working hours:', error);
+    }
+  };
+
+  const handleSaveWorkingHours = async () => {
+    if (!provider) return;
+
+    try {
+      // Delete existing hours
+      const { items: allHours } = await BaseCrudService.getAll<ProviderWorkingHours>('workinghours');
+      const providerHours = allHours.filter((h) => h.providerId === provider._id);
+      
+      for (const hour of providerHours) {
+        await BaseCrudService.delete('workinghours', hour._id);
+      }
+
+      // Create new hours
+      for (const [dayOfWeek, timeData] of Object.entries(hoursForm)) {
+        if (timeData.isActive) {
+          const newHour: ProviderWorkingHours = {
+            _id: crypto.randomUUID(),
+            providerId: provider._id,
+            dayOfWeek: parseInt(dayOfWeek),
+            startTime: timeData.startTime,
+            endTime: timeData.endTime,
+            isActive: true,
+          };
+          await BaseCrudService.create('workinghours', newHour);
+        }
+      }
+
+      setEditingHours(false);
+      await loadWorkingHours();
+      toast({
+        title: 'Success',
+        description: 'Working hours updated successfully',
+      });
+    } catch (error) {
+      console.error('Error saving working hours:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save working hours',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -425,7 +513,7 @@ export default function ProviderDashboard() {
       {/* Main Content */}
       <div className="max-w-[100rem] mx-auto px-4 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="bg-white/5 border border-white/10 rounded-lg p-1 w-full grid grid-cols-6 gap-1">
+          <TabsList className="bg-white/5 border border-white/10 rounded-lg p-1 w-full grid grid-cols-5 gap-1">
             {[
               { value: 'overview', label: 'Overview', icon: BarChart3 },
               { value: 'appointments', label: 'Appointments', icon: Calendar },
@@ -751,6 +839,131 @@ export default function ProviderDashboard() {
                   ))}
                 </div>
               )}
+            </motion.div>
+          </TabsContent>
+
+          {/* Working Hours Tab */}
+          <TabsContent value="hours" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-heading font-bold text-white">Working Hours</h2>
+                  <p className="text-light-gray font-paragraph mt-2">Set your availability for each day of the week</p>
+                </div>
+                {!editingHours ? (
+                  <Button onClick={() => setEditingHours(true)} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Hours
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button onClick={handleSaveWorkingHours} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
+                      <Save className="w-4 h-4 mr-2" />
+                      Save
+                    </Button>
+                    <Button
+                      onClick={() => setEditingHours(false)}
+                      variant="outline"
+                      className="border-white/20 text-white hover:bg-white/10"
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Cancel
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, dayIndex) => (
+                  <motion.div
+                    key={dayIndex}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: dayIndex * 0.05 }}
+                    className="bg-deep-charcoal border border-white/10 rounded-lg p-6 hover:border-neon-teal/30 transition-all"
+                  >
+                    <div className="flex items-center justify-between gap-6">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-heading font-semibold text-white">{day}</h3>
+                          {editingHours && (
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={hoursForm[dayIndex]?.isActive || false}
+                                onChange={(e) =>
+                                  setHoursForm({
+                                    ...hoursForm,
+                                    [dayIndex]: {
+                                      ...hoursForm[dayIndex],
+                                      isActive: e.target.checked,
+                                    },
+                                  })
+                                }
+                                className="w-5 h-5 rounded border-white/20 bg-white/5"
+                              />
+                              <span className="text-light-gray text-sm">Active</span>
+                            </label>
+                          )}
+                        </div>
+
+                        {hoursForm[dayIndex]?.isActive || !editingHours ? (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor={`start-${dayIndex}`} className="text-light-gray text-sm mb-2 block">
+                                Start Time
+                              </Label>
+                              <Input
+                                id={`start-${dayIndex}`}
+                                type="time"
+                                value={hoursForm[dayIndex]?.startTime || '09:00'}
+                                onChange={(e) =>
+                                  setHoursForm({
+                                    ...hoursForm,
+                                    [dayIndex]: {
+                                      ...hoursForm[dayIndex],
+                                      startTime: e.target.value,
+                                    },
+                                  })
+                                }
+                                disabled={!editingHours}
+                                className="bg-white/5 border-white/20 text-white disabled:opacity-50"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`end-${dayIndex}`} className="text-light-gray text-sm mb-2 block">
+                                End Time
+                              </Label>
+                              <Input
+                                id={`end-${dayIndex}`}
+                                type="time"
+                                value={hoursForm[dayIndex]?.endTime || '17:00'}
+                                onChange={(e) =>
+                                  setHoursForm({
+                                    ...hoursForm,
+                                    [dayIndex]: {
+                                      ...hoursForm[dayIndex],
+                                      endTime: e.target.value,
+                                    },
+                                  })
+                                }
+                                disabled={!editingHours}
+                                className="bg-white/5 border-white/20 text-white disabled:opacity-50"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-light-gray/70 font-paragraph text-sm italic">Not available</p>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </motion.div>
           </TabsContent>
 

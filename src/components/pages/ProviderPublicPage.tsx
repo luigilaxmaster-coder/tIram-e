@@ -2,8 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Phone, Mail, Tag, Clock, Users, DollarSign, Search, X, ChevronDown, Calendar, ArrowRight, Star } from 'lucide-react';
-import { Providers, Services, PriceOption } from '@/entities';
+import { Providers, Services } from '@/entities';
 import { Button } from '@/components/ui/button';
+
+// PriceOption interface for service variants
+interface PriceOption {
+  name: string;
+  price: number;
+}
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
