@@ -312,7 +312,7 @@ export default function ProviderPublicPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.03)` }}>
+    <div className="min-h-screen overflow-hidden bg-deep-charcoal">
       {/* Animated background gradient */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div

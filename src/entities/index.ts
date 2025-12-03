@@ -4,6 +4,14 @@
  */
 
 /**
+ * Price option interface for service variants
+ */
+export interface PriceOption {
+  name: string;
+  price: number;
+}
+
+/**
  * Collection ID: appointments
  * Interface for Appointments
  */
@@ -88,10 +96,6 @@ export interface Services {
   /** @wixFieldType text */
   cardColor?: string;
   /** @wixFieldType text */
-  textColor?: string;
-  /** @wixFieldType text */
-  textGradient?: string;
-  /** @wixFieldType text */
   priceOptions?: string;
   /** @wixFieldType text */
   category?: string;
@@ -108,15 +112,11 @@ export interface Services {
   /** @wixFieldType boolean */
   isActive?: boolean;
   /** @wixFieldType text */
+  textColor?: string;
+  /** @wixFieldType text */
+  textGradient?: string;
+  /** @wixFieldType text */
   serviceSchedule?: string;
-}
-
-/**
- * Price option interface for service variants
- */
-export interface PriceOption {
-  name: string;
-  price: number;
 }
 
 
