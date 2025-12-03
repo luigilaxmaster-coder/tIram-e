@@ -615,6 +615,22 @@ export default function ProviderPublicPage() {
                 const serviceColor = service.cardColor || dominantColor;
                 const serviceRgb = hexToRgb(serviceColor);
                 const serviceRgbString = serviceRgb ? `${serviceRgb.r}, ${serviceRgb.g}, ${serviceRgb.b}` : dominantRgbString;
+                
+                // Get text color and gradient
+                const textColor = service.textColor || '#FFFFFF';
+                const textGradient = service.textGradient;
+                const getTextStyle = () => {
+                  if (textGradient) {
+                    const [color1, color2] = textGradient.split(' to ');
+                    return {
+                      backgroundImage: `linear-gradient(135deg, ${color1}, ${color2 || color1})`,
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    };
+                  }
+                  return { color: textColor };
+                };
 
                 return (
                   <motion.div
@@ -644,10 +660,8 @@ export default function ProviderPublicPage() {
                       {/* Header */}
                       <div className="mb-6">
                         <h3
-                          className="text-2xl font-heading font-bold text-white mb-2 group-hover:transition-colors"
-                          style={{ color: 'white' }}
-                          onMouseEnter={(e) => (e.currentTarget.style.color = serviceColor)}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = 'white')}
+                          className="text-2xl font-heading font-bold mb-2 group-hover:transition-colors"
+                          style={getTextStyle()}
                         >
                           {service.name}
                         </h3>

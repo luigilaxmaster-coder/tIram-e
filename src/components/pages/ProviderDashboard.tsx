@@ -57,6 +57,8 @@ export default function ProviderDashboard() {
     bufferAfterMin: 0,
     isActive: true,
     cardColor: '#00FFD4',
+    textColor: '#FFFFFF',
+    textGradient: '',
   });
   const [priceOptions, setPriceOptions] = useState<PriceOption[]>([]);
   const [serviceSchedule, setServiceSchedule] = useState<ServiceScheduleDay[]>([
@@ -239,6 +241,8 @@ export default function ProviderDashboard() {
         bufferAfterMin: service.bufferAfterMin || 0,
         isActive: service.isActive !== false,
         cardColor: service.cardColor || '#00FFD4',
+        textColor: service.textColor || '#FFFFFF',
+        textGradient: service.textGradient || '',
       });
       if (service.priceOptions) {
         try {
@@ -272,6 +276,8 @@ export default function ProviderDashboard() {
         bufferAfterMin: 0,
         isActive: true,
         cardColor: '#00FFD4',
+        textColor: '#FFFFFF',
+        textGradient: '',
       });
       setPriceOptions([]);
       setServiceSchedule(getDefaultSchedule());
@@ -1177,6 +1183,73 @@ export default function ProviderDashboard() {
                 <p className="text-xs text-light-gray/70 mt-2 font-paragraph">
                   Selected: <span style={{ color: serviceForm.cardColor }} className="font-semibold">{serviceForm.cardColor}</span>
                 </p>
+              </div>
+
+              <div>
+                <Label htmlFor="textColor" className="text-light-gray">
+                  Text Color
+                </Label>
+                <div className="flex gap-3 mt-2 flex-wrap">
+                  {[
+                    { name: 'White', value: '#FFFFFF' },
+                    { name: 'Black', value: '#000000' },
+                    { name: 'Teal', value: '#00FFD4' },
+                    { name: 'Red', value: '#FF4136' },
+                    { name: 'Green', value: '#2ECC40' },
+                    { name: 'Blue', value: '#0074D9' },
+                    { name: 'Purple', value: '#B10DC9' },
+                    { name: 'Orange', value: '#FF851B' },
+                  ].map((color) => (
+                    <button
+                      key={color.value}
+                      onClick={() => setServiceForm({ ...serviceForm, textColor: color.value, textGradient: '' })}
+                      className={`w-12 h-12 rounded-lg border-2 transition-all flex items-center justify-center ${
+                        serviceForm.textColor === color.value && !serviceForm.textGradient
+                          ? 'border-white scale-110'
+                          : 'border-white/20 hover:border-white/50'
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                      title={color.name}
+                    >
+                      <span className="text-xs font-bold" style={{ color: color.value === '#FFFFFF' ? '#000000' : '#FFFFFF' }}>A</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-light-gray/70 mt-2 font-paragraph">
+                  Selected: <span style={{ color: serviceForm.textColor }} className="font-semibold">{serviceForm.textColor}</span>
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="textGradient" className="text-light-gray">
+                  Text Gradient (Optional)
+                </Label>
+                <p className="text-xs text-light-gray/70 mb-2 font-paragraph">
+                  Create a gradient effect for text. Format: color1 to color2 (e.g., #FF4136 to #00FFD4)
+                </p>
+                <Input
+                  id="textGradient"
+                  placeholder="e.g., #FF4136 to #00FFD4"
+                  value={serviceForm.textGradient}
+                  onChange={(e) => setServiceForm({ ...serviceForm, textGradient: e.target.value })}
+                  className="bg-deep-charcoal border-white/20 text-white"
+                />
+                {serviceForm.textGradient && (
+                  <div className="mt-3 p-4 rounded-lg border border-white/10 bg-white/5">
+                    <p className="text-xs text-light-gray/70 mb-2">Preview:</p>
+                    <div
+                      className="text-2xl font-heading font-bold py-2 px-4 rounded"
+                      style={{
+                        backgroundImage: `linear-gradient(135deg, ${serviceForm.textGradient.split(' to ')[0]}, ${serviceForm.textGradient.split(' to ')[1] || serviceForm.textGradient.split(' to ')[0]})`,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}
+                    >
+                      Sample Text
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
