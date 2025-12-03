@@ -56,6 +56,7 @@ export default function ProviderDashboard() {
     bufferBeforeMin: 0,
     bufferAfterMin: 0,
     isActive: true,
+    cardColor: '#00FFD4',
   });
   const [priceOptions, setPriceOptions] = useState<PriceOption[]>([]);
   const [serviceSchedule, setServiceSchedule] = useState<ServiceScheduleDay[]>([
@@ -237,6 +238,7 @@ export default function ProviderDashboard() {
         bufferBeforeMin: service.bufferBeforeMin || 0,
         bufferAfterMin: service.bufferAfterMin || 0,
         isActive: service.isActive !== false,
+        cardColor: service.cardColor || '#00FFD4',
       });
       if (service.priceOptions) {
         try {
@@ -269,6 +271,7 @@ export default function ProviderDashboard() {
         bufferBeforeMin: 0,
         bufferAfterMin: 0,
         isActive: true,
+        cardColor: '#00FFD4',
       });
       setPriceOptions([]);
       setServiceSchedule(getDefaultSchedule());
@@ -1141,6 +1144,39 @@ export default function ProviderDashboard() {
                     className="bg-deep-charcoal border-white/20 text-white"
                   />
                 </div>
+              </div>
+
+              <div>
+                <Label htmlFor="cardColor" className="text-light-gray">
+                  Card Color
+                </Label>
+                <div className="flex gap-3 mt-2 flex-wrap">
+                  {[
+                    { name: 'Teal', value: '#00FFD4' },
+                    { name: 'Red', value: '#FF4136' },
+                    { name: 'Green', value: '#2ECC40' },
+                    { name: 'Blue', value: '#0074D9' },
+                    { name: 'Purple', value: '#B10DC9' },
+                    { name: 'Orange', value: '#FF851B' },
+                    { name: 'Pink', value: '#F012BE' },
+                    { name: 'Yellow', value: '#FFDC00' },
+                  ].map((color) => (
+                    <button
+                      key={color.value}
+                      onClick={() => setServiceForm({ ...serviceForm, cardColor: color.value })}
+                      className={`w-12 h-12 rounded-lg border-2 transition-all ${
+                        serviceForm.cardColor === color.value
+                          ? 'border-white scale-110'
+                          : 'border-white/20 hover:border-white/50'
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                      title={color.name}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-light-gray/70 mt-2 font-paragraph">
+                  Selected: <span style={{ color: serviceForm.cardColor }} className="font-semibold">{serviceForm.cardColor}</span>
+                </p>
               </div>
             </div>
 

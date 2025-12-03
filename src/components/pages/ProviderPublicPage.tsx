@@ -22,6 +22,26 @@ interface DayAvailability {
   slots: AvailabilitySlot[];
 }
 
+// Helper function to convert hex to RGB
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16),
+  } : null;
+}
+
+interface AvailabilitySlot {
+  startAtISO: string;
+  endAtISO: string;
+}
+
+interface DayAvailability {
+  date: string;
+  slots: AvailabilitySlot[];
+}
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -500,18 +520,38 @@ export default function ProviderPublicPage() {
               viewport={{ once: true }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {filteredServices.map((service) => (
+              {filteredServices.map((service) => {
+                const cardColor = service.cardColor || '#00FFD4';
+                const rgbColor = hexToRgb(cardColor);
+                const rgbString = rgbColor ? `${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b}` : '0, 255, 212';
+                
+                return (
                 <motion.div
                   key={service._id}
                   variants={itemVariants}
                   whileHover={{ y: -8 }}
-                  className="group relative bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-neon-teal/30 transition-all duration-300 overflow-hidden"
+                  className="group relative bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/30 transition-all duration-300 overflow-hidden"
+                  style={{
+                    borderColor: `rgba(${rgbString}, 0.3)`,
+                  }}
                 >
                   {/* Gradient overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-neon-teal/0 to-neon-teal/0 group-hover:from-neon-teal/5 group-hover:to-neon-teal/10 transition-all duration-300" />
+                  <div 
+                    className="absolute inset-0 transition-all duration-300 group-hover:opacity-100 opacity-0"
+                    style={{
+                      background: `linear-gradient(to bottom right, rgba(${rgbString}, 0.05), rgba(${rgbString}, 0.1))`,
+                    }}
+                  />
 
                   <div className="relative z-10">
-                    <h3 className="text-2xl font-heading font-semibold text-white mb-4 group-hover:text-neon-teal transition-colors">{service.name}</h3>
+                    <h3 
+                      className="text-2xl font-heading font-semibold text-white mb-4 group-hover:transition-colors"
+                      style={{ color: 'white' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = cardColor)}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = 'white')}
+                    >
+                      {service.name}
+                    </h3>
 
                     <div className="space-y-3 mb-6">
                       {service.category && (
@@ -521,7 +561,7 @@ export default function ProviderPublicPage() {
                           transition={{ delay: 0.1 }}
                           className="flex items-center gap-2 text-light-gray/70"
                         >
-                          <Tag className="w-4 h-4 text-neon-teal flex-shrink-0" />
+                          <Tag className="w-4 h-4 flex-shrink-0" style={{ color: cardColor }} />
                           <span className="font-paragraph text-sm">{service.category}</span>
                         </motion.div>
                       )}
@@ -532,7 +572,7 @@ export default function ProviderPublicPage() {
                           transition={{ delay: 0.15 }}
                           className="flex items-center gap-2 text-light-gray/70"
                         >
-                          <Clock className="w-4 h-4 text-neon-teal flex-shrink-0" />
+                          <Clock className="w-4 h-4 flex-shrink-0" style={{ color: cardColor }} />
                           <span className="font-paragraph text-sm">{service.durationMin} minutes</span>
                         </motion.div>
                       )}
@@ -543,8 +583,8 @@ export default function ProviderPublicPage() {
                           transition={{ delay: 0.2 }}
                           className="flex items-center gap-2 text-light-gray/70"
                         >
-                          <DollarSign className="w-4 h-4 text-neon-teal flex-shrink-0" />
-                          <span className="font-paragraph text-sm font-semibold text-neon-teal">${service.price}</span>
+                          <DollarSign className="w-4 h-4 flex-shrink-0" style={{ color: cardColor }} />
+                          <span className="font-paragraph text-sm font-semibold" style={{ color: cardColor }}>${service.price}</span>
                         </motion.div>
                       )}
                       {service.maxPeoplePerBooking && (
@@ -554,7 +594,7 @@ export default function ProviderPublicPage() {
                           transition={{ delay: 0.25 }}
                           className="flex items-center gap-2 text-light-gray/70"
                         >
-                          <Users className="w-4 h-4 text-neon-teal flex-shrink-0" />
+                          <Users className="w-4 h-4 flex-shrink-0" style={{ color: cardColor }} />
                           <span className="font-paragraph text-sm">Up to {service.maxPeoplePerBooking} people</span>
                         </motion.div>
                       )}
@@ -570,14 +610,19 @@ export default function ProviderPublicPage() {
                               initial={{ opacity: 0 }}
                               whileInView={{ opacity: 1 }}
                               transition={{ delay: 0.3 }}
-                              className="mb-6 p-3 bg-neon-teal/10 border border-neon-teal/20 rounded-lg"
+                              className="mb-6 p-3 rounded-lg"
+                              style={{
+                                backgroundColor: `rgba(${rgbString}, 0.1)`,
+                                borderColor: `rgba(${rgbString}, 0.2)`,
+                                borderWidth: '1px',
+                              }}
                             >
-                              <p className="text-neon-teal/80 font-paragraph text-xs font-semibold mb-2">VARIANTS</p>
+                              <p className="font-paragraph text-xs font-semibold mb-2" style={{ color: cardColor, opacity: 0.8 }}>VARIANTS</p>
                               <div className="space-y-1">
                                 {opts.map((opt: PriceOption, idx: number) => (
                                   <div key={idx} className="text-xs text-light-gray/70 font-paragraph flex justify-between">
                                     <span>{opt.name}</span>
-                                    <span className="text-neon-teal font-semibold">${opt.price}</span>
+                                    <span className="font-semibold" style={{ color: cardColor }}>${opt.price}</span>
                                   </div>
                                 ))}
                               </div>
@@ -595,7 +640,8 @@ export default function ProviderPublicPage() {
                         setSelectedService(service);
                         setBookingSuccess(false);
                       }}
-                      className="w-full bg-neon-teal text-deep-charcoal hover:opacity-90 font-semibold group/btn"
+                      className="w-full text-deep-charcoal hover:opacity-90 font-semibold group/btn"
+                      style={{ backgroundColor: cardColor }}
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Book Now
@@ -603,7 +649,8 @@ export default function ProviderPublicPage() {
                     </Button>
                   </div>
                 </motion.div>
-              ))}
+              );
+              })}
             </motion.div>
           )}
         </div>
