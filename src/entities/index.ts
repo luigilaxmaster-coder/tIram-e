@@ -4,6 +4,14 @@
  */
 
 /**
+ * Price option interface for service variants
+ */
+export interface PriceOption {
+  name: string;
+  price: number;
+}
+
+/**
  * Collection ID: appointments
  * Interface for Appointments
  */
@@ -70,6 +78,8 @@ export interface Providers {
   createdAt?: Date | string;
   /** @wixFieldType datetime */
   updatedAt?: Date | string;
+  /** @wixFieldType text */
+  googleCalendarData?: string;
 }
 
 
@@ -83,6 +93,8 @@ export interface Services {
   _updatedDate?: Date;
   /** @wixFieldType text */
   name?: string;
+  /** @wixFieldType text */
+  cardColor?: string;
   /** @wixFieldType text */
   priceOptions?: string;
   /** @wixFieldType text */
@@ -100,7 +112,7 @@ export interface Services {
   /** @wixFieldType boolean */
   isActive?: boolean;
   /** @wixFieldType text */
-  cardColor?: string;
+  serviceSchedule?: string;
 }
 
 
