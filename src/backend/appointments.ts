@@ -2,6 +2,7 @@ import { BaseCrudService } from '@/integrations';
 import { Appointments, Services, SlotLocks, Providers } from '@/entities';
 import { parseISO, addMinutes } from 'date-fns';
 import { sendConfirmationNotifications } from './notifications';
+import { createGoogleCalendarEvent } from './googleCalendar';
 
 interface CreateAppointmentPayload {
   providerId: string;
@@ -97,6 +98,21 @@ export async function createAppointment(payload: CreateAppointmentPayload): Prom
 
     // Send confirmation email and WhatsApp message
     await sendConfirmationNotifications(appointment, provider, service);
+
+    // Sync appointment to Google Calendar if connected
+    try {
+      const googleEventId = await createGoogleCalendarEvent(providerId, appointment);
+      if (googleEventId) {
+        // Store the Google Calendar event ID in the appointment for future reference
+        await BaseCrudService.update<Appointments>('appointments', {
+          _id: appointment._id,
+          googleCalendarEventId: googleEventId,
+        });
+      }
+    } catch (error) {
+      console.error('Error syncing appointment to Google Calendar:', error);
+      // Don't fail the appointment creation if Google Calendar sync fails
+    }
 
     return { appointmentId: appointment._id };
   } catch (error: any) {
