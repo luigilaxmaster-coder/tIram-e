@@ -1201,6 +1201,32 @@ export default function ProviderDashboard() {
         </Tabs>
       </div>
 
+      {/* Mobile Navigation - Bottom */}
+      <div className="fixed bottom-0 left-0 right-0 md:hidden bg-deep-charcoal border-t border-white/10 backdrop-blur-sm z-50">
+        <div className="flex items-center justify-around h-20">
+          {[
+            { value: 'overview', label: 'Upcoming', icon: Calendar },
+            { value: 'appointments', label: 'All Appts', icon: BarChart3 },
+            { value: 'services', label: 'Services', icon: Zap },
+            { value: 'integrations', label: 'Integrations', icon: Link2 },
+            { value: 'profile', label: 'Settings', icon: Settings },
+          ].map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setActiveTab(tab.value)}
+              className={`flex flex-col items-center justify-center w-full h-full transition-all ${
+                activeTab === tab.value
+                  ? 'bg-neon-teal/10 text-neon-teal'
+                  : 'text-light-gray hover:text-white'
+              }`}
+            >
+              <tab.icon className="w-6 h-6 mb-1" />
+              <span className="text-xs font-paragraph">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Service Modal */}
       <Dialog open={showServiceModal} onOpenChange={setShowServiceModal}>
         <DialogContent className="bg-deep-charcoal border-white/20 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
