@@ -119,7 +119,43 @@ export default function ProviderPublicPage() {
 
   useEffect(() => {
     if (selectedService && provider) {
-      loadAvailability();
+      // Reset availability when service changes
+      setAvailability([]);
+      setLoadingAvailability(true);
+      
+      // Load availability immediately
+      const loadData = async () => {
+        if (!selectedService || !provider) return;
+
+        try {
+          const weekStartISO = weekStart.toISOString();
+
+          const response = await fetch('/api/availability/getWeekAvailability', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              providerId: provider._id,
+              serviceId: selectedService._id,
+              weekStartISO,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || 'Failed to load availability');
+          }
+
+          setAvailability(data.availability || []);
+        } catch (err: any) {
+          console.error('Error loading availability:', err);
+          setAvailability([]);
+        } finally {
+          setLoadingAvailability(false);
+        }
+      };
+
+      loadData();
     }
   }, [selectedService, weekStart, provider]);
 
