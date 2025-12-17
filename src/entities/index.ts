@@ -4,6 +4,14 @@
  */
 
 /**
+ * Price option for services with multiple pricing tiers
+ */
+export interface PriceOption {
+  name: string;
+  price: number;
+}
+
+/**
  * Collection ID: appointments
  * Interface for Appointments
  */
@@ -37,6 +45,8 @@ export interface Appointments {
   reminder24hSent?: boolean;
   /** @wixFieldType boolean */
   reminder2hSent?: boolean;
+  /** @wixFieldType text */
+  googleCalendarEventId?: string;
 }
 
 
@@ -70,6 +80,8 @@ export interface Providers {
   createdAt?: Date | string;
   /** @wixFieldType datetime */
   updatedAt?: Date | string;
+  /** @wixFieldType text */
+  googleCalendarData?: string;
 }
 
 
@@ -101,6 +113,12 @@ export interface Services {
   bufferAfterMin?: number;
   /** @wixFieldType boolean */
   isActive?: boolean;
+  /** @wixFieldType text */
+  textColor?: string;
+  /** @wixFieldType text */
+  textGradient?: string;
+  /** @wixFieldType text */
+  serviceSchedule?: string;
 }
 
 

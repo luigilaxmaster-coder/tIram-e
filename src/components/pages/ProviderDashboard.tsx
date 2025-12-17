@@ -898,84 +898,283 @@ export default function ProviderDashboard() {
           </TabsContent>
 
           {/* Integrations Tab */}
-          <TabsContent value="integrations" className="space-y-6">
+          <TabsContent value="integrations" className="space-y-8">
+            {/* Header Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm"
+              className="bg-gradient-to-br from-neon-teal/10 to-neon-teal/5 border border-neon-teal/30 rounded-xl p-8 backdrop-blur-sm"
             >
-              <h2 className="text-2xl font-heading font-bold text-white mb-8">Integrations</h2>
+              <div className="flex items-start justify-between gap-6">
+                <div className="flex-1">
+                  <h2 className="text-3xl font-heading font-bold text-white mb-2">Integrations</h2>
+                  <p className="text-light-gray font-paragraph">Connect your favorite tools to streamline your booking workflow</p>
+                </div>
+                <div className="hidden lg:flex w-16 h-16 rounded-lg bg-neon-teal/20 items-center justify-center">
+                  <Link2 className="w-8 h-8 text-neon-teal" />
+                </div>
+              </div>
+            </motion.div>
 
-              {/* Google Calendar Integration */}
-              <div className="space-y-6">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-deep-charcoal border border-white/10 rounded-lg p-6 hover:border-neon-teal/30 transition-all"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-heading font-semibold text-white mb-2">Google Calendar</h3>
-                      <p className="text-sm text-light-gray font-paragraph">
-                        Sync your appointments automatically to your Google Calendar
-                      </p>
+            {/* Integrations Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Google Calendar - Active Integration */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm hover:border-blue-500/30 transition-all group"
+              >
+                {/* Status Badge */}
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-lg bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                      <Calendar className="w-7 h-7 text-blue-400" />
                     </div>
-                    <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                      <Calendar className="w-6 h-6 text-blue-400" />
+                    <div>
+                      <h3 className="text-xl font-heading font-bold text-white">Google Calendar</h3>
+                      <p className="text-xs text-light-gray/70 mt-1">Calendar Sync</p>
                     </div>
                   </div>
+                  {googleCalendarConnected && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="px-3 py-1 rounded-full bg-green-500/20 border border-green-500/30 flex items-center gap-1"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                      <span className="text-xs font-paragraph text-green-400">Connected</span>
+                    </motion.div>
+                  )}
+                </div>
 
-                  <div className="mt-6 pt-6 border-t border-white/10">
-                    {googleCalendarConnected ? (
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-                          <CheckCircle className="w-5 h-5 text-green-400" />
-                          <div className="flex-1">
-                            <p className="text-sm font-paragraph text-green-400">Connected</p>
-                            <p className="text-xs text-light-gray/70 mt-1">{googleCalendarEmail}</p>
-                          </div>
+                {/* Benefits Section */}
+                <div className="mb-6 pb-6 border-b border-white/10">
+                  <p className="text-sm text-light-gray font-paragraph mb-4">Benefits:</p>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2 text-sm text-light-gray/80">
+                      <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                      <span>Auto-sync appointments to your calendar</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm text-light-gray/80">
+                      <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                      <span>Prevent double-booking with real-time updates</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm text-light-gray/80">
+                      <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                      <span>Send automatic reminders to clients</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Connection Status */}
+                {googleCalendarConnected ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-4"
+                  >
+                    <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-paragraph font-semibold text-green-400">Successfully Connected</p>
+                          <p className="text-xs text-green-400/70 mt-1">{googleCalendarEmail}</p>
+                          <p className="text-xs text-green-400/60 mt-2">Your appointments are being synced automatically</p>
                         </div>
-                        <Button
-                          onClick={handleDisconnectGoogleCalendar}
-                          disabled={disconnectingGoogle}
-                          variant="outline"
-                          className="w-full border-destructive/30 text-destructive hover:bg-destructive/10"
-                        >
-                          <LogOut className="w-4 h-4 mr-2" />
-                          {disconnectingGoogle ? 'Disconnecting...' : 'Disconnect'}
-                        </Button>
                       </div>
-                    ) : (
-                      <Button
-                        onClick={handleConnectGoogleCalendar}
-                        className="w-full bg-blue-600 text-white hover:bg-blue-700"
-                      >
-                        <Link2 className="w-4 h-4 mr-2" />
-                        Connect Google Calendar
-                      </Button>
-                    )}
-                  </div>
-                </motion.div>
-
-                {/* More integrations can be added here */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="bg-deep-charcoal border border-white/10 rounded-lg p-6 opacity-50"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-heading font-semibold text-white/50 mb-2">Outlook Calendar</h3>
-                      <p className="text-sm text-light-gray/50 font-paragraph">
-                        Coming soon
+                    </div>
+                    <Button
+                      onClick={handleDisconnectGoogleCalendar}
+                      disabled={disconnectingGoogle}
+                      variant="outline"
+                      className="w-full border-destructive/30 text-destructive hover:bg-destructive/10"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      {disconnectingGoogle ? 'Disconnecting...' : 'Disconnect Calendar'}
+                    </Button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-4"
+                  >
+                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                      <p className="text-sm text-blue-200 font-paragraph">
+                        <span className="font-semibold">Ready to connect?</span> Click the button below to authorize access to your Google Calendar.
                       </p>
                     </div>
-                    <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                      <Calendar className="w-6 h-6 text-blue-300/50" />
+                    <Button
+                      onClick={handleConnectGoogleCalendar}
+                      className="w-full bg-blue-600 text-white hover:bg-blue-700 font-semibold"
+                    >
+                      <Link2 className="w-4 h-4 mr-2" />
+                      Connect Google Calendar
+                    </Button>
+                  </motion.div>
+                )}
+              </motion.div>
+
+              {/* Outlook Calendar - Coming Soon */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm opacity-60"
+              >
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                      <Calendar className="w-7 h-7 text-blue-300/50" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-heading font-bold text-white/70">Outlook Calendar</h3>
+                      <p className="text-xs text-light-gray/50 mt-1">Calendar Sync</p>
                     </div>
                   </div>
-                </motion.div>
+                  <div className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30">
+                    <span className="text-xs font-paragraph text-amber-400 font-semibold">Coming Soon</span>
+                  </div>
+                </div>
+
+                <div className="mb-6 pb-6 border-b border-white/10">
+                  <p className="text-sm text-light-gray/60 font-paragraph mb-4">Benefits:</p>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2 text-sm text-light-gray/60">
+                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
+                      <span>Sync with Outlook and Microsoft 365</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm text-light-gray/60">
+                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
+                      <span>Prevent scheduling conflicts</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm text-light-gray/60">
+                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
+                      <span>Integrated meeting invitations</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <Button
+                  disabled
+                  className="w-full bg-light-gray/10 text-light-gray/50 cursor-not-allowed"
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  Coming Soon
+                </Button>
+              </motion.div>
+
+              {/* Slack - Coming Soon */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm opacity-60"
+              >
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                      <MessageCircle className="w-7 h-7 text-purple-300/50" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-heading font-bold text-white/70">Slack</h3>
+                      <p className="text-xs text-light-gray/50 mt-1">Notifications</p>
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30">
+                    <span className="text-xs font-paragraph text-amber-400 font-semibold">Coming Soon</span>
+                  </div>
+                </div>
+
+                <div className="mb-6 pb-6 border-b border-white/10">
+                  <p className="text-sm text-light-gray/60 font-paragraph mb-4">Benefits:</p>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2 text-sm text-light-gray/60">
+                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
+                      <span>Get booking notifications in Slack</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm text-light-gray/60">
+                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
+                      <span>Manage appointments from Slack</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm text-light-gray/60">
+                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
+                      <span>Team collaboration features</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <Button
+                  disabled
+                  className="w-full bg-light-gray/10 text-light-gray/50 cursor-not-allowed"
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  Coming Soon
+                </Button>
+              </motion.div>
+
+              {/* Email Notifications - Coming Soon */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm opacity-60"
+              >
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-lg bg-green-500/10 flex items-center justify-center">
+                      <Mail className="w-7 h-7 text-green-300/50" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-heading font-bold text-white/70">Email Notifications</h3>
+                      <p className="text-xs text-light-gray/50 mt-1">Communication</p>
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30">
+                    <span className="text-xs font-paragraph text-amber-400 font-semibold">Coming Soon</span>
+                  </div>
+                </div>
+
+                <div className="mb-6 pb-6 border-b border-white/10">
+                  <p className="text-sm text-light-gray/60 font-paragraph mb-4">Benefits:</p>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2 text-sm text-light-gray/60">
+                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
+                      <span>Automated email confirmations</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm text-light-gray/60">
+                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
+                      <span>Customizable email templates</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm text-light-gray/60">
+                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
+                      <span>Reminder sequences</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <Button
+                  disabled
+                  className="w-full bg-light-gray/10 text-light-gray/50 cursor-not-allowed"
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  Coming Soon
+                </Button>
+              </motion.div>
+            </div>
+
+            {/* Info Banner */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6 flex items-start gap-4"
+            >
+              <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-paragraph text-blue-200">
+                  <span className="font-semibold">💡 Pro Tip:</span> Connect Google Calendar to automatically sync your appointments and prevent double-bookings. Your clients will receive automatic reminders before their scheduled time.
+                </p>
               </div>
             </motion.div>
           </TabsContent>
