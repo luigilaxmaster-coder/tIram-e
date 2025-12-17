@@ -157,6 +157,7 @@ export interface ProviderWorkingHours {
   isActive?: boolean;
 }
 
+
 /**
  * Price option interface for services
  */
