@@ -76,6 +76,16 @@ export default function ProviderDashboard() {
   const [googleCalendarEmail, setGoogleCalendarEmail] = useState<string | null>(null);
   const [disconnectingGoogle, setDisconnectingGoogle] = useState(false);
 
+  // Email Notifications
+  const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(false);
+  const [emailNotificationSettings, setEmailNotificationSettings] = useState({
+    sendConfirmation: true,
+    sendReminder24h: true,
+    sendReminder2h: false,
+    customMessage: '',
+  });
+  const [showEmailSettings, setShowEmailSettings] = useState(false);
+
   // Appointments filter
   const [appointmentFilter, setAppointmentFilter] = useState<'today' | 'week' | 'custom'>('today');
   const [customStartDate, setCustomStartDate] = useState('');
@@ -460,6 +470,37 @@ export default function ProviderDashboard() {
       toast({
         title: 'Error',
         description: 'Failed to delete service',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleSaveEmailNotifications = async () => {
+    if (!provider) return;
+
+    try {
+      await BaseCrudService.update<Providers>('providers', {
+        _id: provider._id,
+        emailNotificationsEnabled: emailNotificationsEnabled,
+        emailNotificationSettings: JSON.stringify(emailNotificationSettings),
+        updatedAt: new Date().toISOString(),
+      });
+
+      setProvider({
+        ...provider,
+        emailNotificationsEnabled,
+      });
+
+      setShowEmailSettings(false);
+      toast({
+        title: 'Success',
+        description: 'Email notification settings saved',
+      });
+    } catch (error) {
+      console.error('Error saving email notification settings:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save email notification settings',
         variant: 'destructive',
       });
     }
@@ -1113,52 +1154,54 @@ export default function ProviderDashboard() {
                 </Button>
               </motion.div>
 
-              {/* Email Notifications - Coming Soon */}
+              {/* Email Notifications */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm opacity-60"
+                className={`bg-gradient-to-br ${emailNotificationsEnabled ? 'from-green-500/10 to-green-500/5 border-green-500/30' : 'from-white/5 to-white/[0.02] border-white/10'} border rounded-xl p-8 backdrop-blur-sm`}
               >
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-14 h-14 rounded-lg bg-green-500/10 flex items-center justify-center">
-                      <Mail className="w-7 h-7 text-green-300/50" />
+                    <div className={`w-14 h-14 rounded-lg ${emailNotificationsEnabled ? 'bg-green-500/20' : 'bg-green-500/10'} flex items-center justify-center`}>
+                      <Mail className={`w-7 h-7 ${emailNotificationsEnabled ? 'text-green-300' : 'text-green-300/50'}`} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-heading font-bold text-white/70">Email Notifications</h3>
+                      <h3 className={`text-xl font-heading font-bold ${emailNotificationsEnabled ? 'text-green-300' : 'text-white/70'}`}>Email Notifications</h3>
                       <p className="text-xs text-light-gray/50 mt-1">Communication</p>
                     </div>
                   </div>
-                  <div className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30">
-                    <span className="text-xs font-paragraph text-amber-400 font-semibold">Coming Soon</span>
+                  <div className={`px-3 py-1 rounded-full ${emailNotificationsEnabled ? 'bg-green-500/20 border border-green-500/30' : 'bg-amber-500/20 border border-amber-500/30'}`}>
+                    <span className={`text-xs font-paragraph font-semibold ${emailNotificationsEnabled ? 'text-green-400' : 'text-amber-400'}`}>
+                      {emailNotificationsEnabled ? 'Active' : 'Inactive'}
+                    </span>
                   </div>
                 </div>
 
                 <div className="mb-6 pb-6 border-b border-white/10">
-                  <p className="text-sm text-light-gray/60 font-paragraph mb-4">Benefits:</p>
+                  <p className="text-sm text-light-gray/60 font-paragraph mb-4">Features:</p>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2 text-sm text-light-gray/60">
-                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className={`w-4 h-4 ${emailNotificationsEnabled ? 'text-green-400' : 'text-light-gray/40'} flex-shrink-0 mt-0.5`} />
                       <span>Automated email confirmations</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm text-light-gray/60">
-                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
-                      <span>Customizable email templates</span>
+                      <CheckCircle className={`w-4 h-4 ${emailNotificationsEnabled ? 'text-green-400' : 'text-light-gray/40'} flex-shrink-0 mt-0.5`} />
+                      <span>24-hour reminder emails</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm text-light-gray/60">
-                      <CheckCircle className="w-4 h-4 text-light-gray/40 flex-shrink-0 mt-0.5" />
-                      <span>Reminder sequences</span>
+                      <CheckCircle className={`w-4 h-4 ${emailNotificationsEnabled ? 'text-green-400' : 'text-light-gray/40'} flex-shrink-0 mt-0.5`} />
+                      <span>2-hour reminder emails</span>
                     </li>
                   </ul>
                 </div>
 
                 <Button
-                  disabled
-                  className="w-full bg-light-gray/10 text-light-gray/50 cursor-not-allowed"
+                  onClick={() => setShowEmailSettings(true)}
+                  className={`w-full ${emailNotificationsEnabled ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-neon-teal text-deep-charcoal hover:opacity-90'}`}
                 >
-                  <Clock className="w-4 h-4 mr-2" />
-                  Coming Soon
+                  <Settings className="w-4 h-4 mr-2" />
+                  {emailNotificationsEnabled ? 'Manage Settings' : 'Enable Notifications'}
                 </Button>
               </motion.div>
             </div>
@@ -1425,6 +1468,179 @@ export default function ProviderDashboard() {
           ))}
         </div>
       </div>
+
+      {/* Email Notifications Settings Modal */}
+      <Dialog open={showEmailSettings} onOpenChange={setShowEmailSettings}>
+        <DialogContent className="bg-deep-charcoal border-white/20 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-2xl">Email Notification Settings</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {/* Enable/Disable Toggle */}
+            <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-heading font-semibold text-white mb-1">Enable Email Notifications</h3>
+                  <p className="text-sm text-light-gray/70 font-paragraph">
+                    Send automatic emails to clients when they book, and reminder emails before their appointment
+                  </p>
+                </div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={emailNotificationsEnabled}
+                    onChange={(e) => setEmailNotificationsEnabled(e.target.checked)}
+                    className="w-5 h-5"
+                  />
+                  <span className={`text-sm font-semibold ${emailNotificationsEnabled ? 'text-green-400' : 'text-light-gray'}`}>
+                    {emailNotificationsEnabled ? 'Enabled' : 'Disabled'}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            {/* Notification Options */}
+            {emailNotificationsEnabled && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-heading font-semibold text-white">Notification Types</h3>
+
+                {/* Confirmation Email */}
+                <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-6">
+                  <div className="flex items-start gap-4">
+                    <input
+                      type="checkbox"
+                      id="sendConfirmation"
+                      checked={emailNotificationSettings.sendConfirmation}
+                      onChange={(e) =>
+                        setEmailNotificationSettings({
+                          ...emailNotificationSettings,
+                          sendConfirmation: e.target.checked,
+                        })
+                      }
+                      className="w-5 h-5 mt-1"
+                    />
+                    <div className="flex-1">
+                      <Label htmlFor="sendConfirmation" className="text-light-gray font-semibold cursor-pointer block">
+                        Booking Confirmation Email
+                      </Label>
+                      <p className="text-sm text-light-gray/70 font-paragraph mt-2">
+                        Send an email immediately when a client books an appointment with details about their booking
+                      </p>
+                      <div className="mt-4 bg-deep-charcoal border border-white/10 rounded-lg p-4">
+                        <p className="text-xs text-light-gray/70 font-paragraph mb-2">Preview:</p>
+                        <div className="text-xs text-light-gray/60 space-y-1">
+                          <p>✓ Booking Confirmed!</p>
+                          <p>Service: [Service Name]</p>
+                          <p>Provider: [Provider Name]</p>
+                          <p>Date & Time: [Appointment Date & Time]</p>
+                          <p>Duration: [Duration] minutes</p>
+                          <p>Price: $[Price]</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 24h Reminder */}
+                <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-6">
+                  <div className="flex items-start gap-4">
+                    <input
+                      type="checkbox"
+                      id="sendReminder24h"
+                      checked={emailNotificationSettings.sendReminder24h}
+                      onChange={(e) =>
+                        setEmailNotificationSettings({
+                          ...emailNotificationSettings,
+                          sendReminder24h: e.target.checked,
+                        })
+                      }
+                      className="w-5 h-5 mt-1"
+                    />
+                    <div className="flex-1">
+                      <Label htmlFor="sendReminder24h" className="text-light-gray font-semibold cursor-pointer block">
+                        24-Hour Reminder Email
+                      </Label>
+                      <p className="text-sm text-light-gray/70 font-paragraph mt-2">
+                        Send a reminder email 24 hours before the appointment
+                      </p>
+                      <div className="mt-4 bg-deep-charcoal border border-white/10 rounded-lg p-4">
+                        <p className="text-xs text-light-gray/70 font-paragraph mb-2">Preview:</p>
+                        <div className="text-xs text-light-gray/60 space-y-1">
+                          <p>⏰ Appointment Reminder</p>
+                          <p>Hi [Client Name],</p>
+                          <p>This is a friendly reminder that your appointment is tomorrow!</p>
+                          <p>Service: [Service Name]</p>
+                          <p>Date & Time: [Appointment Date & Time]</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2h Reminder */}
+                <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-6">
+                  <div className="flex items-start gap-4">
+                    <input
+                      type="checkbox"
+                      id="sendReminder2h"
+                      checked={emailNotificationSettings.sendReminder2h}
+                      onChange={(e) =>
+                        setEmailNotificationSettings({
+                          ...emailNotificationSettings,
+                          sendReminder2h: e.target.checked,
+                        })
+                      }
+                      className="w-5 h-5 mt-1"
+                    />
+                    <div className="flex-1">
+                      <Label htmlFor="sendReminder2h" className="text-light-gray font-semibold cursor-pointer block">
+                        2-Hour Reminder Email
+                      </Label>
+                      <p className="text-sm text-light-gray/70 font-paragraph mt-2">
+                        Send a reminder email 2 hours before the appointment
+                      </p>
+                      <div className="mt-4 bg-deep-charcoal border border-white/10 rounded-lg p-4">
+                        <p className="text-xs text-light-gray/70 font-paragraph mb-2">Preview:</p>
+                        <div className="text-xs text-light-gray/60 space-y-1">
+                          <p>⏰ Appointment Reminder</p>
+                          <p>Hi [Client Name],</p>
+                          <p>This is a friendly reminder that your appointment is in 2 hours!</p>
+                          <p>Service: [Service Name]</p>
+                          <p>Date & Time: [Appointment Date & Time]</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Info Banner */}
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 flex items-start gap-3">
+              <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-paragraph text-blue-200">
+                  <span className="font-semibold">Note:</span> Email notifications are sent automatically when appointments are created. Reminders are sent at the scheduled times.
+                </p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 justify-end pt-4 border-t border-white/10">
+              <Button
+                onClick={() => setShowEmailSettings(false)}
+                variant="outline"
+                className="border-white/20 text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleSaveEmailNotifications} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
+                Save Settings
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Service Modal */}
       <Dialog open={showServiceModal} onOpenChange={setShowServiceModal}>
