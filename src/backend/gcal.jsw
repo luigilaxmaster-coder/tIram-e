@@ -1,0 +1,367 @@
+/**
+ * Google Calendar OAuth 2.0 Integration
+ * Web Module for handling OAuth flow and token management
+ * 
+ * This module handles:
+ * - Generating Google OAuth authorization URLs
+ * - Exchanging authorization codes for tokens
+ * - Managing OAuth state for CSRF protection
+ * - Storing and retrieving user authentication tokens
+ */
+
+import { BaseCrudService } from '@/integrations';
+import crypto from 'crypto';
+
+/**
+ * Interface for OAuth state record
+ */
+interface GoogleOAuthState {
+  _id: string; // state value
+  userId: string;
+  createdAt: Date | string;
+  expectedRedirectUri?: string;
+  requestedScopes?: string;
+  expirationTime?: Date | string;
+}
+
+/**
+ * Interface for user Google Calendar auth record
+ */
+interface UserGoogleCalendarAuth {
+  _id?: string;
+  userId: string;
+  accessToken: string;
+  refreshToken: string;
+  expiryDate: Date | string;
+  scope: string;
+  updatedAt: Date | string;
+}
+
+/**
+ * Generate a random state value for OAuth CSRF protection
+ */
+function generateState(): string {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+/**
+ * Generate Google OAuth authorization URL
+ * 
+ * @param userId - The user ID requesting authorization
+ * @returns The Google OAuth authorization URL
+ */
+export async function getGoogleAuthUrl(userId: string): Promise<string> {
+  try {
+    // Get secrets from Wix Secrets
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+
+    if (!clientId || !redirectUri) {
+      throw new Error('Google OAuth credentials not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_REDIRECT_URI in Wix Secrets.');
+    }
+
+    // Generate state for CSRF protection
+    const state = generateState();
+    const now = new Date();
+    const expirationTime = new Date(now.getTime() + 10 * 60 * 1000); // 10 minutes
+
+    // Save state to database
+    await BaseCrudService.create('googleoauthstates', {
+      _id: state,
+      userId: userId,
+      createdAt: now.toISOString(),
+      expectedRedirectUri: redirectUri,
+      requestedScopes: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly',
+      expirationTime: expirationTime.toISOString(),
+    });
+
+    // Build OAuth URL
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly',
+      access_type: 'offline',
+      prompt: 'consent',
+      state: state,
+    });
+
+    return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+  } catch (error) {
+    console.error('Error generating Google Auth URL:', error);
+    throw error;
+  }
+}
+
+/**
+ * Exchange authorization code for tokens
+ * 
+ * @param code - The authorization code from Google
+ * @param state - The state value for CSRF validation
+ * @returns Object containing accessToken, refreshToken, and expiryDate
+ */
+export async function exchangeCodeForTokens(code: string, state: string): Promise<{
+  accessToken: string;
+  refreshToken: string;
+  expiryDate: Date;
+  scope: string;
+  userId: string;
+}> {
+  try {
+    // Get secrets
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+
+    if (!clientId || !clientSecret || !redirectUri) {
+      throw new Error('Google OAuth credentials not configured.');
+    }
+
+    // Validate state
+    const stateRecord = await BaseCrudService.getById<GoogleOAuthState>('googleoauthstates', state);
+    
+    if (!stateRecord) {
+      throw new Error('Invalid or expired state. OAuth request may have expired.');
+    }
+
+    // Check if state has expired
+    const expirationTime = new Date(stateRecord.expirationTime || 0);
+    if (expirationTime < new Date()) {
+      // Delete expired state
+      await BaseCrudService.delete('googleoauthstates', state);
+      throw new Error('OAuth state has expired. Please try again.');
+    }
+
+    // Exchange code for tokens
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        code: code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code',
+      }).toString(),
+    });
+
+    if (!tokenResponse.ok) {
+      const errorData = await tokenResponse.json();
+      console.error('Token exchange error:', errorData);
+      throw new Error(`Failed to exchange code for tokens: ${errorData.error_description || errorData.error}`);
+    }
+
+    const tokenData = await tokenResponse.json();
+
+    // Calculate expiry date
+    const expiryDate = new Date();
+    expiryDate.setSeconds(expiryDate.getSeconds() + tokenData.expires_in);
+
+    // Save tokens to database
+    const userId = stateRecord.userId;
+    const scope = tokenData.scope || stateRecord.requestedScopes || '';
+
+    // Check if user already has auth record
+    const existingAuth = await BaseCrudService.getAll<UserGoogleCalendarAuth>(
+      'usergooglecalendarauth',
+      [],
+      { query: { userId: userId } }
+    );
+
+    if (existingAuth.items && existingAuth.items.length > 0) {
+      // Update existing record
+      const existingId = existingAuth.items[0]._id;
+      await BaseCrudService.update<UserGoogleCalendarAuth>('usergooglecalendarauth', {
+        _id: existingId,
+        userId: userId,
+        accessToken: tokenData.access_token,
+        refreshToken: tokenData.refresh_token || existingAuth.items[0].refreshToken,
+        expiryDate: expiryDate.toISOString(),
+        scope: scope,
+        updatedAt: new Date().toISOString(),
+      });
+    } else {
+      // Create new record
+      await BaseCrudService.create('usergooglecalendarauth', {
+        _id: crypto.randomUUID(),
+        userId: userId,
+        accessToken: tokenData.access_token,
+        refreshToken: tokenData.refresh_token,
+        expiryDate: expiryDate.toISOString(),
+        scope: scope,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+
+    // Delete the state record after successful exchange
+    await BaseCrudService.delete('googleoauthstates', state);
+
+    return {
+      accessToken: tokenData.access_token,
+      refreshToken: tokenData.refresh_token,
+      expiryDate: expiryDate,
+      scope: scope,
+      userId: userId,
+    };
+  } catch (error) {
+    console.error('Error exchanging code for tokens:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get user's Google Calendar authentication
+ * 
+ * @param userId - The user ID
+ * @returns The user's Google Calendar auth record or null
+ */
+export async function getUserGoogleCalendarAuth(userId: string): Promise<UserGoogleCalendarAuth | null> {
+  try {
+    const authRecords = await BaseCrudService.getAll<UserGoogleCalendarAuth>(
+      'usergooglecalendarauth',
+      [],
+      { query: { userId: userId } }
+    );
+
+    if (authRecords.items && authRecords.items.length > 0) {
+      return authRecords.items[0];
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error getting user Google Calendar auth:', error);
+    return null;
+  }
+}
+
+/**
+ * Refresh access token using refresh token
+ * 
+ * @param userId - The user ID
+ * @returns Updated access token or null if refresh fails
+ */
+export async function refreshAccessToken(userId: string): Promise<string | null> {
+  try {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      throw new Error('Google OAuth credentials not configured.');
+    }
+
+    const auth = await getUserGoogleCalendarAuth(userId);
+    if (!auth || !auth.refreshToken) {
+      return null;
+    }
+
+    // Request new access token
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: auth.refreshToken,
+        grant_type: 'refresh_token',
+      }).toString(),
+    });
+
+    if (!tokenResponse.ok) {
+      const errorData = await tokenResponse.json();
+      console.error('Token refresh error:', errorData);
+      return null;
+    }
+
+    const tokenData = await tokenResponse.json();
+
+    // Calculate new expiry date
+    const expiryDate = new Date();
+    expiryDate.setSeconds(expiryDate.getSeconds() + tokenData.expires_in);
+
+    // Update database
+    await BaseCrudService.update<UserGoogleCalendarAuth>('usergooglecalendarauth', {
+      _id: auth._id,
+      userId: userId,
+      accessToken: tokenData.access_token,
+      refreshToken: auth.refreshToken,
+      expiryDate: expiryDate.toISOString(),
+      scope: auth.scope,
+      updatedAt: new Date().toISOString(),
+    });
+
+    return tokenData.access_token;
+  } catch (error) {
+    console.error('Error refreshing access token:', error);
+    return null;
+  }
+}
+
+/**
+ * Disconnect Google Calendar (revoke tokens)
+ * 
+ * @param userId - The user ID
+ */
+export async function disconnectGoogleCalendar(userId: string): Promise<void> {
+  try {
+    const auth = await getUserGoogleCalendarAuth(userId);
+    if (!auth) {
+      return;
+    }
+
+    // Revoke token
+    try {
+      await fetch('https://oauth2.googleapis.com/revoke', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          token: auth.accessToken,
+        }).toString(),
+      });
+    } catch (error) {
+      console.warn('Error revoking token:', error);
+      // Continue with deletion even if revocation fails
+    }
+
+    // Delete from database
+    if (auth._id) {
+      await BaseCrudService.delete('usergooglecalendarauth', auth._id);
+    }
+  } catch (error) {
+    console.error('Error disconnecting Google Calendar:', error);
+    throw error;
+  }
+}
+
+/**
+ * Check if user has valid Google Calendar connection
+ * 
+ * @param userId - The user ID
+ * @returns true if user has valid connection, false otherwise
+ */
+export async function hasValidGoogleCalendarConnection(userId: string): Promise<boolean> {
+  try {
+    const auth = await getUserGoogleCalendarAuth(userId);
+    if (!auth) {
+      return false;
+    }
+
+    // Check if token is expired
+    const expiryDate = new Date(auth.expiryDate);
+    if (expiryDate < new Date()) {
+      // Try to refresh token
+      const newToken = await refreshAccessToken(userId);
+      return newToken !== null;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error checking Google Calendar connection:', error);
+    return false;
+  }
+}

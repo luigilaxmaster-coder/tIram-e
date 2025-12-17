@@ -4,7 +4,7 @@
  */
 
 /**
- * Price option interface for services
+ * Price option interface for service variants
  */
 export interface PriceOption {
   name: string;
@@ -47,6 +47,27 @@ export interface Appointments {
   reminder2hSent?: boolean;
   /** @wixFieldType text */
   googleCalendarEventId?: string;
+}
+
+
+/**
+ * Collection ID: googleoauthstates
+ * Interface for GoogleOAuthStates
+ */
+export interface GoogleOAuthStates {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  userId?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType url */
+  expectedRedirectUri?: string;
+  /** @wixFieldType text */
+  requestedScopes?: string;
+  /** @wixFieldType datetime */
+  expirationTime?: Date | string;
 }
 
 
@@ -146,6 +167,29 @@ export interface SlotLocks {
   appointmentId?: string;
   /** @wixFieldType datetime */
   createdAt?: Date | string;
+}
+
+
+/**
+ * Collection ID: usergooglecalendarauth
+ * Interface for UserGoogleCalendarAuth
+ */
+export interface UserGoogleCalendarAuth {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  userId?: string;
+  /** @wixFieldType text */
+  accessToken?: string;
+  /** @wixFieldType text */
+  refreshToken?: string;
+  /** @wixFieldType datetime */
+  expiryDate?: Date | string;
+  /** @wixFieldType text */
+  scope?: string;
+  /** @wixFieldType datetime */
+  updatedAt?: Date | string;
 }
 
 

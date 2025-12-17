@@ -14,7 +14,6 @@ import { format, startOfDay, endOfDay, addDays, startOfWeek, endOfWeek, parseISO
 import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus, LogOut, Link2, MapPin, Mail, MessageCircle, Globe, Info } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { generateGoogleOAuthUrl, disconnectGoogleCalendar } from '@/backend/googleCalendar';
 
 interface ServiceScheduleDay {
   dayOfWeek: number;
@@ -425,10 +424,42 @@ export default function ProviderDashboard() {
     }
   };
 
-  const handleConnectGoogleCalendar = () => {
-    if (!provider) return;
-    const oauthUrl = generateGoogleOAuthUrl(provider._id);
-    window.location.href = oauthUrl;
+  const handleConnectGoogleCalendar = async () => {
+    if (!member) return;
+
+    try {
+      // Call backend to get OAuth URL
+      const response = await fetch('/api/auth/google-oauth-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: member.loginEmail,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast({
+          title: 'Error',
+          description: data.error || 'Failed to initiate Google Calendar connection',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Redirect to Google OAuth
+      window.location.href = data.authUrl;
+    } catch (error) {
+      console.error('Error connecting Google Calendar:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to connect Google Calendar. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleDisconnectGoogleCalendar = async () => {

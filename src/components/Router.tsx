@@ -6,6 +6,7 @@ import { MemberProtectedRoute } from '@/components/ui/member-protected-route';
 import HomePage from '@/components/pages/HomePage';
 import ProviderPublicPage from '@/components/pages/ProviderPublicPage';
 import ProviderDashboard from '@/components/pages/ProviderDashboard';
+import GoogleCalendarCallback from '@/components/pages/GoogleCalendarCallback';
 
 // Layout component that includes ScrollToTop
 function Layout() {
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
             <ProviderDashboard />
           </MemberProtectedRoute>
         ),
+      },
+      {
+        path: "gcal-callback",
+        element: <GoogleCalendarCallback />,
       },
       {
         path: "*",
