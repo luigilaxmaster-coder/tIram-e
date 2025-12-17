@@ -4,7 +4,7 @@
  */
 
 /**
- * Price option interface for service variants
+ * Price option for services with variants
  */
 export interface PriceOption {
   name: string;

@@ -14,6 +14,7 @@ import { format, startOfDay, endOfDay, addDays, startOfWeek, endOfWeek, parseISO
 import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus, LogOut, Link2, MapPin, Mail, MessageCircle, Globe, Info } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { disconnectGoogleCalendar } from '@/backend/googleCalendar';
 
 interface ServiceScheduleDay {
   dayOfWeek: number;

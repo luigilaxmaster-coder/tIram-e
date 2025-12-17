@@ -142,9 +142,9 @@ export const POST: APIRoute = async ({ request }) => {
     const scope = tokenData.scope || stateRecord.requestedScopes || '';
 
     // Check if user already has auth record
-    let existingAuth: { items: UserGoogleCalendarAuth[] } | null = null;
+    let existingAuth: { items: any[] } | null = null;
     try {
-      existingAuth = await BaseCrudService.getAll<UserGoogleCalendarAuth>(
+      existingAuth = await BaseCrudService.getAll(
         'usergooglecalendarauth'
       );
     } catch (error) {
@@ -158,7 +158,7 @@ export const POST: APIRoute = async ({ request }) => {
     try {
       if (userAuthRecord && userAuthRecord._id) {
         // Update existing record
-        await BaseCrudService.update<UserGoogleCalendarAuth>(
+        await BaseCrudService.update(
           'usergooglecalendarauth',
           {
             _id: userAuthRecord._id,
