@@ -4,6 +4,14 @@
  */
 
 /**
+ * Price option interface for services
+ */
+export interface PriceOption {
+  name: string;
+  price: number;
+}
+
+/**
  * Collection ID: appointments
  * Interface for Appointments
  */
@@ -111,14 +119,6 @@ export interface Services {
   textGradient?: string;
   /** @wixFieldType text */
   serviceSchedule?: string;
-}
-
-/**
- * Price option interface for service variants
- */
-export interface PriceOption {
-  name: string;
-  price: number;
 }
 
 

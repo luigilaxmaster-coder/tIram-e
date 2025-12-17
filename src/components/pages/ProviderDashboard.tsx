@@ -83,7 +83,37 @@ export default function ProviderDashboard() {
 
   useEffect(() => {
     loadProviderData();
-  }, [member]);
+    // Check for Google OAuth callback messages
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('google_connected') === 'true') {
+      toast({
+        title: 'Success',
+        description: 'Google Calendar connected successfully!',
+      });
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (urlParams.get('google_error')) {
+      const errorMap: Record<string, string> = {
+        user_denied: 'You denied the authorization request',
+        missing_params: 'Missing required parameters',
+        invalid_state: 'Invalid state parameter',
+        state_expired: 'Authorization request expired',
+        missing_credentials: 'Server configuration error',
+        token_exchange_failed: 'Failed to exchange authorization code',
+        calendar_fetch_failed: 'Failed to fetch calendar information',
+        save_failed: 'Failed to save calendar configuration',
+        unexpected: 'An unexpected error occurred',
+      };
+      const errorCode = urlParams.get('google_error') || 'unexpected';
+      toast({
+        title: 'Error',
+        description: errorMap[errorCode] || 'Failed to connect Google Calendar',
+        variant: 'destructive',
+      });
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [member, toast]);
 
   useEffect(() => {
     if (provider) {
