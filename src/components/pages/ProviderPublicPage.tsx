@@ -349,8 +349,8 @@ export default function ProviderPublicPage() {
 
   return (
     <div className="min-h-screen overflow-hidden bg-deep-charcoal">
-      {/* Animated background gradient */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      {/* Animated background gradient - Hidden on mobile for performance */}
+      <div className="hidden md:block fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div
           className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl opacity-20"
           style={{ backgroundColor: dominantColor }}
@@ -365,8 +365,8 @@ export default function ProviderPublicPage() {
         />
       </div>
 
-      {/* Hero Section */}
-      <section className="relative min-h-[700px] flex items-center justify-center px-4 py-20 overflow-hidden">
+      {/* Hero Section - Mobile Optimized */}
+      <section className="relative min-h-screen md:min-h-[700px] flex items-center justify-center px-4 py-12 md:py-20 overflow-hidden">
         <div className="relative z-10 max-w-[100rem] mx-auto w-full">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -379,20 +379,20 @@ export default function ProviderPublicPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="inline-block mb-6 px-4 py-2 rounded-full border"
+              className="inline-block mb-4 md:mb-6 px-3 md:px-4 py-2 rounded-full border"
               style={{
                 backgroundColor: `rgba(${dominantRgbString}, 0.1)`,
                 borderColor: `rgba(${dominantRgbString}, 0.3)`,
               }}
             >
-              <span className="font-paragraph text-sm font-semibold flex items-center gap-2" style={{ color: dominantColor }}>
-                <Sparkles className="w-4 h-4" />
+              <span className="font-paragraph text-xs md:text-sm font-semibold flex items-center gap-2" style={{ color: dominantColor }}>
+                <Sparkles className="w-3 h-3 md:w-4 md:h-4" />
                 Professional Services
               </span>
             </motion.div>
 
-            {/* Main Title */}
-            <h1 className="text-7xl md:text-8xl font-heading font-bold text-white mb-6 leading-tight">
+            {/* Main Title - Responsive sizing */}
+            <h1 className="text-4xl md:text-7xl lg:text-8xl font-heading font-bold text-white mb-4 md:mb-6 leading-tight">
               {provider.displayName}
             </h1>
 
@@ -401,7 +401,7 @@ export default function ProviderPublicPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-xl md:text-2xl text-light-gray/80 font-paragraph mb-12 max-w-3xl mx-auto"
+              className="text-base md:text-xl lg:text-2xl text-light-gray/80 font-paragraph mb-8 md:mb-12 max-w-3xl mx-auto px-2"
             >
               {provider.categoryTags || 'Discover exceptional services tailored to your needs'}
             </motion.p>
@@ -414,41 +414,41 @@ export default function ProviderPublicPage() {
             >
               <Button
                 onClick={() => document.getElementById('services-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-8 py-6 text-lg font-semibold group rounded-lg"
+                className="px-6 md:px-8 py-4 md:py-6 text-base md:text-lg font-semibold group rounded-lg w-full md:w-auto"
                 style={{
                   backgroundColor: dominantColor,
                   color: '#222222',
                 }}
               >
                 Explore Services
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </motion.div>
           </motion.div>
 
-          {/* Provider Info Cards */}
+          {/* Provider Info Cards - Mobile Stack */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-20"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mt-12 md:mt-20"
           >
             {provider.addressText && (
               <motion.div
                 variants={itemVariants}
-                className="group p-6 rounded-xl backdrop-blur-sm border transition-all hover:scale-105"
+                className="group p-4 md:p-6 rounded-xl backdrop-blur-sm border transition-all hover:scale-105"
                 style={{
                   backgroundColor: `rgba(${dominantRgbString}, 0.05)`,
                   borderColor: `rgba(${dominantRgbString}, 0.2)`,
                 }}
               >
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
-                    <MapPin className="w-5 h-5" style={{ color: dominantColor }} />
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="p-2 md:p-3 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
+                    <MapPin className="w-4 h-4 md:w-5 md:h-5" style={{ color: dominantColor }} />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs text-light-gray/60 font-paragraph uppercase tracking-wider mb-1">Location</p>
-                    <p className="font-paragraph text-light-gray text-sm">{provider.addressText}</p>
+                    <p className="font-paragraph text-light-gray text-sm break-words">{provider.addressText}</p>
                   </div>
                 </div>
               </motion.div>
@@ -456,19 +456,19 @@ export default function ProviderPublicPage() {
             {provider.whatsappNumber && (
               <motion.div
                 variants={itemVariants}
-                className="group p-6 rounded-xl backdrop-blur-sm border transition-all hover:scale-105"
+                className="group p-4 md:p-6 rounded-xl backdrop-blur-sm border transition-all hover:scale-105"
                 style={{
                   backgroundColor: `rgba(${dominantRgbString}, 0.05)`,
                   borderColor: `rgba(${dominantRgbString}, 0.2)`,
                 }}
               >
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
-                    <Phone className="w-5 h-5" style={{ color: dominantColor }} />
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="p-2 md:p-3 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
+                    <Phone className="w-4 h-4 md:w-5 md:h-5" style={{ color: dominantColor }} />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs text-light-gray/60 font-paragraph uppercase tracking-wider mb-1">WhatsApp</p>
-                    <p className="font-paragraph text-light-gray text-sm">{provider.whatsappNumber}</p>
+                    <p className="font-paragraph text-light-gray text-sm break-words">{provider.whatsappNumber}</p>
                   </div>
                 </div>
               </motion.div>
@@ -476,19 +476,19 @@ export default function ProviderPublicPage() {
             {provider.contactEmail && (
               <motion.div
                 variants={itemVariants}
-                className="group p-6 rounded-xl backdrop-blur-sm border transition-all hover:scale-105"
+                className="group p-4 md:p-6 rounded-xl backdrop-blur-sm border transition-all hover:scale-105"
                 style={{
                   backgroundColor: `rgba(${dominantRgbString}, 0.05)`,
                   borderColor: `rgba(${dominantRgbString}, 0.2)`,
                 }}
               >
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
-                    <Mail className="w-5 h-5" style={{ color: dominantColor }} />
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="p-2 md:p-3 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
+                    <Mail className="w-4 h-4 md:w-5 md:h-5" style={{ color: dominantColor }} />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs text-light-gray/60 font-paragraph uppercase tracking-wider mb-1">Email</p>
-                    <p className="font-paragraph text-light-gray text-sm">{provider.contactEmail}</p>
+                    <p className="font-paragraph text-light-gray text-sm break-words">{provider.contactEmail}</p>
                   </div>
                 </div>
               </motion.div>
@@ -496,19 +496,19 @@ export default function ProviderPublicPage() {
             {provider.timezone && (
               <motion.div
                 variants={itemVariants}
-                className="group p-6 rounded-xl backdrop-blur-sm border transition-all hover:scale-105"
+                className="group p-4 md:p-6 rounded-xl backdrop-blur-sm border transition-all hover:scale-105"
                 style={{
                   backgroundColor: `rgba(${dominantRgbString}, 0.05)`,
                   borderColor: `rgba(${dominantRgbString}, 0.2)`,
                 }}
               >
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
-                    <Clock className="w-5 h-5" style={{ color: dominantColor }} />
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="p-2 md:p-3 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
+                    <Clock className="w-4 h-4 md:w-5 md:h-5" style={{ color: dominantColor }} />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs text-light-gray/60 font-paragraph uppercase tracking-wider mb-1">Timezone</p>
-                    <p className="font-paragraph text-light-gray text-sm">{provider.timezone}</p>
+                    <p className="font-paragraph text-light-gray text-sm break-words">{provider.timezone}</p>
                   </div>
                 </div>
               </motion.div>
@@ -517,51 +517,51 @@ export default function ProviderPublicPage() {
         </div>
       </section>
 
-      {/* Services Section */}
-      <section id="services-section" className="py-24 px-4 relative z-10">
+      {/* Services Section - Mobile Optimized */}
+      <section id="services-section" className="py-16 md:py-24 px-4 relative z-10">
         <div className="max-w-[100rem] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="mb-16"
+            className="mb-10 md:mb-16"
           >
-            <h2 className="text-6xl font-heading font-bold text-white mb-4">Our Services</h2>
+            <h2 className="text-3xl md:text-6xl font-heading font-bold text-white mb-3 md:mb-4">Our Services</h2>
             <div className="flex items-center gap-3">
-              <div className="h-1 w-16 rounded-full" style={{ backgroundColor: dominantColor }} />
-              <p className="text-light-gray/70 font-paragraph text-lg">Discover what we offer</p>
+              <div className="h-1 w-12 md:w-16 rounded-full" style={{ backgroundColor: dominantColor }} />
+              <p className="text-light-gray/70 font-paragraph text-base md:text-lg">Discover what we offer</p>
             </div>
           </motion.div>
 
-          {/* Search and Filters */}
+          {/* Search and Filters - Mobile Optimized */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
-            className="mb-12"
+            className="mb-8 md:mb-12"
           >
-            <div className="flex gap-4 mb-4">
+            <div className="flex gap-2 md:gap-4 mb-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-light-gray/50" />
+                <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-light-gray/50" />
                 <Input
                   placeholder="Search services..."
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  className="pl-12 bg-white/5 border-white/20 text-white placeholder:text-light-gray/50 h-12 rounded-lg"
+                  className="pl-10 md:pl-12 bg-white/5 border-white/20 text-white placeholder:text-light-gray/50 h-10 md:h-12 rounded-lg text-sm md:text-base"
                 />
               </div>
               <Button
                 onClick={() => setShowFilters(!showFilters)}
                 variant="outline"
-                className="border-white/20 text-white hover:bg-white/10 h-12"
+                className="border-white/20 text-white hover:bg-white/10 h-10 md:h-12 px-3 md:px-4"
               >
-                <ChevronDown className={`w-5 h-5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 md:w-5 md:h-5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
               </Button>
             </div>
 
-            {/* Filters */}
+            {/* Filters - Mobile Optimized */}
             <AnimatePresence>
               {showFilters && (
                 <motion.div
@@ -569,7 +569,7 @@ export default function ProviderPublicPage() {
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-6 rounded-lg backdrop-blur-sm border border-white/10"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 p-4 md:p-6 rounded-lg backdrop-blur-sm border border-white/10"
                   style={{ backgroundColor: `rgba(${dominantRgbString}, 0.05)` }}
                 >
                   <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -627,17 +627,17 @@ export default function ProviderPublicPage() {
             </AnimatePresence>
           </motion.div>
 
-          {/* Services Grid */}
+          {/* Services Grid - Mobile Optimized */}
           {filteredServices.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-20"
+              className="text-center py-12 md:py-20"
             >
-              <div className="inline-block p-4 bg-white/5 rounded-full mb-4">
-                <Search className="w-8 h-8 text-light-gray/50" />
+              <div className="inline-block p-3 md:p-4 bg-white/5 rounded-full mb-4">
+                <Search className="w-6 h-6 md:w-8 md:h-8 text-light-gray/50" />
               </div>
-              <p className="text-light-gray font-paragraph text-lg">No services found matching your filters.</p>
+              <p className="text-light-gray font-paragraph text-base md:text-lg">No services found matching your filters.</p>
             </motion.div>
           ) : (
             <motion.div
@@ -645,7 +645,7 @@ export default function ProviderPublicPage() {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
             >
               {filteredServices.map((service) => {
                 const serviceColor = service.cardColor || dominantColor;
@@ -695,46 +695,46 @@ export default function ProviderPublicPage() {
                       }}
                     />
 
-                    {/* Content */}
-                    <div className="relative z-10 p-8">
+                    {/* Content - Mobile Optimized */}
+                    <div className="relative z-10 p-4 md:p-8">
                       {/* Header */}
-                      <div className="mb-6">
+                      <div className="mb-4 md:mb-6">
                         <h3
-                          className="text-2xl font-heading font-bold mb-2 group-hover:transition-colors"
+                          className="text-xl md:text-2xl font-heading font-bold mb-2 group-hover:transition-colors line-clamp-2"
                           style={getTextStyle()}
                         >
                           {service.name}
                         </h3>
                         {service.category && (
                           <div className="flex items-center gap-2">
-                            <Tag className="w-4 h-4" style={{ color: serviceColor }} />
-                            <span className="text-sm text-light-gray/70 font-paragraph">{service.category}</span>
+                            <Tag className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" style={{ color: serviceColor }} />
+                            <span className="text-xs md:text-sm text-light-gray/70 font-paragraph truncate">{service.category}</span>
                           </div>
                         )}
                       </div>
 
-                      {/* Details Grid */}
-                      <div className="space-y-4 mb-6">
+                      {/* Details Grid - Compact on mobile */}
+                      <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
                         {service.durationMin && (
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.1)` }}>
-                              <Clock className="w-4 h-4" style={{ color: serviceColor }} />
+                          <div className="flex items-center gap-2 md:gap-3">
+                            <div className="p-1.5 md:p-2 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.1)` }}>
+                              <Clock className="w-3 h-3 md:w-4 md:h-4" style={{ color: serviceColor }} />
                             </div>
-                            <div>
+                            <div className="min-w-0">
                               <p className="text-xs text-light-gray/60 uppercase tracking-wider">Duration</p>
-                              <p className="text-sm font-paragraph text-light-gray">{service.durationMin} minutes</p>
+                              <p className="text-xs md:text-sm font-paragraph text-light-gray">{service.durationMin} min</p>
                             </div>
                           </div>
                         )}
 
                         {service.price !== undefined && (
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.1)` }}>
-                              <DollarSign className="w-4 h-4" style={{ color: serviceColor }} />
+                          <div className="flex items-center gap-2 md:gap-3">
+                            <div className="p-1.5 md:p-2 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.1)` }}>
+                              <DollarSign className="w-3 h-3 md:w-4 md:h-4" style={{ color: serviceColor }} />
                             </div>
-                            <div>
+                            <div className="min-w-0">
                               <p className="text-xs text-light-gray/60 uppercase tracking-wider">Price</p>
-                              <p className="text-sm font-semibold" style={{ color: serviceColor }}>
+                              <p className="text-xs md:text-sm font-semibold" style={{ color: serviceColor }}>
                                 ${service.price}
                               </p>
                             </div>
@@ -742,13 +742,13 @@ export default function ProviderPublicPage() {
                         )}
 
                         {service.maxPeoplePerBooking && (
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.1)` }}>
-                              <Users className="w-4 h-4" style={{ color: serviceColor }} />
+                          <div className="flex items-center gap-2 md:gap-3">
+                            <div className="p-1.5 md:p-2 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.1)` }}>
+                              <Users className="w-3 h-3 md:w-4 md:h-4" style={{ color: serviceColor }} />
                             </div>
-                            <div>
-                              <p className="text-xs text-light-gray/60 uppercase tracking-wider">Group Size</p>
-                              <p className="text-sm font-paragraph text-light-gray">Up to {service.maxPeoplePerBooking} people</p>
+                            <div className="min-w-0">
+                              <p className="text-xs text-light-gray/60 uppercase tracking-wider">Group</p>
+                              <p className="text-xs md:text-sm font-paragraph text-light-gray">Up to {service.maxPeoplePerBooking}</p>
                             </div>
                           </div>
                         )}
@@ -760,18 +760,18 @@ export default function ProviderPublicPage() {
                           const opts = JSON.parse(service.priceOptions);
                           if (Array.isArray(opts) && opts.length > 0) {
                             return (
-                              <div className="mb-6 p-4 rounded-lg border" style={{
+                              <div className="mb-4 md:mb-6 p-3 md:p-4 rounded-lg border" style={{
                                 backgroundColor: `rgba(${serviceRgbString}, 0.1)`,
                                 borderColor: `rgba(${serviceRgbString}, 0.2)`,
                               }}>
-                                <p className="text-xs font-semibold mb-3 uppercase tracking-wider" style={{ color: serviceColor }}>
-                                  Available Variants
+                                <p className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: serviceColor }}>
+                                  Variants
                                 </p>
-                                <div className="space-y-2">
+                                <div className="space-y-1">
                                   {opts.map((opt: PriceOption, idx: number) => (
-                                    <div key={idx} className="flex justify-between items-center text-sm">
-                                      <span className="text-light-gray/80 font-paragraph">{opt.name}</span>
-                                      <span className="font-semibold" style={{ color: serviceColor }}>
+                                    <div key={idx} className="flex justify-between items-center text-xs md:text-sm">
+                                      <span className="text-light-gray/80 font-paragraph truncate">{opt.name}</span>
+                                      <span className="font-semibold ml-2 flex-shrink-0" style={{ color: serviceColor }}>
                                         ${opt.price}
                                       </span>
                                     </div>
@@ -788,12 +788,12 @@ export default function ProviderPublicPage() {
 
                       {/* CTA Button */}
                       <Button
-                        className="w-full text-deep-charcoal hover:opacity-90 font-semibold rounded-lg group/btn"
+                        className="w-full text-deep-charcoal hover:opacity-90 font-semibold rounded-lg group/btn text-sm md:text-base h-10 md:h-12"
                         style={{ backgroundColor: serviceColor }}
                       >
-                        <Calendar className="w-4 h-4 mr-2" />
+                        <Calendar className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                         Book Now
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                        <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                       </Button>
                     </div>
                   </motion.div>
@@ -804,7 +804,7 @@ export default function ProviderPublicPage() {
         </div>
       </section>
 
-      {/* Booking Calendar Section */}
+      {/* Booking Calendar Section - Mobile Optimized */}
       <AnimatePresence>
         {selectedService && (
           <motion.section
@@ -813,18 +813,18 @@ export default function ProviderPublicPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.4 }}
-            className="py-24 px-4 relative z-10 border-t border-white/10"
+            className="py-12 md:py-24 px-4 relative z-10 border-t border-white/10"
           >
             <div className="max-w-[100rem] mx-auto">
-              <div className="flex items-center justify-between mb-12">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0 mb-8 md:mb-12">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                 >
-                  <h2 className="text-5xl font-heading font-bold text-white mb-2">
+                  <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-2">
                     Select Your Time
                   </h2>
-                  <p className="text-light-gray/70 font-paragraph">
+                  <p className="text-light-gray/70 font-paragraph text-sm md:text-base truncate">
                     {selectedService.name}
                   </p>
                 </motion.div>
@@ -838,47 +838,47 @@ export default function ProviderPublicPage() {
                       setSelectedPriceOption(null);
                     }}
                     variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10 h-12"
+                    className="border-white/20 text-white hover:bg-white/10 h-10 md:h-12 w-full md:w-auto text-sm md:text-base"
                   >
-                    <X className="w-5 h-5 mr-2" />
+                    <X className="w-4 h-4 mr-2" />
                     Change Service
                   </Button>
                 </motion.div>
               </div>
 
-              {/* Week Navigation */}
+              {/* Week Navigation - Mobile Optimized */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="flex items-center justify-between mb-12 p-6 rounded-lg backdrop-blur-sm border border-white/10"
+                className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 mb-8 md:mb-12 p-4 md:p-6 rounded-lg backdrop-blur-sm border border-white/10"
                 style={{ backgroundColor: `rgba(${dominantRgbString}, 0.05)` }}
               >
                 <Button
                   onClick={() => setWeekStart(addDays(weekStart, -7))}
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="border-white/20 text-white hover:bg-white/10 h-10 md:h-12 w-full md:w-auto text-sm"
                 >
                   ← Previous
                 </Button>
-                <span className="font-heading text-xl text-white">
-                  {format(weekStart, 'MMMM d')} - {format(addDays(weekStart, 6), 'MMMM d, yyyy')}
+                <span className="font-heading text-lg md:text-xl text-white text-center whitespace-nowrap">
+                  {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 6), 'MMM d, yyyy')}
                 </span>
                 <Button
                   onClick={() => setWeekStart(addDays(weekStart, 7))}
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="border-white/20 text-white hover:bg-white/10 h-10 md:h-12 w-full md:w-auto text-sm"
                 >
                   Next →
                 </Button>
               </motion.div>
 
-              {/* Availability Grid */}
+              {/* Availability Grid - Mobile Optimized */}
               {loadingAvailability ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex justify-center py-20"
+                  className="flex justify-center py-12 md:py-20"
                 >
                   <LoadingSpinner />
                 </motion.div>
@@ -886,36 +886,38 @@ export default function ProviderPublicPage() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-center py-20"
+                  className="text-center py-12 md:py-20"
                 >
-                  <div className="inline-block p-4 bg-white/5 rounded-full mb-4">
-                    <Calendar className="w-8 h-8 text-light-gray/50" />
+                  <div className="inline-block p-3 md:p-4 bg-white/5 rounded-full mb-4">
+                    <Calendar className="w-6 h-6 md:w-8 md:h-8 text-light-gray/50" />
                   </div>
-                  <p className="text-light-gray font-paragraph text-lg">No availability for this week.</p>
+                  <p className="text-light-gray font-paragraph text-base md:text-lg">No availability for this week.</p>
                 </motion.div>
               ) : (
                 <motion.div
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4"
+                  className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 md:gap-4"
                 >
                   {availability.map((day) => (
                     <motion.div
                       key={day.date}
                       variants={itemVariants}
-                      className="rounded-lg p-4 backdrop-blur-sm border border-white/10"
+                      className="rounded-lg p-3 md:p-4 backdrop-blur-sm border border-white/10"
                       style={{ backgroundColor: `rgba(${dominantRgbString}, 0.05)` }}
                     >
-                      <h3 className="font-heading font-semibold text-white mb-4 text-center text-sm">
-                        {format(parseISO(day.date), 'EEE')}
-                        <div className="text-lg mt-1" style={{ color: dominantColor }}>
+                      <h3 className="font-heading font-semibold text-white mb-3 text-center text-xs md:text-sm">
+                        <div className="text-xs md:text-sm" style={{ color: dominantColor }}>
+                          {format(parseISO(day.date), 'EEE')}
+                        </div>
+                        <div className="text-base md:text-lg mt-1" style={{ color: dominantColor }}>
                           {format(parseISO(day.date), 'd')}
                         </div>
                       </h3>
-                      <div className="space-y-2 max-h-96 overflow-y-auto">
+                      <div className="space-y-1 md:space-y-2 max-h-64 md:max-h-96 overflow-y-auto">
                         {day.slots.length === 0 ? (
-                          <p className="text-light-gray/50 text-xs text-center py-4">No slots</p>
+                          <p className="text-light-gray/50 text-xs text-center py-3 md:py-4">No slots</p>
                         ) : (
                           day.slots.map((slot, idx) => (
                             <motion.button
@@ -923,7 +925,7 @@ export default function ProviderPublicPage() {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handleSlotClick(day.date, slot)}
-                              className="w-full rounded px-3 py-2 text-xs font-paragraph font-semibold transition-all duration-200 border"
+                              className="w-full rounded px-2 md:px-3 py-1.5 md:py-2 text-xs font-paragraph font-semibold transition-all duration-200 border"
                               style={{
                                 backgroundColor: `rgba(${dominantRgbString}, 0.2)`,
                                 borderColor: `rgba(${dominantRgbString}, 0.5)`,
@@ -944,29 +946,29 @@ export default function ProviderPublicPage() {
         )}
       </AnimatePresence>
 
-      {/* Booking Modal */}
+      {/* Booking Modal - Mobile Optimized */}
       <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
-        <DialogContent className="bg-gradient-to-br from-deep-charcoal to-[#1a1a1a] border-white/20 text-white max-w-md">
+        <DialogContent className="bg-gradient-to-br from-deep-charcoal to-[#1a1a1a] border-white/20 text-white max-w-md w-[95vw] md:w-full rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="font-heading text-2xl">Complete Your Booking</DialogTitle>
+            <DialogTitle className="font-heading text-xl md:text-2xl">Complete Your Booking</DialogTitle>
           </DialogHeader>
           {selectedSlot && (
-            <form onSubmit={handleBookingSubmit} className="space-y-5">
+            <form onSubmit={handleBookingSubmit} className="space-y-4 md:space-y-5 max-h-[70vh] overflow-y-auto">
               {/* Selected Time Display */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-lg p-4 border"
+                className="rounded-lg p-3 md:p-4 border"
                 style={{
                   backgroundColor: `rgba(${dominantRgbString}, 0.1)`,
                   borderColor: `rgba(${dominantRgbString}, 0.3)`,
                 }}
               >
                 <p className="font-paragraph text-xs text-light-gray/70 mb-2 uppercase tracking-wider">Selected Time</p>
-                <p className="font-heading text-lg mb-1" style={{ color: dominantColor }}>
-                  {format(parseISO(selectedSlot.slot.startAtISO), 'EEEE, MMMM d')}
+                <p className="font-heading text-base md:text-lg mb-1" style={{ color: dominantColor }}>
+                  {format(parseISO(selectedSlot.slot.startAtISO), 'EEE, MMM d')}
                 </p>
-                <p className="font-heading text-xl text-white">
+                <p className="font-heading text-lg md:text-xl text-white">
                   {format(parseISO(selectedSlot.slot.startAtISO), 'h:mm a')} -{' '}
                   {format(parseISO(selectedSlot.slot.endAtISO), 'h:mm a')}
                 </p>
@@ -977,7 +979,7 @@ export default function ProviderPublicPage() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 text-destructive text-sm"
+                  className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-destructive text-xs md:text-sm"
                 >
                   {bookingError}
                 </motion.div>
@@ -994,7 +996,7 @@ export default function ProviderPublicPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
                       >
-                        <Label htmlFor="priceOption" className="text-light-gray font-semibold">
+                        <Label htmlFor="priceOption" className="text-light-gray font-semibold text-sm">
                           Select Price Option *
                         </Label>
                         <Select
@@ -1007,7 +1009,7 @@ export default function ProviderPublicPage() {
                             }
                           }}
                         >
-                          <SelectTrigger className="bg-white/5 border-white/20 text-white mt-2">
+                          <SelectTrigger className="bg-white/5 border-white/20 text-white mt-2 text-sm">
                             <SelectValue placeholder="Choose a variant..." />
                           </SelectTrigger>
                           <SelectContent>
@@ -1033,7 +1035,7 @@ export default function ProviderPublicPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
               >
-                <Label htmlFor="clientName" className="text-light-gray font-semibold">
+                <Label htmlFor="clientName" className="text-light-gray font-semibold text-sm">
                   Name *
                 </Label>
                 <Input
@@ -1041,7 +1043,7 @@ export default function ProviderPublicPage() {
                   required
                   value={bookingForm.clientName}
                   onChange={(e) => setBookingForm({ ...bookingForm, clientName: e.target.value })}
-                  className="bg-white/5 border-white/20 text-white mt-2"
+                  className="bg-white/5 border-white/20 text-white mt-2 text-sm"
                 />
               </motion.div>
 
@@ -1050,7 +1052,7 @@ export default function ProviderPublicPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <Label htmlFor="clientEmail" className="text-light-gray font-semibold">
+                <Label htmlFor="clientEmail" className="text-light-gray font-semibold text-sm">
                   Email *
                 </Label>
                 <Input
@@ -1059,7 +1061,7 @@ export default function ProviderPublicPage() {
                   required
                   value={bookingForm.clientEmail}
                   onChange={(e) => setBookingForm({ ...bookingForm, clientEmail: e.target.value })}
-                  className="bg-white/5 border-white/20 text-white mt-2"
+                  className="bg-white/5 border-white/20 text-white mt-2 text-sm"
                 />
               </motion.div>
 
@@ -1068,7 +1070,7 @@ export default function ProviderPublicPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}
               >
-                <Label htmlFor="clientPhone" className="text-light-gray font-semibold">
+                <Label htmlFor="clientPhone" className="text-light-gray font-semibold text-sm">
                   Phone *
                 </Label>
                 <Input
@@ -1077,7 +1079,7 @@ export default function ProviderPublicPage() {
                   required
                   value={bookingForm.clientPhone}
                   onChange={(e) => setBookingForm({ ...bookingForm, clientPhone: e.target.value })}
-                  className="bg-white/5 border-white/20 text-white mt-2"
+                  className="bg-white/5 border-white/20 text-white mt-2 text-sm"
                 />
               </motion.div>
 
@@ -1086,7 +1088,7 @@ export default function ProviderPublicPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <Label htmlFor="peopleCount" className="text-light-gray font-semibold">
+                <Label htmlFor="peopleCount" className="text-light-gray font-semibold text-sm">
                   Number of People *
                 </Label>
                 <Input
@@ -1097,7 +1099,7 @@ export default function ProviderPublicPage() {
                   required
                   value={bookingForm.peopleCount}
                   onChange={(e) => setBookingForm({ ...bookingForm, peopleCount: parseInt(e.target.value) })}
-                  className="bg-white/5 border-white/20 text-white mt-2"
+                  className="bg-white/5 border-white/20 text-white mt-2 text-sm"
                 />
               </motion.div>
 
@@ -1106,15 +1108,15 @@ export default function ProviderPublicPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 }}
               >
-                <Label htmlFor="notes" className="text-light-gray font-semibold">
+                <Label htmlFor="notes" className="text-light-gray font-semibold text-sm">
                   Notes (Optional)
                 </Label>
                 <Textarea
                   id="notes"
                   value={bookingForm.notes}
                   onChange={(e) => setBookingForm({ ...bookingForm, notes: e.target.value })}
-                  className="bg-white/5 border-white/20 text-white mt-2"
-                  rows={3}
+                  className="bg-white/5 border-white/20 text-white mt-2 text-sm"
+                  rows={2}
                 />
               </motion.div>
 
@@ -1126,7 +1128,7 @@ export default function ProviderPublicPage() {
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="w-full text-deep-charcoal hover:opacity-90 font-semibold h-12 rounded-lg"
+                  className="w-full text-deep-charcoal hover:opacity-90 font-semibold h-10 md:h-12 rounded-lg text-sm md:text-base"
                   style={{ backgroundColor: dominantColor }}
                 >
                   {submitting ? (
@@ -1149,9 +1151,9 @@ export default function ProviderPublicPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Success Dialog */}
+      {/* Success Dialog - Mobile Optimized */}
       <Dialog open={bookingSuccess} onOpenChange={setBookingSuccess}>
-        <DialogContent className="bg-gradient-to-br from-deep-charcoal to-[#1a1a1a] border-white/20 text-white max-w-md">
+        <DialogContent className="bg-gradient-to-br from-deep-charcoal to-[#1a1a1a] border-white/20 text-white max-w-md w-[95vw] md:w-full rounded-2xl">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -1162,12 +1164,12 @@ export default function ProviderPublicPage() {
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2, duration: 0.4 }}
-                className="inline-block p-4 rounded-full mb-4"
+                className="inline-block p-3 md:p-4 rounded-full mb-4"
                 style={{ backgroundColor: `rgba(${dominantRgbString}, 0.2)` }}
               >
-                <CheckCircle2 className="w-8 h-8" style={{ color: dominantColor }} />
+                <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8" style={{ color: dominantColor }} />
               </motion.div>
-              <DialogTitle className="font-heading text-3xl" style={{ color: dominantColor }}>
+              <DialogTitle className="font-heading text-2xl md:text-3xl" style={{ color: dominantColor }}>
                 Booking Confirmed!
               </DialogTitle>
             </DialogHeader>
@@ -1175,17 +1177,17 @@ export default function ProviderPublicPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="space-y-4"
+              className="space-y-3 md:space-y-4"
             >
-              <p className="font-paragraph text-light-gray/80">
+              <p className="font-paragraph text-light-gray/80 text-sm md:text-base">
                 Your appointment has been successfully booked. You will receive a confirmation email shortly.
               </p>
-              <p className="font-paragraph text-light-gray/80">
+              <p className="font-paragraph text-light-gray/80 text-sm md:text-base">
                 We'll also send you a reminder 24 hours before your appointment.
               </p>
               <Button
                 onClick={() => setBookingSuccess(false)}
-                className="w-full text-deep-charcoal hover:opacity-90 font-semibold h-12 rounded-lg"
+                className="w-full text-deep-charcoal hover:opacity-90 font-semibold h-10 md:h-12 rounded-lg text-sm md:text-base"
                 style={{ backgroundColor: dominantColor }}
               >
                 Done
