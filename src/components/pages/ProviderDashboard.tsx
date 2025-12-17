@@ -484,7 +484,7 @@ export default function ProviderDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-deep-charcoal via-deep-charcoal to-[#1a1a1a]">
+    <div className="min-h-screen bg-gradient-to-br from-deep-charcoal via-deep-charcoal to-[#1a1a1a] pb-24 md:pb-0">
       {/* Header with gradient background */}
       <div className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-gradient-to-r from-neon-teal/5 to-transparent opacity-50" />
@@ -535,7 +535,7 @@ export default function ProviderDashboard() {
                 },
                 {
                   label: 'Potential Revenue',
-                  value: `$${totalRevenue.toFixed(2)}`,
+                  value: `${totalRevenue.toFixed(2)}`,
                   icon: TrendingUp,
                   color: 'from-neon-teal/20 to-neon-teal/5',
                   iconColor: 'text-neon-teal',
@@ -567,7 +567,8 @@ export default function ProviderDashboard() {
       {/* Main Content */}
       <div className="max-w-[100rem] mx-auto px-4 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="bg-white/5 border border-white/10 rounded-lg p-1 w-full grid grid-cols-5 gap-1">
+          {/* Desktop Navigation - Top */}
+          <TabsList className="hidden md:grid bg-white/5 border border-white/10 rounded-lg p-1 w-full grid-cols-5 gap-1">
             {[
               { value: 'overview', label: 'Overview', icon: BarChart3 },
               { value: 'appointments', label: 'Appointments', icon: Calendar },
@@ -581,7 +582,7 @@ export default function ProviderDashboard() {
                 className="data-[state=active]:bg-neon-teal data-[state=active]:text-deep-charcoal data-[state=active]:shadow-lg data-[state=active]:shadow-neon-teal/20 rounded-md transition-all"
               >
                 <tab.icon className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">{tab.label}</span>
+                <span>{tab.label}</span>
               </TabsTrigger>
             ))}
           </TabsList>

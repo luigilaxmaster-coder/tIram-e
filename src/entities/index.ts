@@ -4,7 +4,7 @@
  */
 
 /**
- * Price option for services
+ * Price option for services with multiple pricing tiers
  */
 export interface PriceOption {
   name: string;
