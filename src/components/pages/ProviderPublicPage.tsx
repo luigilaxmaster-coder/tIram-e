@@ -118,10 +118,10 @@ export default function ProviderPublicPage() {
   }, [services]);
 
   useEffect(() => {
-    if (selectedService) {
+    if (selectedService && provider) {
       loadAvailability();
     }
-  }, [selectedService, weekStart]);
+  }, [selectedService, weekStart, provider]);
 
   const loadProviderData = async () => {
     try {
@@ -645,6 +645,10 @@ export default function ProviderPublicPage() {
                     onClick={() => {
                       setSelectedService(service);
                       setBookingSuccess(false);
+                      // Scroll to booking section
+                      setTimeout(() => {
+                        document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' });
+                      }, 100);
                     }}
                   >
                     {/* Gradient overlay */}
@@ -768,6 +772,7 @@ export default function ProviderPublicPage() {
       <AnimatePresence>
         {selectedService && (
           <motion.section
+            id="booking-section"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}

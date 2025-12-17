@@ -160,15 +160,34 @@ export async function getWeekAvailability(
     // Get working hours - prefer service schedule, fallback to provider schedule
     let workingHours: { startHour: number; startMin: number; endHour: number; endMin: number } | null = null;
 
-    if (serviceSchedule) {
+    if (serviceSchedule && Array.isArray(serviceSchedule)) {
       const serviceDay = serviceSchedule.find((d) => d.dayOfWeek === dayOfWeek);
-      if (serviceDay && serviceDay.isActive) {
-        const [startHour, startMin] = serviceDay.startTime.split(':').map(Number);
-        const [endHour, endMin] = serviceDay.endTime.split(':').map(Number);
-        workingHours = { startHour, startMin, endHour, endMin };
+      if (serviceDay && serviceDay.isActive && serviceDay.startTime && serviceDay.endTime) {
+        // Ensure startTime and endTime are strings
+        let startTimeStr = serviceDay.startTime;
+        let endTimeStr = serviceDay.endTime;
+        
+        // Handle case where time might be an object with hours/minutes properties
+        if (typeof startTimeStr === 'object' && startTimeStr !== null) {
+          startTimeStr = `${String((startTimeStr as any).hours || 0).padStart(2, '0')}:${String((startTimeStr as any).minutes || 0).padStart(2, '0')}`;
+        }
+        if (typeof endTimeStr === 'object' && endTimeStr !== null) {
+          endTimeStr = `${String((endTimeStr as any).hours || 0).padStart(2, '0')}:${String((endTimeStr as any).minutes || 0).padStart(2, '0')}`;
+        }
+        
+        // Parse time strings
+        const [startHour, startMin] = String(startTimeStr).split(':').map(Number);
+        const [endHour, endMin] = String(endTimeStr).split(':').map(Number);
+        
+        // Validate parsed values
+        if (!isNaN(startHour) && !isNaN(startMin) && !isNaN(endHour) && !isNaN(endMin)) {
+          workingHours = { startHour, startMin, endHour, endMin };
+        }
       }
-    } else {
-      // Fallback to provider working hours
+    }
+    
+    // Fallback to provider working hours if service schedule not available
+    if (!workingHours) {
       workingHours = await getWorkingHoursForDay(providerId, dayOfWeek);
     }
 
