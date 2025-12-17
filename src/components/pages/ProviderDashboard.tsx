@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { BaseCrudService } from '@/integrations';
 import { Providers, Services, Appointments, PriceOption } from '@/entities';
 import { format, startOfDay, endOfDay, addDays, startOfWeek, endOfWeek, parseISO } from 'date-fns';
-import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus, LogOut, Link2 } from 'lucide-react';
+import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus, LogOut, Link2, MapPin, Mail, MessageCircle, Globe, Info } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { generateGoogleOAuthUrl, disconnectGoogleCalendar } from '@/backend/googleCalendar';
@@ -981,20 +981,24 @@ export default function ProviderDashboard() {
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
+            {/* Header Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm"
+              className="bg-gradient-to-br from-neon-teal/10 to-neon-teal/5 border border-neon-teal/30 rounded-xl p-8 backdrop-blur-sm"
             >
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-heading font-bold text-white">Profile Settings</h2>
+              <div className="flex items-start justify-between gap-6">
+                <div className="flex-1">
+                  <h2 className="text-3xl font-heading font-bold text-white mb-2">Profile Settings</h2>
+                  <p className="text-light-gray font-paragraph">Manage your business profile and contact information</p>
+                </div>
                 {!editingProfile ? (
-                  <Button onClick={() => setEditingProfile(true)} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
+                  <Button onClick={() => setEditingProfile(true)} className="bg-neon-teal text-deep-charcoal hover:opacity-90 whitespace-nowrap">
                     <Edit className="w-4 h-4 mr-2" />
                     Edit Profile
                   </Button>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 whitespace-nowrap">
                     <Button onClick={handleSaveProfile} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
                       <Save className="w-4 h-4 mr-2" />
                       Save
@@ -1010,10 +1014,26 @@ export default function ProviderDashboard() {
                   </div>
                 )}
               </div>
+            </motion.div>
 
-              <div className="space-y-6 max-w-2xl">
-                <div>
-                  <Label htmlFor="displayName" className="text-light-gray font-paragraph text-sm mb-2 block">
+            {/* Main Profile Form */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column - Main Info */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="lg:col-span-2 space-y-6"
+              >
+                {/* Business Name Card */}
+                <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-6 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-neon-teal/20 flex items-center justify-center">
+                      <Globe className="w-5 h-5 text-neon-teal" />
+                    </div>
+                    <h3 className="text-lg font-heading font-semibold text-white">Business Name</h3>
+                  </div>
+                  <Label htmlFor="displayName" className="text-light-gray font-paragraph text-sm mb-3 block">
                     Display Name
                   </Label>
                   <Input
@@ -1021,40 +1041,22 @@ export default function ProviderDashboard() {
                     value={profileForm.displayName}
                     onChange={(e) => setProfileForm({ ...profileForm, displayName: e.target.value })}
                     disabled={!editingProfile}
+                    placeholder="Your business name"
                     className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
                   />
+                  <p className="text-xs text-light-gray/70 mt-2 font-paragraph">This is how clients will see your business</p>
                 </div>
 
-                <div>
-                  <Label htmlFor="slug" className="text-light-gray font-paragraph text-sm mb-2 block">
-                    Profile URL
-                  </Label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-light-gray text-sm">
-                        {window.location.origin}/p/
-                      </span>
-                      <Input
-                        id="slug"
-                        value={profileForm.slug}
-                        onChange={(e) => setProfileForm({ ...profileForm, slug: e.target.value })}
-                        disabled={!editingProfile}
-                        className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50 pl-[200px]"
-                      />
+                {/* Categories Card */}
+                <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-6 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                      <BarChart3 className="w-5 h-5 text-purple-400" />
                     </div>
-                    <Button
-                      onClick={handleCopySlug}
-                      variant="outline"
-                      className="border-white/20 text-white hover:bg-white/10"
-                    >
-                      {slugCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    </Button>
+                    <h3 className="text-lg font-heading font-semibold text-white">Categories</h3>
                   </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="categoryTags" className="text-light-gray font-paragraph text-sm mb-2 block">
-                    Categories
+                  <Label htmlFor="categoryTags" className="text-light-gray font-paragraph text-sm mb-3 block">
+                    Service Categories
                   </Label>
                   <Input
                     id="categoryTags"
@@ -1064,50 +1066,134 @@ export default function ProviderDashboard() {
                     placeholder="e.g., Consulting, Coaching, Design"
                     className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
                   />
+                  <p className="text-xs text-light-gray/70 mt-2 font-paragraph">Separate multiple categories with commas</p>
                 </div>
 
-                <div>
-                  <Label htmlFor="addressText" className="text-light-gray font-paragraph text-sm mb-2 block">
-                    Address
+                {/* Address Card */}
+                <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-6 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <h3 className="text-lg font-heading font-semibold text-white">Location</h3>
+                  </div>
+                  <Label htmlFor="addressText" className="text-light-gray font-paragraph text-sm mb-3 block">
+                    Business Address
                   </Label>
                   <Textarea
                     id="addressText"
                     value={profileForm.addressText}
                     onChange={(e) => setProfileForm({ ...profileForm, addressText: e.target.value })}
                     disabled={!editingProfile}
+                    placeholder="Street address, city, state, zip code"
                     className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
                     rows={3}
                   />
+                  <p className="text-xs text-light-gray/70 mt-2 font-paragraph">Help clients find your location</p>
+                </div>
+              </motion.div>
+
+              {/* Right Column - Contact Info */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="space-y-6"
+              >
+                {/* Email Card */}
+                <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-6 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-green-400" />
+                    </div>
+                    <h3 className="text-lg font-heading font-semibold text-white">Email</h3>
+                  </div>
+                  <Label htmlFor="contactEmail" className="text-light-gray font-paragraph text-sm mb-3 block">
+                    Contact Email
+                  </Label>
+                  <Input
+                    id="contactEmail"
+                    type="email"
+                    value={profileForm.contactEmail}
+                    onChange={(e) => setProfileForm({ ...profileForm, contactEmail: e.target.value })}
+                    disabled={!editingProfile}
+                    placeholder="your@email.com"
+                    className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
+                  />
+                  <p className="text-xs text-light-gray/70 mt-2 font-paragraph">For client inquiries</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <Label htmlFor="whatsappNumber" className="text-light-gray font-paragraph text-sm mb-2 block">
-                      WhatsApp Number
-                    </Label>
-                    <Input
-                      id="whatsappNumber"
-                      value={profileForm.whatsappNumber}
-                      onChange={(e) => setProfileForm({ ...profileForm, whatsappNumber: e.target.value })}
-                      disabled={!editingProfile}
-                      className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
-                    />
+                {/* WhatsApp Card */}
+                <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-6 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                      <MessageCircle className="w-5 h-5 text-green-400" />
+                    </div>
+                    <h3 className="text-lg font-heading font-semibold text-white">WhatsApp</h3>
                   </div>
-
-                  <div>
-                    <Label htmlFor="contactEmail" className="text-light-gray font-paragraph text-sm mb-2 block">
-                      Contact Email
-                    </Label>
-                    <Input
-                      id="contactEmail"
-                      type="email"
-                      value={profileForm.contactEmail}
-                      onChange={(e) => setProfileForm({ ...profileForm, contactEmail: e.target.value })}
-                      disabled={!editingProfile}
-                      className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
-                    />
-                  </div>
+                  <Label htmlFor="whatsappNumber" className="text-light-gray font-paragraph text-sm mb-3 block">
+                    WhatsApp Number
+                  </Label>
+                  <Input
+                    id="whatsappNumber"
+                    value={profileForm.whatsappNumber}
+                    onChange={(e) => setProfileForm({ ...profileForm, whatsappNumber: e.target.value })}
+                    disabled={!editingProfile}
+                    placeholder="+1 (555) 000-0000"
+                    className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50"
+                  />
+                  <p className="text-xs text-light-gray/70 mt-2 font-paragraph">For direct messaging</p>
                 </div>
+
+                {/* Public Profile Card */}
+                <div className="bg-gradient-to-br from-neon-teal/10 to-neon-teal/5 border border-neon-teal/30 rounded-xl p-6 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-neon-teal/20 flex items-center justify-center">
+                      <Eye className="w-5 h-5 text-neon-teal" />
+                    </div>
+                    <h3 className="text-lg font-heading font-semibold text-white">Public Profile</h3>
+                  </div>
+                  <Label htmlFor="slug" className="text-light-gray font-paragraph text-sm mb-3 block">
+                    Profile URL
+                  </Label>
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-light-gray text-xs">
+                        {window.location.origin}/p/
+                      </span>
+                      <Input
+                        id="slug"
+                        value={profileForm.slug}
+                        onChange={(e) => setProfileForm({ ...profileForm, slug: e.target.value })}
+                        disabled={!editingProfile}
+                        className="bg-deep-charcoal border-white/20 text-white disabled:opacity-50 pl-[180px] text-sm"
+                      />
+                    </div>
+                    <Button
+                      onClick={handleCopySlug}
+                      variant="outline"
+                      className="border-neon-teal/30 text-neon-teal hover:bg-neon-teal/10"
+                    >
+                      {slugCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-light-gray/70 mt-2 font-paragraph">Share this link with clients</p>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Info Banner */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 flex items-start gap-3"
+            >
+              <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-paragraph text-blue-200">
+                  <span className="font-semibold">Pro Tip:</span> Keep your profile information up-to-date so clients can easily reach you and learn about your services.
+                </p>
               </div>
             </motion.div>
           </TabsContent>

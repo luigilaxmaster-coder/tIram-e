@@ -4,6 +4,14 @@
  */
 
 /**
+ * Price option for services
+ */
+export interface PriceOption {
+  name: string;
+  price: number;
+}
+
+/**
  * Collection ID: appointments
  * Interface for Appointments
  */
@@ -155,13 +163,4 @@ export interface ProviderWorkingHours {
   endTime?: any;
   /** @wixFieldType boolean */
   isActive?: boolean;
-}
-
-
-/**
- * Price option interface for services
- */
-export interface PriceOption {
-  name: string;
-  price: number;
 }
