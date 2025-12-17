@@ -18,9 +18,25 @@ interface GoogleCalendarConfig {
  */
 export function generateGoogleOAuthUrl(providerId: string): string {
   const clientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID || '';
-  const redirectUri = `${window.location.origin}/api/auth/google-callback`;
+  
+  if (!clientId) {
+    throw new Error('Google Client ID is not configured. Please set PUBLIC_GOOGLE_CLIENT_ID environment variable.');
+  }
+
+  // Ensure the redirect URI uses the correct protocol and path
+  const protocol = window.location.protocol;
+  const host = window.location.host;
+  const redirectUri = `${protocol}//${host}/api/auth/google-callback`;
+  
   const scope = 'https://www.googleapis.com/auth/calendar';
   const state = btoa(JSON.stringify({ providerId, timestamp: Date.now() }));
+
+  // Log for debugging
+  console.log('Google OAuth Configuration:', {
+    clientId: clientId.substring(0, 20) + '...',
+    redirectUri,
+    scope,
+  });
 
   const params = new URLSearchParams({
     client_id: clientId,

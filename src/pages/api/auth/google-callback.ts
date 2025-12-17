@@ -59,12 +59,24 @@ export const GET: APIRoute = async ({ url, redirect }) => {
     // Exchange authorization code for tokens
     const clientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID;
     const clientSecret = import.meta.env.GOOGLE_CLIENT_SECRET;
-    const redirectUri = `${url.origin}/api/auth/google-callback`;
+    
+    // Construct redirect URI to match what was sent to Google
+    const protocol = url.protocol;
+    const host = url.host;
+    const redirectUri = `${protocol}//${host}/api/auth/google-callback`;
 
     if (!clientId || !clientSecret) {
       console.error('Missing Google OAuth credentials in environment');
+      console.error('PUBLIC_GOOGLE_CLIENT_ID:', clientId ? 'set' : 'missing');
+      console.error('GOOGLE_CLIENT_SECRET:', clientSecret ? 'set' : 'missing');
       return redirect('/pro/dashboard?google_error=missing_credentials');
     }
+
+    console.log('Google OAuth Callback - Token Exchange:', {
+      clientId: clientId.substring(0, 20) + '...',
+      redirectUri,
+      hasCode: !!code,
+    });
 
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
@@ -82,7 +94,11 @@ export const GET: APIRoute = async ({ url, redirect }) => {
 
     if (!tokenResponse.ok) {
       const errorData = await tokenResponse.text();
-      console.error('Failed to exchange authorization code:', errorData);
+      console.error('Failed to exchange authorization code:', {
+        status: tokenResponse.status,
+        statusText: tokenResponse.statusText,
+        error: errorData,
+      });
       return redirect('/pro/dashboard?google_error=token_exchange_failed');
     }
 
@@ -99,7 +115,12 @@ export const GET: APIRoute = async ({ url, redirect }) => {
     );
 
     if (!calendarResponse.ok) {
-      console.error('Failed to get calendar info');
+      const errorData = await calendarResponse.text();
+      console.error('Failed to get calendar info:', {
+        status: calendarResponse.status,
+        statusText: calendarResponse.statusText,
+        error: errorData,
+      });
       return redirect('/pro/dashboard?google_error=calendar_fetch_failed');
     }
 
