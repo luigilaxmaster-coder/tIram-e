@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, Users, DollarSign, Search, X, Calendar, ArrowRight, CheckCircle2, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Users, DollarSign, Calendar, ArrowRight, CheckCircle2, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Providers, Services } from '@/entities';
 import { PriceOption } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Badge } from '@/components/ui/badge';
-import { format, addDays, startOfWeek, parseISO } from 'date-fns';
+import { format, addDays, startOfWeek, parseISO, isSameDay } from 'date-fns';
 
 interface AvailabilitySlot {
   startAtISO: string;
@@ -73,23 +73,19 @@ export default function ProviderPublicPage() {
   const { slug } = useParams<{ slug: string }>();
   const [provider, setProvider] = useState<Providers | null>(null);
   const [services, setServices] = useState<Services[]>([]);
-  const [filteredServices, setFilteredServices] = useState<Services[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dominantColor, setDominantColor] = useState('#00FFD4');
 
-  // Filters
-  const [searchText, setSearchText] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-
-  // Booking state
+  // Booking flow state
+  const [step, setStep] = useState<'service' | 'date' | 'time' | 'details'>('service');
   const [selectedService, setSelectedService] = useState<Services | null>(null);
   const [selectedPriceOption, setSelectedPriceOption] = useState<PriceOption | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [availability, setAvailability] = useState<DayAvailability[]>([]);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<{ date: string; slot: AvailabilitySlot } | null>(null);
-  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
   const [bookingForm, setBookingForm] = useState({
     clientName: '',
     clientEmail: '',
@@ -106,56 +102,16 @@ export default function ProviderPublicPage() {
   }, [slug]);
 
   useEffect(() => {
-    applyFilters();
-  }, [services, searchText, categoryFilter]);
-
-  useEffect(() => {
     if (services.length > 0) {
       setDominantColor(getDominantColor(services));
     }
   }, [services]);
 
   useEffect(() => {
-    if (selectedService && provider) {
-      // Reset availability when service changes
-      setAvailability([]);
-      setLoadingAvailability(true);
-      
-      // Load availability immediately
-      const loadData = async () => {
-        if (!selectedService || !provider) return;
-
-        try {
-          const weekStartISO = weekStart.toISOString();
-
-          const response = await fetch('/api/availability/getWeekAvailability', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              providerId: provider._id,
-              serviceId: selectedService._id,
-              weekStartISO,
-            }),
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            throw new Error(data.error || 'Failed to load availability');
-          }
-
-          setAvailability(data.availability || []);
-        } catch (err: any) {
-          console.error('Error loading availability:', err);
-          setAvailability([]);
-        } finally {
-          setLoadingAvailability(false);
-        }
-      };
-
-      loadData();
+    if (selectedService && provider && step === 'time') {
+      loadAvailability();
     }
-  }, [selectedService, weekStart, provider]);
+  }, [selectedService, weekStart, provider, step]);
 
   const loadProviderData = async () => {
     try {
@@ -176,30 +132,11 @@ export default function ProviderPublicPage() {
 
       setProvider(data.provider);
       setServices(data.services || []);
-      setFilteredServices(data.services || []);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
-
-  const applyFilters = () => {
-    let filtered = [...services];
-
-    if (searchText) {
-      filtered = filtered.filter(
-        (s) =>
-          s.name?.toLowerCase().includes(searchText.toLowerCase()) ||
-          s.category?.toLowerCase().includes(searchText.toLowerCase())
-      );
-    }
-
-    if (categoryFilter !== 'all') {
-      filtered = filtered.filter((s) => s.category === categoryFilter);
-    }
-
-    setFilteredServices(filtered);
   };
 
   const loadAvailability = async () => {
@@ -234,8 +171,23 @@ export default function ProviderPublicPage() {
     }
   };
 
-  const handleSlotClick = (date: string, slot: AvailabilitySlot) => {
-    setSelectedSlot({ date, slot });
+  const handleServiceSelect = (service: Services) => {
+    setSelectedService(service);
+    setSelectedPriceOption(null);
+    setSelectedDate(null);
+    setSelectedSlot(null);
+    setBookingSuccess(false);
+    setStep('date');
+  };
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    setSelectedSlot(null);
+    setStep('time');
+  };
+
+  const handleSlotSelect = (slot: AvailabilitySlot) => {
+    setSelectedSlot(slot);
     setBookingForm({
       clientName: '',
       clientEmail: '',
@@ -244,12 +196,27 @@ export default function ProviderPublicPage() {
       notes: '',
     });
     setBookingError(null);
-    setShowBookingModal(true);
+    setStep('details');
+  };
+
+  const handleBack = () => {
+    if (step === 'details') {
+      setStep('time');
+      setSelectedSlot(null);
+    } else if (step === 'time') {
+      setStep('date');
+      setSelectedSlot(null);
+    } else if (step === 'date') {
+      setStep('service');
+      setSelectedService(null);
+      setSelectedDate(null);
+      setSelectedSlot(null);
+    }
   };
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedSlot || !selectedService || !provider) return;
+    if (!selectedSlot || !selectedService || !provider || !selectedDate) return;
 
     try {
       setSubmitting(true);
@@ -261,7 +228,7 @@ export default function ProviderPublicPage() {
         body: JSON.stringify({
           providerId: provider._id,
           serviceId: selectedService._id,
-          startAtISO: selectedSlot.slot.startAtISO,
+          startAtISO: selectedSlot.startAtISO,
           clientName: bookingForm.clientName,
           clientEmail: bookingForm.clientEmail,
           clientPhone: bookingForm.clientPhone,
@@ -276,6 +243,8 @@ export default function ProviderPublicPage() {
       if (!response.ok) {
         if (data.error === 'SLOT_TAKEN') {
           setBookingError('This time slot was just taken. Please choose another time.');
+          setStep('time');
+          setSelectedSlot(null);
           await loadAvailability();
         } else {
           throw new Error(data.error || 'Failed to create appointment');
@@ -284,10 +253,11 @@ export default function ProviderPublicPage() {
       }
 
       setBookingSuccess(true);
-      setShowBookingModal(false);
+      setStep('service');
+      setSelectedService(null);
+      setSelectedDate(null);
       setSelectedSlot(null);
       setSelectedPriceOption(null);
-      await loadAvailability();
     } catch (err: any) {
       setBookingError(err.message);
     } finally {
@@ -327,7 +297,7 @@ export default function ProviderPublicPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-deep-charcoal via-[#1a1a1a] to-deep-charcoal">
-      {/* Sticky Header */}
+      {/* Header */}
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -346,663 +316,595 @@ export default function ProviderPublicPage() {
                 <p className="text-light-gray/60 text-xs">{provider.categoryTags || 'Professional Services'}</p>
               </div>
             </div>
-            <Button
-              onClick={() => document.getElementById('services-section')?.scrollIntoView({ behavior: 'smooth' })}
-              size="sm"
-              className="text-deep-charcoal font-semibold"
-              style={{ backgroundColor: dominantColor }}
-            >
-              Book Now
-            </Button>
           </div>
         </div>
       </motion.header>
 
-      {/* Hero Section - Simplified */}
-      <section className="relative py-12 px-4">
-        <div className="max-w-[100rem] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-8"
-          >
-            <h2 className="text-4xl md:text-6xl font-heading font-bold text-white mb-4">
-              Book Your Appointment
-            </h2>
-            <p className="text-light-gray/80 text-lg max-w-2xl mx-auto">
-              Choose a service below and select your preferred time slot
-            </p>
-          </motion.div>
-
-          {/* Provider Info Cards - Horizontal Layout */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto"
-          >
-            {provider.addressText && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-                <MapPin className="w-4 h-4" style={{ color: dominantColor }} />
-                <span className="text-light-gray text-sm">{provider.addressText}</span>
-              </div>
-            )}
-            {provider.whatsappNumber && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-                <Phone className="w-4 h-4" style={{ color: dominantColor }} />
-                <span className="text-light-gray text-sm">{provider.whatsappNumber}</span>
-              </div>
-            )}
-            {provider.contactEmail && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-                <Mail className="w-4 h-4" style={{ color: dominantColor }} />
-                <span className="text-light-gray text-sm">{provider.contactEmail}</span>
-              </div>
-            )}
-            {provider.timezone && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-                <Clock className="w-4 h-4" style={{ color: dominantColor }} />
-                <span className="text-light-gray text-sm">{provider.timezone}</span>
-              </div>
-            )}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Services Section - Redesigned */}
-      <section id="services-section" className="py-12 px-4">
-        <div className="max-w-[100rem] mx-auto">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="mb-8"
-          >
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2">
-                  Available Services
-                </h2>
-                <p className="text-light-gray/70">Select a service to view available time slots</p>
-              </div>
-              
-              {/* Filters - Simplified */}
-              <div className="flex gap-2">
-                <div className="relative flex-1 md:w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-light-gray/50" />
-                  <Input
-                    placeholder="Search services..."
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                    className="pl-10 bg-white/5 border-white/20 text-white placeholder:text-light-gray/50"
-                  />
+      {/* Progress Indicator */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between">
+          {['service', 'date', 'time', 'details'].map((s, idx) => {
+            const stepIndex = ['service', 'date', 'time', 'details'].indexOf(step);
+            const currentIndex = idx;
+            const isActive = currentIndex === stepIndex;
+            const isCompleted = currentIndex < stepIndex;
+            
+            return (
+              <div key={s} className="flex items-center flex-1">
+                <div className="flex flex-col items-center flex-1">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
+                      isActive
+                        ? 'ring-2 ring-offset-2 ring-offset-deep-charcoal'
+                        : isCompleted
+                        ? 'bg-opacity-100'
+                        : 'bg-white/10'
+                    }`}
+                    style={{
+                      backgroundColor: isActive || isCompleted ? dominantColor : undefined,
+                      color: isActive || isCompleted ? '#222222' : '#EAEAEA',
+                      ringColor: isActive ? dominantColor : undefined,
+                    }}
+                  >
+                    {isCompleted ? '✓' : idx + 1}
+                  </div>
+                  <span className={`text-xs mt-2 ${isActive ? 'text-white font-semibold' : 'text-light-gray/60'}`}>
+                    {s === 'service' ? 'Servicio' : s === 'date' ? 'Fecha' : s === 'time' ? 'Hora' : 'Datos'}
+                  </span>
                 </div>
-                {categories.length > 0 && (
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                    <SelectTrigger className="w-40 bg-white/5 border-white/20 text-white">
-                      <SelectValue placeholder="Category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat!}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                {idx < 3 && (
+                  <div className={`h-0.5 flex-1 mx-2 ${isCompleted ? 'opacity-100' : 'bg-white/10'}`} style={{ backgroundColor: isCompleted ? dominantColor : undefined }} />
                 )}
               </div>
-            </div>
-          </motion.div>
-
-          {/* Services Grid - Card Style */}
-          {filteredServices.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-16"
-            >
-              <Search className="w-12 h-12 text-light-gray/30 mx-auto mb-4" />
-              <p className="text-light-gray/70 text-lg">No services found</p>
-            </motion.div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredServices.map((service, index) => {
-                const serviceColor = service.cardColor || dominantColor;
-                const serviceRgb = hexToRgb(serviceColor);
-                const serviceRgbString = serviceRgb ? `${serviceRgb.r}, ${serviceRgb.g}, ${serviceRgb.b}` : dominantRgbString;
-                
-                let priceOptions: PriceOption[] = [];
-                try {
-                  if (service.priceOptions) {
-                    priceOptions = JSON.parse(service.priceOptions);
-                  }
-                } catch {}
-
-                return (
-                  <motion.div
-                    key={service._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ y: -4 }}
-                    onClick={() => {
-                      setSelectedService(service);
-                      setBookingSuccess(false);
-                      setTimeout(() => {
-                        document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' });
-                      }, 100);
-                    }}
-                    className="group relative bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/30 transition-all cursor-pointer overflow-hidden"
-                  >
-                    {/* Hover gradient effect */}
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      style={{
-                        background: `linear-gradient(135deg, rgba(${serviceRgbString}, 0.1), transparent)`,
-                      }}
-                    />
-
-                    <div className="relative z-10">
-                      {/* Service Header */}
-                      <div className="mb-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="text-xl font-heading font-bold text-white group-hover:text-white/90 transition-colors">
-                            {service.name}
-                          </h3>
-                          {service.category && (
-                            <Badge variant="outline" className="border-white/20 text-white/70 text-xs">
-                              {service.category}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Service Details */}
-                      <div className="space-y-3 mb-6">
-                        {service.durationMin && (
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
-                              <Clock className="w-4 h-4" style={{ color: serviceColor }} />
-                            </div>
-                            <div>
-                              <p className="text-xs text-light-gray/60 uppercase tracking-wide">Duration</p>
-                              <p className="text-sm text-white font-medium">{service.durationMin} minutes</p>
-                            </div>
-                          </div>
-                        )}
-
-                        {service.price !== undefined && priceOptions.length === 0 && (
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
-                              <DollarSign className="w-4 h-4" style={{ color: serviceColor }} />
-                            </div>
-                            <div>
-                              <p className="text-xs text-light-gray/60 uppercase tracking-wide">Price</p>
-                              <p className="text-lg font-bold" style={{ color: serviceColor }}>
-                                ${service.price}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-
-                        {priceOptions.length > 0 && (
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
-                              <DollarSign className="w-4 h-4" style={{ color: serviceColor }} />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-xs text-light-gray/60 uppercase tracking-wide mb-1">Price Options</p>
-                              <div className="space-y-1">
-                                {priceOptions.slice(0, 2).map((opt, idx) => (
-                                  <div key={idx} className="flex justify-between text-sm">
-                                    <span className="text-light-gray/80">{opt.name}</span>
-                                    <span className="font-semibold" style={{ color: serviceColor }}>${opt.price}</span>
-                                  </div>
-                                ))}
-                                {priceOptions.length > 2 && (
-                                  <p className="text-xs text-light-gray/60">+{priceOptions.length - 2} more</p>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {service.maxPeoplePerBooking && (
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
-                              <Users className="w-4 h-4" style={{ color: serviceColor }} />
-                            </div>
-                            <div>
-                              <p className="text-xs text-light-gray/60 uppercase tracking-wide">Capacity</p>
-                              <p className="text-sm text-white font-medium">Up to {service.maxPeoplePerBooking} people</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* CTA Button */}
-                      <Button
-                        className="w-full font-semibold group/btn"
-                        style={{ backgroundColor: serviceColor, color: '#222222' }}
-                      >
-                        Select & Book
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
+            );
+          })}
         </div>
-      </section>
+      </div>
 
-      {/* ... keep existing code (booking calendar section) */}
-      <AnimatePresence>
-        {selectedService && (
-          <motion.section
-            id="booking-section"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 30 }}
-            transition={{ duration: 0.3 }}
-            className="py-8 md:py-16 px-4 relative z-10 border-t border-white/10"
-          >
-            <div className="max-w-[100rem] mx-auto">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0 mb-6 md:mb-8">
-                <motion.div
-                  initial={{ opacity: 0, x: -15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                >
-                  <h2 className="text-2xl md:text-4xl font-heading font-bold text-white mb-1">
-                    Elige tu horario preferido
-                  </h2>
-                  <p className="text-light-gray/70 font-paragraph text-xs md:text-sm truncate">
-                    {selectedService.name}
-                  </p>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, x: 15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                >
-                  <Button
-                    onClick={() => {
-                      setSelectedService(null);
-                      setSelectedPriceOption(null);
-                    }}
-                    variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10 h-8 md:h-9 w-full md:w-auto text-xs md:text-sm px-3 md:px-4"
-                  >
-                    <X className="w-3 h-3 mr-1.5" />
-                    Change Service
-                  </Button>
-                </motion.div>
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <AnimatePresence mode="wait">
+          {/* Step 1: Service Selection */}
+          {step === 'service' && (
+            <motion.div
+              key="service"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-8">
+                <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2">
+                  Selecciona un Servicio
+                </h2>
+                <p className="text-light-gray/70">Elige el servicio que deseas reservar</p>
               </div>
 
-              {/* Week Navigation - Mobile Optimized & Compact */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 }}
-                className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-3 mb-6 md:mb-8 p-3 md:p-4 rounded-lg backdrop-blur-sm border border-white/10"
-                style={{ backgroundColor: `rgba(${dominantRgbString}, 0.05)` }}
-              >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {services.map((service, index) => {
+                  const serviceColor = service.cardColor || dominantColor;
+                  const serviceRgb = hexToRgb(serviceColor);
+                  const serviceRgbString = serviceRgb ? `${serviceRgb.r}, ${serviceRgb.g}, ${serviceRgb.b}` : dominantRgbString;
+                  
+                  let priceOptions: PriceOption[] = [];
+                  try {
+                    if (service.priceOptions) {
+                      priceOptions = JSON.parse(service.priceOptions);
+                    }
+                  } catch {}
+
+                  return (
+                    <motion.div
+                      key={service._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      onClick={() => handleServiceSelect(service)}
+                      className="group relative bg-white/5 backdrop-blur-sm rounded-2xl p-6 border-2 border-white/10 hover:border-white/30 transition-all cursor-pointer overflow-hidden"
+                    >
+                      <div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{
+                          background: `linear-gradient(135deg, rgba(${serviceRgbString}, 0.15), transparent)`,
+                        }}
+                      />
+
+                      <div className="relative z-10">
+                        <div className="mb-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="text-xl font-heading font-bold text-white">
+                              {service.name}
+                            </h3>
+                            {service.category && (
+                              <Badge variant="outline" className="border-white/20 text-white/70 text-xs">
+                                {service.category}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 mb-6">
+                          {service.durationMin && (
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
+                                <Clock className="w-4 h-4" style={{ color: serviceColor }} />
+                              </div>
+                              <div>
+                                <p className="text-xs text-light-gray/60 uppercase tracking-wide">Duración</p>
+                                <p className="text-sm text-white font-medium">{service.durationMin} minutos</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {service.price !== undefined && priceOptions.length === 0 && (
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
+                                <DollarSign className="w-4 h-4" style={{ color: serviceColor }} />
+                              </div>
+                              <div>
+                                <p className="text-xs text-light-gray/60 uppercase tracking-wide">Precio</p>
+                                <p className="text-lg font-bold" style={{ color: serviceColor }}>
+                                  ${service.price}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {priceOptions.length > 0 && (
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
+                                <DollarSign className="w-4 h-4" style={{ color: serviceColor }} />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-xs text-light-gray/60 uppercase tracking-wide mb-1">Opciones</p>
+                                <div className="space-y-1">
+                                  {priceOptions.slice(0, 2).map((opt, idx) => (
+                                    <div key={idx} className="flex justify-between text-sm">
+                                      <span className="text-light-gray/80">{opt.name}</span>
+                                      <span className="font-semibold" style={{ color: serviceColor }}>${opt.price}</span>
+                                    </div>
+                                  ))}
+                                  {priceOptions.length > 2 && (
+                                    <p className="text-xs text-light-gray/60">+{priceOptions.length - 2} más</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {service.maxPeoplePerBooking && (
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
+                                <Users className="w-4 h-4" style={{ color: serviceColor }} />
+                              </div>
+                              <div>
+                                <p className="text-xs text-light-gray/60 uppercase tracking-wide">Capacidad</p>
+                                <p className="text-sm text-white font-medium">Hasta {service.maxPeoplePerBooking} personas</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <Button
+                          className="w-full font-semibold"
+                          style={{ backgroundColor: serviceColor, color: '#222222' }}
+                        >
+                          Seleccionar
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 2: Date Selection */}
+          {step === 'date' && selectedService && (
+            <motion.div
+              key="date"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2">
+                    Selecciona una Fecha
+                  </h2>
+                  <p className="text-light-gray/70">{selectedService.name}</p>
+                </div>
+                <Button onClick={handleBack} variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Volver
+                </Button>
+              </div>
+
+              {/* Week Navigation */}
+              <div className="flex items-center justify-between gap-4 p-4 rounded-lg backdrop-blur-sm border border-white/10" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.05)` }}>
                 <Button
                   onClick={() => setWeekStart(addDays(weekStart, -7))}
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10 h-8 md:h-9 w-full md:w-auto text-xs px-2.5 md:px-3"
+                  className="border-white/20 text-white hover:bg-white/10"
                 >
-                  ← Previous
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Anterior
                 </Button>
-                <span className="font-heading text-sm md:text-base text-white text-center whitespace-nowrap">
-                  {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 6), 'MMM d')}
+                <span className="font-heading text-base text-white text-center">
+                  {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 6), 'MMM d, yyyy')}
                 </span>
                 <Button
                   onClick={() => setWeekStart(addDays(weekStart, 7))}
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10 h-8 md:h-9 w-full md:w-auto text-xs px-2.5 md:px-3"
+                  className="border-white/20 text-white hover:bg-white/10"
                 >
-                  Next →
+                  Siguiente
+                  <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>
-              </motion.div>
+              </div>
 
-              {/* Availability Grid - Enhanced UX */}
-              {loadingAvailability ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex justify-center py-8 md:py-12"
-                >
-                  <LoadingSpinner />
-                </motion.div>
-              ) : availability.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-8 md:py-12"
-                >
-                  <div className="inline-block p-2.5 md:p-3 bg-white/5 rounded-full mb-3">
-                    <Calendar className="w-5 h-5 md:w-6 md:h-6 text-light-gray/50" />
-                  </div>
-                  <p className="text-light-gray font-paragraph text-sm md:text-base">No availability for this week.</p>
-                </motion.div>
-              ) : (
-                <motion.div
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="visible"
-                  className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3 md:gap-4"
-                >
-                  {availability.map((day) => (
-                    <motion.div
-                      key={day.date}
-                      variants={itemVariants}
-                      className="rounded-xl p-4 backdrop-blur-sm border border-white/20 shadow-lg"
-                      style={{ backgroundColor: `rgba(${dominantRgbString}, 0.08)` }}
+              {/* Calendar Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                {Array.from({ length: 7 }).map((_, idx) => {
+                  const date = addDays(weekStart, idx);
+                  const isSelected = selectedDate && isSameDay(date, selectedDate);
+                  const isPast = date < new Date() && !isSameDay(date, new Date());
+
+                  return (
+                    <motion.button
+                      key={idx}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      whileHover={!isPast ? { scale: 1.05, y: -4 } : {}}
+                      whileTap={!isPast ? { scale: 0.95 } : {}}
+                      onClick={() => !isPast && handleDateSelect(date)}
+                      disabled={isPast}
+                      className={`rounded-2xl p-6 border-2 transition-all ${
+                        isPast
+                          ? 'opacity-40 cursor-not-allowed bg-white/5 border-white/10'
+                          : isSelected
+                          ? 'border-white/50 shadow-lg'
+                          : 'border-white/10 hover:border-white/30 bg-white/5'
+                      }`}
+                      style={isSelected ? { backgroundColor: `rgba(${dominantRgbString}, 0.2)`, borderColor: dominantColor } : {}}
                     >
-                      <h3 className="font-heading font-bold text-white mb-4 text-center pb-3 border-b border-white/10">
-                        <div className="text-sm uppercase tracking-wide" style={{ color: dominantColor }}>
-                          {format(parseISO(day.date), 'EEE')}
+                      <div className="text-center">
+                        <div className={`text-xs uppercase tracking-wide mb-2 ${isSelected ? 'font-bold' : 'text-light-gray/60'}`} style={isSelected ? { color: dominantColor } : {}}>
+                          {format(date, 'EEE')}
                         </div>
-                        <div className="text-2xl md:text-3xl mt-1" style={{ color: dominantColor }}>
-                          {format(parseISO(day.date), 'd')}
+                        <div className={`text-4xl font-bold mb-1 ${isSelected ? '' : 'text-white'}`} style={isSelected ? { color: dominantColor } : {}}>
+                          {format(date, 'd')}
                         </div>
-                        <div className="text-xs text-light-gray/60 mt-1">
-                          {format(parseISO(day.date), 'MMM')}
+                        <div className="text-xs text-light-gray/60">
+                          {format(date, 'MMM')}
                         </div>
-                      </h3>
-                      <div className="space-y-2 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
-                        {day.slots.length === 0 ? (
-                          <div className="text-center py-6">
-                            <div className="inline-block p-2 bg-white/5 rounded-lg mb-2">
-                              <Clock className="w-4 h-4 text-light-gray/40" />
-                            </div>
-                            <p className="text-light-gray/50 text-xs">No slots</p>
-                          </div>
-                        ) : (
-                          day.slots.map((slot, idx) => (
-                            <motion.button
-                              key={idx}
-                              onClick={() => handleSlotClick(day.date, slot)}
-                              whileHover={{ scale: 1.05, y: -2 }}
-                              whileTap={{ scale: 0.95 }}
-                              className="w-full rounded-lg px-4 py-3 text-sm font-paragraph font-bold transition-all duration-200 border-2 shadow-md hover:shadow-xl touch-manipulation relative overflow-hidden group"
-                              style={{
-                                backgroundColor: `rgba(${dominantRgbString}, 0.15)`,
-                                borderColor: `rgba(${dominantRgbString}, 0.6)`,
-                                color: dominantColor,
-                              }}
-                            >
-                              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                                style={{
-                                  background: `linear-gradient(135deg, rgba(${dominantRgbString}, 0.2), rgba(${dominantRgbString}, 0.1))`,
-                                }}
-                              />
-                              <div className="relative z-10 flex items-center justify-center gap-2">
-                                <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                                <span className="whitespace-nowrap">{format(parseISO(slot.startAtISO), 'h:mm a')}</span>
-                              </div>
-                            </motion.button>
-                          ))
-                        )}
                       </div>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
-            </div>
-          </motion.section>
-        )}
-      </AnimatePresence>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
 
-      {/* Booking Modal - Mobile Optimized & Compact */}
-      <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
-        <DialogContent className="bg-gradient-to-br from-deep-charcoal to-[#1a1a1a] border-white/20 text-white max-w-md w-[95vw] md:w-full rounded-xl">
-          <DialogHeader>
-            <DialogTitle className="font-heading text-lg md:text-xl">Complete Your Booking</DialogTitle>
-          </DialogHeader>
-          {selectedSlot && (
-            <form onSubmit={handleBookingSubmit} className="space-y-3 md:space-y-4 max-h-[70vh] overflow-y-auto">
-              {/* Selected Time Display - Compact */}
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-lg p-2.5 md:p-3 border"
-                style={{
-                  backgroundColor: `rgba(${dominantRgbString}, 0.1)`,
-                  borderColor: `rgba(${dominantRgbString}, 0.3)`,
-                }}
-              >
-                <p className="font-paragraph text-xs text-light-gray/70 mb-1.5 uppercase tracking-wider">Selected Time</p>
-                <p className="font-heading text-sm md:text-base mb-0.5" style={{ color: dominantColor }}>
-                  {format(parseISO(selectedSlot.slot.startAtISO), 'EEE, MMM d')}
-                </p>
-                <p className="font-heading text-base md:text-lg text-white">
-                  {format(parseISO(selectedSlot.slot.startAtISO), 'h:mm a')} -{' '}
-                  {format(parseISO(selectedSlot.slot.endAtISO), 'h:mm a')}
-                </p>
-              </motion.div>
+          {/* Step 3: Time Selection */}
+          {step === 'time' && selectedService && selectedDate && (
+            <motion.div
+              key="time"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2">
+                    Selecciona una Hora
+                  </h2>
+                  <p className="text-light-gray/70">
+                    {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+                  </p>
+                </div>
+                <Button onClick={handleBack} variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Volver
+                </Button>
+              </div>
 
-              {/* Error Message - Compact */}
-              {bookingError && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-destructive/10 border border-destructive/30 rounded-lg p-2.5 text-destructive text-xs"
-                >
-                  {bookingError}
-                </motion.div>
-              )}
-
-              {/* Price Option Selector - Compact */}
-              {selectedService?.priceOptions && (() => {
-                try {
-                  const opts = JSON.parse(selectedService.priceOptions);
-                  if (Array.isArray(opts) && opts.length > 0) {
-                    return (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
+              {loadingAvailability ? (
+                <div className="flex justify-center py-12">
+                  <LoadingSpinner />
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {availability
+                    .find((day) => isSameDay(parseISO(day.date), selectedDate))
+                    ?.slots.map((slot, idx) => (
+                      <motion.button
+                        key={idx}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.05 }}
+                        transition={{ delay: idx * 0.03 }}
+                        whileHover={{ scale: 1.05, y: -4 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleSlotSelect(slot)}
+                        className="rounded-xl p-6 border-2 transition-all bg-white/5 border-white/10 hover:border-white/30 hover:shadow-lg"
+                        style={{
+                          borderColor: `rgba(${dominantRgbString}, 0.3)`,
+                        }}
                       >
-                        <Label htmlFor="priceOption" className="text-light-gray font-semibold text-xs md:text-sm">
-                          Select Price Option *
-                        </Label>
-                        <Select
-                          value={selectedPriceOption ? JSON.stringify(selectedPriceOption) : ''}
-                          onValueChange={(val) => {
-                            if (val) {
-                              setSelectedPriceOption(JSON.parse(val));
-                            } else {
-                              setSelectedPriceOption(null);
-                            }
-                          }}
-                        >
-                          <SelectTrigger className="bg-white/5 border-white/20 text-white mt-1.5 text-xs md:text-sm h-8 md:h-9">
-                            <SelectValue placeholder="Choose a variant..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {opts.map((opt: PriceOption, idx: number) => (
-                              <SelectItem key={idx} value={JSON.stringify(opt)}>
-                                {opt.name} - ${opt.price}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </motion.div>
-                    );
+                        <div className="text-center">
+                          <Clock className="w-6 h-6 mx-auto mb-3" style={{ color: dominantColor }} />
+                          <div className="text-xl font-bold text-white mb-1">
+                            {format(parseISO(slot.startAtISO), 'h:mm a')}
+                          </div>
+                          <div className="text-xs text-light-gray/60">
+                            {format(parseISO(slot.endAtISO), 'h:mm a')}
+                          </div>
+                        </div>
+                      </motion.button>
+                    )) || (
+                    <div className="col-span-full text-center py-12">
+                      <Calendar className="w-12 h-12 text-light-gray/30 mx-auto mb-4" />
+                      <p className="text-light-gray/70">No hay horarios disponibles para esta fecha</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Step 4: Details Form */}
+          {step === 'details' && selectedService && selectedDate && selectedSlot && (
+            <motion.div
+              key="details"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2">
+                    Completa tus Datos
+                  </h2>
+                  <p className="text-light-gray/70">
+                    {format(selectedDate, 'EEEE, MMMM d')} • {format(parseISO(selectedSlot.startAtISO), 'h:mm a')}
+                  </p>
+                </div>
+                <Button onClick={handleBack} variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Volver
+                </Button>
+              </div>
+
+              <form onSubmit={handleBookingSubmit} className="max-w-2xl mx-auto space-y-6">
+                {/* Selected Details Summary */}
+                <div className="rounded-xl p-6 border-2" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)`, borderColor: `rgba(${dominantRgbString}, 0.3)` }}>
+                  <h3 className="font-heading font-bold text-white mb-4">Resumen de tu Reserva</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.2)` }}>
+                        <Calendar className="w-5 h-5" style={{ color: dominantColor }} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-light-gray/60 uppercase tracking-wide">Servicio</p>
+                        <p className="text-white font-medium">{selectedService.name}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.2)` }}>
+                        <Clock className="w-5 h-5" style={{ color: dominantColor }} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-light-gray/60 uppercase tracking-wide">Fecha y Hora</p>
+                        <p className="text-white font-medium">
+                          {format(selectedDate, 'EEEE, MMMM d, yyyy')} • {format(parseISO(selectedSlot.startAtISO), 'h:mm a')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Error Message */}
+                {bookingError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 text-destructive"
+                  >
+                    {bookingError}
+                  </motion.div>
+                )}
+
+                {/* Price Option Selector */}
+                {selectedService?.priceOptions && (() => {
+                  try {
+                    const opts = JSON.parse(selectedService.priceOptions);
+                    if (Array.isArray(opts) && opts.length > 0) {
+                      return (
+                        <div>
+                          <Label htmlFor="priceOption" className="text-light-gray font-semibold mb-2 block">
+                            Selecciona una Opción de Precio *
+                          </Label>
+                          <Select
+                            value={selectedPriceOption ? JSON.stringify(selectedPriceOption) : ''}
+                            onValueChange={(val) => {
+                              if (val) {
+                                setSelectedPriceOption(JSON.parse(val));
+                              } else {
+                                setSelectedPriceOption(null);
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="bg-white/5 border-white/20 text-white">
+                              <SelectValue placeholder="Elige una variante..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {opts.map((opt: PriceOption, idx: number) => (
+                                <SelectItem key={idx} value={JSON.stringify(opt)}>
+                                  {opt.name} - ${opt.price}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      );
+                    }
+                  } catch {
+                    return null;
                   }
-                } catch {
                   return null;
-                }
-                return null;
-              })()}
+                })()}
 
-              {/* Form Fields - Compact */}
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <Label htmlFor="clientName" className="text-light-gray font-semibold text-xs md:text-sm">
-                  Name *
-                </Label>
-                <Input
-                  id="clientName"
-                  required
-                  value={bookingForm.clientName}
-                  onChange={(e) => setBookingForm({ ...bookingForm, clientName: e.target.value })}
-                  className="bg-white/5 border-white/20 text-white mt-1.5 text-xs md:text-sm h-8 md:h-9"
-                />
-              </motion.div>
+                {/* Form Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="clientName" className="text-light-gray font-semibold mb-2 block">
+                      Nombre Completo *
+                    </Label>
+                    <Input
+                      id="clientName"
+                      required
+                      value={bookingForm.clientName}
+                      onChange={(e) => setBookingForm({ ...bookingForm, clientName: e.target.value })}
+                      className="bg-white/5 border-white/20 text-white"
+                      placeholder="Tu nombre"
+                    />
+                  </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.12 }}
-              >
-                <Label htmlFor="clientEmail" className="text-light-gray font-semibold text-xs md:text-sm">
-                  Email *
-                </Label>
-                <Input
-                  id="clientEmail"
-                  type="email"
-                  required
-                  value={bookingForm.clientEmail}
-                  onChange={(e) => setBookingForm({ ...bookingForm, clientEmail: e.target.value })}
-                  className="bg-white/5 border-white/20 text-white mt-1.5 text-xs md:text-sm h-8 md:h-9"
-                />
-              </motion.div>
+                  <div>
+                    <Label htmlFor="clientEmail" className="text-light-gray font-semibold mb-2 block">
+                      Email *
+                    </Label>
+                    <Input
+                      id="clientEmail"
+                      type="email"
+                      required
+                      value={bookingForm.clientEmail}
+                      onChange={(e) => setBookingForm({ ...bookingForm, clientEmail: e.target.value })}
+                      className="bg-white/5 border-white/20 text-white"
+                      placeholder="tu@email.com"
+                    />
+                  </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.14 }}
-              >
-                <Label htmlFor="clientPhone" className="text-light-gray font-semibold text-xs md:text-sm">
-                  Phone *
-                </Label>
-                <Input
-                  id="clientPhone"
-                  type="tel"
-                  required
-                  value={bookingForm.clientPhone}
-                  onChange={(e) => setBookingForm({ ...bookingForm, clientPhone: e.target.value })}
-                  className="bg-white/5 border-white/20 text-white mt-1.5 text-xs md:text-sm h-8 md:h-9"
-                />
-              </motion.div>
+                  <div>
+                    <Label htmlFor="clientPhone" className="text-light-gray font-semibold mb-2 block">
+                      Teléfono *
+                    </Label>
+                    <Input
+                      id="clientPhone"
+                      type="tel"
+                      required
+                      value={bookingForm.clientPhone}
+                      onChange={(e) => setBookingForm({ ...bookingForm, clientPhone: e.target.value })}
+                      className="bg-white/5 border-white/20 text-white"
+                      placeholder="+1234567890"
+                    />
+                  </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.16 }}
-              >
-                <Label htmlFor="peopleCount" className="text-light-gray font-semibold text-xs md:text-sm">
-                  Number of People *
-                </Label>
-                <Input
-                  id="peopleCount"
-                  type="number"
-                  min="1"
-                  max={selectedService?.maxPeoplePerBooking || 1}
-                  required
-                  value={bookingForm.peopleCount}
-                  onChange={(e) => setBookingForm({ ...bookingForm, peopleCount: parseInt(e.target.value) })}
-                  className="bg-white/5 border-white/20 text-white mt-1.5 text-xs md:text-sm h-8 md:h-9"
-                />
-              </motion.div>
+                  <div>
+                    <Label htmlFor="peopleCount" className="text-light-gray font-semibold mb-2 block">
+                      Número de Personas *
+                    </Label>
+                    <Input
+                      id="peopleCount"
+                      type="number"
+                      min="1"
+                      max={selectedService?.maxPeoplePerBooking || 1}
+                      required
+                      value={bookingForm.peopleCount}
+                      onChange={(e) => setBookingForm({ ...bookingForm, peopleCount: parseInt(e.target.value) })}
+                      className="bg-white/5 border-white/20 text-white"
+                    />
+                  </div>
+                </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.18 }}
-              >
-                <Label htmlFor="notes" className="text-light-gray font-semibold text-xs md:text-sm">
-                  Notes (Optional)
-                </Label>
-                <Textarea
-                  id="notes"
-                  value={bookingForm.notes}
-                  onChange={(e) => setBookingForm({ ...bookingForm, notes: e.target.value })}
-                  className="bg-white/5 border-white/20 text-white mt-1.5 text-xs md:text-sm"
-                  rows={2}
-                />
-              </motion.div>
+                <div>
+                  <Label htmlFor="notes" className="text-light-gray font-semibold mb-2 block">
+                    Notas Adicionales (Opcional)
+                  </Label>
+                  <Textarea
+                    id="notes"
+                    value={bookingForm.notes}
+                    onChange={(e) => setBookingForm({ ...bookingForm, notes: e.target.value })}
+                    className="bg-white/5 border-white/20 text-white"
+                    rows={4}
+                    placeholder="Alguna información adicional que quieras compartir..."
+                  />
+                </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="w-full text-deep-charcoal hover:opacity-90 font-semibold h-8 md:h-9 rounded-lg text-xs md:text-sm"
+                  className="w-full text-deep-charcoal hover:opacity-90 font-semibold text-lg py-6"
                   style={{ backgroundColor: dominantColor }}
                 >
                   {submitting ? (
                     <>
-                      <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity }}>
-                        ⏳
-                      </motion.span>
-                      {' '}Booking...
+                      <LoadingSpinner />
+                      {' '}Procesando...
                     </>
                   ) : (
                     <>
-                      Confirm Booking
-                      <ArrowRight className="w-3 h-3 ml-1.5" />
+                      Confirmar Reserva
+                      <ArrowRight className="w-5 h-5 ml-2" />
                     </>
                   )}
                 </Button>
-              </motion.div>
-            </form>
+              </form>
+            </motion.div>
           )}
-        </DialogContent>
-      </Dialog>
+        </AnimatePresence>
+      </div>
 
-      {/* Success Dialog - Mobile Optimized & Compact */}
+      {/* Success Dialog */}
       <Dialog open={bookingSuccess} onOpenChange={setBookingSuccess}>
-        <DialogContent className="bg-gradient-to-br from-deep-charcoal to-[#1a1a1a] border-white/20 text-white max-w-md w-[95vw] md:w-full rounded-xl">
+        <DialogContent className="bg-gradient-to-br from-deep-charcoal to-[#1a1a1a] border-white/20 text-white max-w-md">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
+            className="text-center"
           >
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.15, duration: 0.3 }}
+              className="inline-block p-4 rounded-full mb-4"
+              style={{ backgroundColor: `rgba(${dominantRgbString}, 0.2)` }}
+            >
+              <CheckCircle2 className="w-12 h-12" style={{ color: dominantColor }} />
+            </motion.div>
             <DialogHeader>
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.15, duration: 0.3 }}
-                className="inline-block p-2.5 md:p-3 rounded-full mb-3"
-                style={{ backgroundColor: `rgba(${dominantRgbString}, 0.2)` }}
-              >
-                <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6" style={{ color: dominantColor }} />
-              </motion.div>
-              <DialogTitle className="font-heading text-lg md:text-xl" style={{ color: dominantColor }}>
-                Booking Confirmed!
+              <DialogTitle className="font-heading text-2xl mb-4" style={{ color: dominantColor }}>
+                ¡Reserva Confirmada!
               </DialogTitle>
             </DialogHeader>
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="space-y-2 md:space-y-3"
+              className="space-y-4"
             >
-              <p className="font-paragraph text-light-gray/80 text-xs md:text-sm">
-                Your appointment has been successfully booked. You will receive a confirmation email shortly.
+              <p className="font-paragraph text-light-gray/80">
+                Tu cita ha sido reservada exitosamente. Recibirás un correo de confirmación en breve.
               </p>
-              <p className="font-paragraph text-light-gray/80 text-xs md:text-sm">
-                We'll also send you a reminder 24 hours before your appointment.
+              <p className="font-paragraph text-light-gray/80 text-sm">
+                También te enviaremos un recordatorio 24 horas antes de tu cita.
               </p>
               <Button
-                onClick={() => setBookingSuccess(false)}
-                className="w-full text-deep-charcoal hover:opacity-90 font-semibold h-8 md:h-9 rounded-lg text-xs md:text-sm"
+                onClick={() => {
+                  setBookingSuccess(false);
+                  setStep('service');
+                }}
+                className="w-full text-deep-charcoal hover:opacity-90 font-semibold"
                 style={{ backgroundColor: dominantColor }}
               >
-                Done
+                Entendido
               </Button>
             </motion.div>
           </motion.div>
