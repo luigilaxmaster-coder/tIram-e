@@ -823,7 +823,7 @@ export default function ProviderPublicPage() {
                   animate={{ opacity: 1, x: 0 }}
                 >
                   <h2 className="text-2xl md:text-4xl font-heading font-bold text-white mb-1">
-                    Select Your Time
+                    Elige tu horario preferido
                   </h2>
                   <p className="text-light-gray/70 font-paragraph text-xs md:text-sm truncate">
                     {selectedService.name}
