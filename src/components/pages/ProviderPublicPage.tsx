@@ -874,7 +874,7 @@ export default function ProviderPublicPage() {
                 </Button>
               </motion.div>
 
-              {/* Availability Grid - Mobile Optimized & Compact */}
+              {/* Availability Grid - Enhanced UX */}
               {loadingAvailability ? (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -899,40 +899,58 @@ export default function ProviderPublicPage() {
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
-                  className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-1.5 md:gap-2"
+                  className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3 md:gap-4"
                 >
                   {availability.map((day) => (
                     <motion.div
                       key={day.date}
                       variants={itemVariants}
-                      className="rounded-lg p-2 md:p-3 backdrop-blur-sm border border-white/10"
-                      style={{ backgroundColor: `rgba(${dominantRgbString}, 0.05)` }}
+                      className="rounded-xl p-4 backdrop-blur-sm border border-white/20 shadow-lg"
+                      style={{ backgroundColor: `rgba(${dominantRgbString}, 0.08)` }}
                     >
-                      <h3 className="font-heading font-semibold text-white mb-2 text-center text-xs">
-                        <div className="text-xs" style={{ color: dominantColor }}>
+                      <h3 className="font-heading font-bold text-white mb-4 text-center pb-3 border-b border-white/10">
+                        <div className="text-sm uppercase tracking-wide" style={{ color: dominantColor }}>
                           {format(parseISO(day.date), 'EEE')}
                         </div>
-                        <div className="text-sm md:text-base mt-0.5" style={{ color: dominantColor }}>
+                        <div className="text-2xl md:text-3xl mt-1" style={{ color: dominantColor }}>
                           {format(parseISO(day.date), 'd')}
                         </div>
+                        <div className="text-xs text-light-gray/60 mt-1">
+                          {format(parseISO(day.date), 'MMM')}
+                        </div>
                       </h3>
-                      <div className="space-y-0.5 max-h-48 md:max-h-64 overflow-y-auto">
+                      <div className="space-y-2 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
                         {day.slots.length === 0 ? (
-                          <p className="text-light-gray/50 text-xs text-center py-2">No slots</p>
+                          <div className="text-center py-6">
+                            <div className="inline-block p-2 bg-white/5 rounded-lg mb-2">
+                              <Clock className="w-4 h-4 text-light-gray/40" />
+                            </div>
+                            <p className="text-light-gray/50 text-xs">No slots</p>
+                          </div>
                         ) : (
                           day.slots.map((slot, idx) => (
-                            <button
+                            <motion.button
                               key={idx}
                               onClick={() => handleSlotClick(day.date, slot)}
-                              className="w-full rounded px-1.5 md:px-2 py-1.5 text-xs font-paragraph font-semibold transition-all duration-150 border active:scale-95 hover:scale-105 touch-manipulation"
+                              whileHover={{ scale: 1.05, y: -2 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="w-full rounded-lg px-4 py-3 text-sm font-paragraph font-bold transition-all duration-200 border-2 shadow-md hover:shadow-xl touch-manipulation relative overflow-hidden group"
                               style={{
-                                backgroundColor: `rgba(${dominantRgbString}, 0.2)`,
-                                borderColor: `rgba(${dominantRgbString}, 0.5)`,
+                                backgroundColor: `rgba(${dominantRgbString}, 0.15)`,
+                                borderColor: `rgba(${dominantRgbString}, 0.6)`,
                                 color: dominantColor,
                               }}
                             >
-                              {format(parseISO(slot.startAtISO), 'h:mm a')}
-                            </button>
+                              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                                style={{
+                                  background: `linear-gradient(135deg, rgba(${dominantRgbString}, 0.2), rgba(${dominantRgbString}, 0.1))`,
+                                }}
+                              />
+                              <div className="relative z-10 flex items-center justify-center gap-2">
+                                <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                                <span className="whitespace-nowrap">{format(parseISO(slot.startAtISO), 'h:mm a')}</span>
+                              </div>
+                            </motion.button>
                           ))
                         )}
                       </div>
