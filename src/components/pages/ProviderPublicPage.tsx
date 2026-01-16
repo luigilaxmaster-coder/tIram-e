@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Phone, Mail, Tag, Clock, Users, DollarSign, Search, X, ChevronDown, Calendar, ArrowRight, Star, Sparkles, CheckCircle2 } from 'lucide-react';
-import { Providers, Services, PriceOption } from '@/entities';
+import { Providers, Services } from '@/entities';
+import { PriceOption } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -920,12 +921,10 @@ export default function ProviderPublicPage() {
                           <p className="text-light-gray/50 text-xs text-center py-2">No slots</p>
                         ) : (
                           day.slots.map((slot, idx) => (
-                            <motion.button
+                            <button
                               key={idx}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
                               onClick={() => handleSlotClick(day.date, slot)}
-                              className="w-full rounded px-1.5 md:px-2 py-1 text-xs font-paragraph font-semibold transition-all duration-200 border"
+                              className="w-full rounded px-1.5 md:px-2 py-1.5 text-xs font-paragraph font-semibold transition-all duration-150 border active:scale-95 hover:scale-105 touch-manipulation"
                               style={{
                                 backgroundColor: `rgba(${dominantRgbString}, 0.2)`,
                                 borderColor: `rgba(${dominantRgbString}, 0.5)`,
@@ -933,7 +932,7 @@ export default function ProviderPublicPage() {
                               }}
                             >
                               {format(parseISO(slot.startAtISO), 'h:mm a')}
-                            </motion.button>
+                            </button>
                           ))
                         )}
                       </div>
