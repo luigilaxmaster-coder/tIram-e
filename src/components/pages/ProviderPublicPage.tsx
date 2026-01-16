@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Phone, Mail, Tag, Clock, Users, DollarSign, Search, X, ChevronDown, Calendar, ArrowRight, Star, Sparkles, CheckCircle2 } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Users, DollarSign, Search, X, Calendar, ArrowRight, CheckCircle2, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import { Providers, Services } from '@/entities';
 import { PriceOption } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { Badge } from '@/components/ui/badge';
 import { format, addDays, startOfWeek, parseISO } from 'date-fns';
 
 interface AvailabilitySlot {
@@ -80,10 +81,6 @@ export default function ProviderPublicPage() {
   // Filters
   const [searchText, setSearchText] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [durationFilter, setDurationFilter] = useState('all');
-  const [priceFilter, setPriceFilter] = useState('all');
-  const [peopleFilter, setPeopleFilter] = useState('all');
-  const [showFilters, setShowFilters] = useState(false);
 
   // Booking state
   const [selectedService, setSelectedService] = useState<Services | null>(null);
@@ -110,7 +107,7 @@ export default function ProviderPublicPage() {
 
   useEffect(() => {
     applyFilters();
-  }, [services, searchText, categoryFilter, durationFilter, priceFilter, peopleFilter]);
+  }, [services, searchText, categoryFilter]);
 
   useEffect(() => {
     if (services.length > 0) {
@@ -200,25 +197,6 @@ export default function ProviderPublicPage() {
 
     if (categoryFilter !== 'all') {
       filtered = filtered.filter((s) => s.category === categoryFilter);
-    }
-
-    if (durationFilter !== 'all') {
-      const duration = parseInt(durationFilter);
-      filtered = filtered.filter((s) => s.durationMin === duration);
-    }
-
-    if (priceFilter !== 'all') {
-      if (priceFilter === 'free') {
-        filtered = filtered.filter((s) => !s.price || s.price === 0);
-      } else {
-        const [min, max] = priceFilter.split('-').map(Number);
-        filtered = filtered.filter((s) => s.price && s.price >= min && s.price <= max);
-      }
-    }
-
-    if (peopleFilter !== 'all') {
-      const people = parseInt(peopleFilter);
-      filtered = filtered.filter((s) => s.maxPeoplePerBooking && s.maxPeoplePerBooking >= people);
     }
 
     setFilteredServices(filtered);
@@ -318,7 +296,6 @@ export default function ProviderPublicPage() {
   };
 
   const categories = Array.from(new Set(services.map((s) => s.category).filter(Boolean)));
-  const durations = Array.from(new Set(services.map((s) => s.durationMin).filter(Boolean)));
   const dominantRgb = hexToRgb(dominantColor);
   const dominantRgbString = dominantRgb ? `${dominantRgb.r}, ${dominantRgb.g}, ${dominantRgb.b}` : '0, 255, 212';
 
@@ -349,236 +326,124 @@ export default function ProviderPublicPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden bg-deep-charcoal">
-      {/* Animated background gradient - Hidden on mobile for performance */}
-      <div className="hidden md:block fixed inset-0 pointer-events-none overflow-hidden">
-        <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl opacity-20"
-          style={{ backgroundColor: dominantColor }}
-          animate={{ y: [0, 30, 0] }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl opacity-20"
-          style={{ backgroundColor: dominantColor }}
-          animate={{ y: [0, -30, 0] }}
-          transition={{ duration: 8, repeat: Infinity, delay: 1 }}
-        />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-deep-charcoal via-[#1a1a1a] to-deep-charcoal">
+      {/* Sticky Header */}
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className="sticky top-0 z-50 backdrop-blur-xl bg-deep-charcoal/80 border-b border-white/10"
+      >
+        <div className="max-w-[100rem] mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: dominantColor }}>
+                <span className="text-deep-charcoal font-heading font-bold text-lg">
+                  {provider.displayName?.charAt(0) || 'P'}
+                </span>
+              </div>
+              <div>
+                <h1 className="text-white font-heading font-bold text-lg leading-tight">{provider.displayName}</h1>
+                <p className="text-light-gray/60 text-xs">{provider.categoryTags || 'Professional Services'}</p>
+              </div>
+            </div>
+            <Button
+              onClick={() => document.getElementById('services-section')?.scrollIntoView({ behavior: 'smooth' })}
+              size="sm"
+              className="text-deep-charcoal font-semibold"
+              style={{ backgroundColor: dominantColor }}
+            >
+              Book Now
+            </Button>
+          </div>
+        </div>
+      </motion.header>
 
-      {/* Hero Section - Mobile Optimized & Compact */}
-      <section className="relative py-8 md:py-16 px-4 overflow-hidden">
-        <div className="relative z-10 max-w-[100rem] mx-auto w-full">
+      {/* Hero Section - Simplified */}
+      <section className="relative py-12 px-4">
+        <div className="max-w-[100rem] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
+            className="text-center mb-8"
           >
-            {/* Badge - Compact */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1, duration: 0.4 }}
-              className="inline-block mb-3 md:mb-4 px-3 py-1.5 rounded-full border text-xs md:text-sm"
-              style={{
-                backgroundColor: `rgba(${dominantRgbString}, 0.1)`,
-                borderColor: `rgba(${dominantRgbString}, 0.3)`,
-              }}
-            >
-              <span className="font-paragraph font-semibold flex items-center gap-1.5" style={{ color: dominantColor }}>
-                <Sparkles className="w-3 h-3" />
-                Professional Services
-              </span>
-            </motion.div>
-
-            {/* Main Title - Responsive & Compact */}
-            <h1 className="text-3xl md:text-5xl lg:text-7xl font-heading font-bold text-white mb-2 md:mb-3 leading-tight">
-              {provider.displayName}
-            </h1>
-
-            {/* Subtitle - Compact */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="text-sm md:text-lg text-light-gray/80 font-paragraph mb-5 md:mb-8 max-w-2xl mx-auto px-2 line-clamp-2"
-            >
-              {provider.categoryTags || 'Discover exceptional services tailored to your needs'}
-            </motion.p>
-
-            {/* CTA Button - Compact */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-            >
-              <Button
-                onClick={() => document.getElementById('services-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-5 md:px-7 py-2.5 md:py-3 text-sm md:text-base font-semibold group rounded-lg w-full md:w-auto"
-                style={{
-                  backgroundColor: dominantColor,
-                  color: '#222222',
-                }}
-              >
-                Explore Services
-                <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </motion.div>
+            <h2 className="text-4xl md:text-6xl font-heading font-bold text-white mb-4">
+              Book Your Appointment
+            </h2>
+            <p className="text-light-gray/80 text-lg max-w-2xl mx-auto">
+              Choose a service below and select your preferred time slot
+            </p>
           </motion.div>
 
-          {/* Provider Info Cards - Mobile Optimized Compact */}
+          {/* Provider Info Cards - Horizontal Layout */}
           <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 mt-6 md:mt-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto"
           >
             {provider.addressText && (
-              <motion.div
-                variants={itemVariants}
-                className="group p-2.5 md:p-4 rounded-lg backdrop-blur-sm border transition-all hover:scale-105"
-                style={{
-                  backgroundColor: `rgba(${dominantRgbString}, 0.05)`,
-                  borderColor: `rgba(${dominantRgbString}, 0.2)`,
-                }}
-              >
-                <div className="flex items-start gap-2 md:gap-3">
-                  <div className="p-1.5 md:p-2 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
-                    <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: dominantColor }} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-light-gray/60 font-paragraph uppercase tracking-wider mb-0.5">Location</p>
-                    <p className="font-paragraph text-light-gray text-xs md:text-sm break-words line-clamp-2">{provider.addressText}</p>
-                  </div>
-                </div>
-              </motion.div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                <MapPin className="w-4 h-4" style={{ color: dominantColor }} />
+                <span className="text-light-gray text-sm">{provider.addressText}</span>
+              </div>
             )}
             {provider.whatsappNumber && (
-              <motion.div
-                variants={itemVariants}
-                className="group p-2.5 md:p-4 rounded-lg backdrop-blur-sm border transition-all hover:scale-105"
-                style={{
-                  backgroundColor: `rgba(${dominantRgbString}, 0.05)`,
-                  borderColor: `rgba(${dominantRgbString}, 0.2)`,
-                }}
-              >
-                <div className="flex items-start gap-2 md:gap-3">
-                  <div className="p-1.5 md:p-2 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
-                    <Phone className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: dominantColor }} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-light-gray/60 font-paragraph uppercase tracking-wider mb-0.5">WhatsApp</p>
-                    <p className="font-paragraph text-light-gray text-xs md:text-sm break-words line-clamp-1">{provider.whatsappNumber}</p>
-                  </div>
-                </div>
-              </motion.div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                <Phone className="w-4 h-4" style={{ color: dominantColor }} />
+                <span className="text-light-gray text-sm">{provider.whatsappNumber}</span>
+              </div>
             )}
             {provider.contactEmail && (
-              <motion.div
-                variants={itemVariants}
-                className="group p-2.5 md:p-4 rounded-lg backdrop-blur-sm border transition-all hover:scale-105"
-                style={{
-                  backgroundColor: `rgba(${dominantRgbString}, 0.05)`,
-                  borderColor: `rgba(${dominantRgbString}, 0.2)`,
-                }}
-              >
-                <div className="flex items-start gap-2 md:gap-3">
-                  <div className="p-1.5 md:p-2 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
-                    <Mail className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: dominantColor }} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-light-gray/60 font-paragraph uppercase tracking-wider mb-0.5">Email</p>
-                    <p className="font-paragraph text-light-gray text-xs md:text-sm break-words line-clamp-1">{provider.contactEmail}</p>
-                  </div>
-                </div>
-              </motion.div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                <Mail className="w-4 h-4" style={{ color: dominantColor }} />
+                <span className="text-light-gray text-sm">{provider.contactEmail}</span>
+              </div>
             )}
             {provider.timezone && (
-              <motion.div
-                variants={itemVariants}
-                className="group p-2.5 md:p-4 rounded-lg backdrop-blur-sm border transition-all hover:scale-105"
-                style={{
-                  backgroundColor: `rgba(${dominantRgbString}, 0.05)`,
-                  borderColor: `rgba(${dominantRgbString}, 0.2)`,
-                }}
-              >
-                <div className="flex items-start gap-2 md:gap-3">
-                  <div className="p-1.5 md:p-2 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}>
-                    <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: dominantColor }} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-light-gray/60 font-paragraph uppercase tracking-wider mb-0.5">Timezone</p>
-                    <p className="font-paragraph text-light-gray text-xs md:text-sm break-words line-clamp-1">{provider.timezone}</p>
-                  </div>
-                </div>
-              </motion.div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                <Clock className="w-4 h-4" style={{ color: dominantColor }} />
+                <span className="text-light-gray text-sm">{provider.timezone}</span>
+              </div>
             )}
           </motion.div>
         </div>
       </section>
 
-      {/* Services Section - Mobile Optimized & Compact */}
-      <section id="services-section" className="py-10 md:py-16 px-4 relative z-10">
+      {/* Services Section - Redesigned */}
+      <section id="services-section" className="py-12 px-4">
         <div className="max-w-[100rem] mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="mb-6 md:mb-10"
+            className="mb-8"
           >
-            <h2 className="text-2xl md:text-4xl lg:text-5xl font-heading font-bold text-white mb-2 md:mb-3">Our Services</h2>
-            <div className="flex items-center gap-2">
-              <div className="h-1 w-10 md:w-12 rounded-full" style={{ backgroundColor: dominantColor }} />
-              <p className="text-light-gray/70 font-paragraph text-sm md:text-base">Discover what we offer</p>
-            </div>
-          </motion.div>
-
-          {/* Search and Filters - Mobile Optimized & Compact */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.05 }}
-            viewport={{ once: true }}
-            className="mb-6 md:mb-8"
-          >
-            <div className="flex gap-2 mb-3">
-              <div className="flex-1 relative">
-                <Search className="absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 text-light-gray/50" />
-                <Input
-                  placeholder="Search services..."
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  className="pl-8 md:pl-10 bg-white/5 border-white/20 text-white placeholder:text-light-gray/50 h-9 md:h-10 rounded-lg text-xs md:text-sm"
-                />
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2">
+                  Available Services
+                </h2>
+                <p className="text-light-gray/70">Select a service to view available time slots</p>
               </div>
-              <Button
-                onClick={() => setShowFilters(!showFilters)}
-                variant="outline"
-                className="border-white/20 text-white hover:bg-white/10 h-9 md:h-10 px-2.5 md:px-3"
-              >
-                <ChevronDown className={`w-3.5 h-3.5 md:w-4 md:h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-              </Button>
-            </div>
-
-            {/* Filters - Mobile Optimized & Compact */}
-            <AnimatePresence>
-              {showFilters && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 p-3 md:p-4 rounded-lg backdrop-blur-sm border border-white/10"
-                  style={{ backgroundColor: `rgba(${dominantRgbString}, 0.05)` }}
-                >
+              
+              {/* Filters - Simplified */}
+              <div className="flex gap-2">
+                <div className="relative flex-1 md:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-light-gray/50" />
+                  <Input
+                    placeholder="Search services..."
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    className="pl-10 bg-white/5 border-white/20 text-white placeholder:text-light-gray/50"
+                  />
+                </div>
+                {categories.length > 0 && (
                   <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                    <SelectTrigger className="bg-deep-charcoal border-white/20 text-white">
+                    <SelectTrigger className="w-40 bg-white/5 border-white/20 text-white">
                       <SelectValue placeholder="Category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
+                      <SelectItem value="all">All</SelectItem>
                       {categories.map((cat) => (
                         <SelectItem key={cat} value={cat!}>
                           {cat}
@@ -586,226 +451,156 @@ export default function ProviderPublicPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Select value={durationFilter} onValueChange={setDurationFilter}>
-                    <SelectTrigger className="bg-deep-charcoal border-white/20 text-white">
-                      <SelectValue placeholder="Duration" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Durations</SelectItem>
-                      {durations.map((dur) => (
-                        <SelectItem key={dur} value={dur!.toString()}>
-                          {dur} min
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={priceFilter} onValueChange={setPriceFilter}>
-                    <SelectTrigger className="bg-deep-charcoal border-white/20 text-white">
-                      <SelectValue placeholder="Price" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Prices</SelectItem>
-                      <SelectItem value="free">Free</SelectItem>
-                      <SelectItem value="0-50">$0 - $50</SelectItem>
-                      <SelectItem value="50-100">$50 - $100</SelectItem>
-                      <SelectItem value="100-999999">$100+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={peopleFilter} onValueChange={setPeopleFilter}>
-                    <SelectTrigger className="bg-deep-charcoal border-white/20 text-white">
-                      <SelectValue placeholder="People" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Any Group Size</SelectItem>
-                      <SelectItem value="1">1 person</SelectItem>
-                      <SelectItem value="2">2+ people</SelectItem>
-                      <SelectItem value="5">5+ people</SelectItem>
-                      <SelectItem value="10">10+ people</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                )}
+              </div>
+            </div>
           </motion.div>
 
-          {/* Services Grid - Mobile Optimized & Compact */}
+          {/* Services Grid - Card Style */}
           {filteredServices.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-8 md:py-12"
+              className="text-center py-16"
             >
-              <div className="inline-block p-2.5 md:p-3 bg-white/5 rounded-full mb-3">
-                <Search className="w-5 h-5 md:w-6 md:h-6 text-light-gray/50" />
-              </div>
-              <p className="text-light-gray font-paragraph text-sm md:text-base">No services found matching your filters.</p>
+              <Search className="w-12 h-12 text-light-gray/30 mx-auto mb-4" />
+              <p className="text-light-gray/70 text-lg">No services found</p>
             </motion.div>
           ) : (
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4"
-            >
-              {filteredServices.map((service) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredServices.map((service, index) => {
                 const serviceColor = service.cardColor || dominantColor;
                 const serviceRgb = hexToRgb(serviceColor);
                 const serviceRgbString = serviceRgb ? `${serviceRgb.r}, ${serviceRgb.g}, ${serviceRgb.b}` : dominantRgbString;
                 
-                // Get text color and gradient
-                const textColor = service.textColor || '#FFFFFF';
-                const textGradient = service.textGradient;
-                const getTextStyle = () => {
-                  if (textGradient) {
-                    const [color1, color2] = textGradient.split(' to ');
-                    return {
-                      backgroundImage: `linear-gradient(135deg, ${color1}, ${color2 || color1})`,
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                    };
+                let priceOptions: PriceOption[] = [];
+                try {
+                  if (service.priceOptions) {
+                    priceOptions = JSON.parse(service.priceOptions);
                   }
-                  return { color: textColor };
-                };
+                } catch {}
 
                 return (
                   <motion.div
                     key={service._id}
-                    variants={itemVariants}
-                    whileHover={{ y: -8, scale: 1.01 }}
-                    className="group relative rounded-xl overflow-hidden backdrop-blur-sm border transition-all duration-300 cursor-pointer"
-                    style={{
-                      backgroundColor: `rgba(${serviceRgbString}, 0.08)`,
-                      borderColor: `rgba(${serviceRgbString}, 0.3)`,
-                    }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ y: -4 }}
                     onClick={() => {
                       setSelectedService(service);
                       setBookingSuccess(false);
-                      // Scroll to booking section
                       setTimeout(() => {
                         document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' });
                       }, 100);
                     }}
+                    className="group relative bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/30 transition-all cursor-pointer overflow-hidden"
                   >
-                    {/* Gradient overlay */}
+                    {/* Hover gradient effect */}
                     <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
                       style={{
-                        background: `linear-gradient(135deg, rgba(${serviceRgbString}, 0.1), rgba(${serviceRgbString}, 0.05))`,
+                        background: `linear-gradient(135deg, rgba(${serviceRgbString}, 0.1), transparent)`,
                       }}
                     />
 
-                    {/* Content - Mobile Optimized & Compact */}
-                    <div className="relative z-10 p-3 md:p-5">
-                      {/* Header - Compact */}
-                      <div className="mb-3 md:mb-4">
-                        <h3
-                          className="text-lg md:text-xl font-heading font-bold mb-1 group-hover:transition-colors line-clamp-2"
-                          style={getTextStyle()}
-                        >
-                          {service.name}
-                        </h3>
-                        {service.category && (
-                          <div className="flex items-center gap-1.5">
-                            <Tag className="w-3 h-3 flex-shrink-0" style={{ color: serviceColor }} />
-                            <span className="text-xs text-light-gray/70 font-paragraph truncate">{service.category}</span>
-                          </div>
-                        )}
+                    <div className="relative z-10">
+                      {/* Service Header */}
+                      <div className="mb-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="text-xl font-heading font-bold text-white group-hover:text-white/90 transition-colors">
+                            {service.name}
+                          </h3>
+                          {service.category && (
+                            <Badge variant="outline" className="border-white/20 text-white/70 text-xs">
+                              {service.category}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Details Grid - Compact on mobile */}
-                      <div className="space-y-2 md:space-y-2.5 mb-3 md:mb-4">
+                      {/* Service Details */}
+                      <div className="space-y-3 mb-6">
                         {service.durationMin && (
-                          <div className="flex items-center gap-1.5 md:gap-2">
-                            <div className="p-1 md:p-1.5 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.1)` }}>
-                              <Clock className="w-3 h-3 md:w-3.5 md:h-3.5" style={{ color: serviceColor }} />
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
+                              <Clock className="w-4 h-4" style={{ color: serviceColor }} />
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-xs text-light-gray/60 uppercase tracking-wider">Duration</p>
-                              <p className="text-xs md:text-sm font-paragraph text-light-gray">{service.durationMin} min</p>
+                            <div>
+                              <p className="text-xs text-light-gray/60 uppercase tracking-wide">Duration</p>
+                              <p className="text-sm text-white font-medium">{service.durationMin} minutes</p>
                             </div>
                           </div>
                         )}
 
-                        {service.price !== undefined && (
-                          <div className="flex items-center gap-1.5 md:gap-2">
-                            <div className="p-1 md:p-1.5 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.1)` }}>
-                              <DollarSign className="w-3 h-3 md:w-3.5 md:h-3.5" style={{ color: serviceColor }} />
+                        {service.price !== undefined && priceOptions.length === 0 && (
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
+                              <DollarSign className="w-4 h-4" style={{ color: serviceColor }} />
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-xs text-light-gray/60 uppercase tracking-wider">Price</p>
-                              <p className="text-xs md:text-sm font-semibold" style={{ color: serviceColor }}>
+                            <div>
+                              <p className="text-xs text-light-gray/60 uppercase tracking-wide">Price</p>
+                              <p className="text-lg font-bold" style={{ color: serviceColor }}>
                                 ${service.price}
                               </p>
                             </div>
                           </div>
                         )}
 
-                        {service.maxPeoplePerBooking && (
-                          <div className="flex items-center gap-1.5 md:gap-2">
-                            <div className="p-1 md:p-1.5 rounded-lg flex-shrink-0" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.1)` }}>
-                              <Users className="w-3 h-3 md:w-3.5 md:h-3.5" style={{ color: serviceColor }} />
+                        {priceOptions.length > 0 && (
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
+                              <DollarSign className="w-4 h-4" style={{ color: serviceColor }} />
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-xs text-light-gray/60 uppercase tracking-wider">Group</p>
-                              <p className="text-xs md:text-sm font-paragraph text-light-gray">Up to {service.maxPeoplePerBooking}</p>
+                            <div className="flex-1">
+                              <p className="text-xs text-light-gray/60 uppercase tracking-wide mb-1">Price Options</p>
+                              <div className="space-y-1">
+                                {priceOptions.slice(0, 2).map((opt, idx) => (
+                                  <div key={idx} className="flex justify-between text-sm">
+                                    <span className="text-light-gray/80">{opt.name}</span>
+                                    <span className="font-semibold" style={{ color: serviceColor }}>${opt.price}</span>
+                                  </div>
+                                ))}
+                                {priceOptions.length > 2 && (
+                                  <p className="text-xs text-light-gray/60">+{priceOptions.length - 2} more</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {service.maxPeoplePerBooking && (
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${serviceRgbString}, 0.2)` }}>
+                              <Users className="w-4 h-4" style={{ color: serviceColor }} />
+                            </div>
+                            <div>
+                              <p className="text-xs text-light-gray/60 uppercase tracking-wide">Capacity</p>
+                              <p className="text-sm text-white font-medium">Up to {service.maxPeoplePerBooking} people</p>
                             </div>
                           </div>
                         )}
                       </div>
 
-                      {/* Price Variants - Compact */}
-                      {service.priceOptions && (() => {
-                        try {
-                          const opts = JSON.parse(service.priceOptions);
-                          if (Array.isArray(opts) && opts.length > 0) {
-                            return (
-                              <div className="mb-3 md:mb-4 p-2 md:p-3 rounded-lg border" style={{
-                                backgroundColor: `rgba(${serviceRgbString}, 0.1)`,
-                                borderColor: `rgba(${serviceRgbString}, 0.2)`,
-                              }}>
-                                <p className="text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: serviceColor }}>
-                                  Variants
-                                </p>
-                                <div className="space-y-0.5">
-                                  {opts.map((opt: PriceOption, idx: number) => (
-                                    <div key={idx} className="flex justify-between items-center text-xs">
-                                      <span className="text-light-gray/80 font-paragraph truncate">{opt.name}</span>
-                                      <span className="font-semibold ml-2 flex-shrink-0" style={{ color: serviceColor }}>
-                                        ${opt.price}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          }
-                        } catch {
-                          return null;
-                        }
-                        return null;
-                      })()}
-
-                      {/* CTA Button - Compact */}
+                      {/* CTA Button */}
                       <Button
-                        className="w-full text-deep-charcoal hover:opacity-90 font-semibold rounded-lg group/btn text-xs md:text-sm h-8 md:h-9"
-                        style={{ backgroundColor: serviceColor }}
+                        className="w-full font-semibold group/btn"
+                        style={{ backgroundColor: serviceColor, color: '#222222' }}
                       >
-                        <Calendar className="w-3 h-3 mr-1.5" />
-                        Book Now
-                        <ArrowRight className="w-3 h-3 ml-1.5 group-hover/btn:translate-x-1 transition-transform" />
+                        Select & Book
+                        <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                       </Button>
                     </div>
                   </motion.div>
                 );
               })}
-            </motion.div>
+            </div>
           )}
         </div>
       </section>
 
-      {/* Booking Calendar Section - Mobile Optimized */}
+      {/* ... keep existing code (booking calendar section) */}
       <AnimatePresence>
         {selectedService && (
           <motion.section
