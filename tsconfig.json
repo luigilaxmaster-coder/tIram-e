@@ -36,6 +36,7 @@
   },
   "include": [
     "src",
-    "integrations"
+    "integrations",
+    ".astro/types.d.ts"
   ]
 }
