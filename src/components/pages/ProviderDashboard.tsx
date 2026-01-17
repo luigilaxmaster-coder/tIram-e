@@ -558,78 +558,104 @@ export default function ProviderDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-deep-charcoal via-deep-charcoal to-[#1a1a1a] pb-24 md:pb-0">
-      {/* Header with gradient background */}
-      <div className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-gradient-to-r from-neon-teal/5 to-transparent opacity-50" />
-        <div className="relative max-w-[100rem] mx-auto px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#12121a] to-[#1a1a28] pb-24 md:pb-0">
+      {/* Modern Header with animated gradient */}
+      <div className="relative overflow-hidden border-b border-white/5">
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 via-fuchsia-600/10 to-cyan-600/10 animate-pulse" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjAzIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
+        <div className="relative max-w-[100rem] mx-auto px-6 py-16">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-12">
               <div>
-                <h1 className="text-6xl font-heading font-bold text-white mb-2">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center gap-3 mb-4"
+                >
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 animate-pulse" />
+                  <span className="text-sm font-paragraph text-emerald-400 font-semibold">Active</span>
+                </motion.div>
+                <h1 className="text-7xl font-heading font-bold bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent mb-3">
                   {provider?.displayName || 'Dashboard'}
                 </h1>
-                <p className="text-light-gray font-paragraph">Welcome back! Manage your services and appointments</p>
+                <p className="text-xl text-white/60 font-paragraph">Manage your business with ease</p>
               </div>
               <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 }}
+                initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                 className="hidden lg:block"
               >
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-neon-teal/20 to-neon-teal/5 border border-neon-teal/30 flex items-center justify-center">
-                  <Zap className="w-12 h-12 text-neon-teal" />
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-3xl blur-2xl opacity-40 animate-pulse" />
+                  <div className="relative w-28 h-28 rounded-3xl bg-gradient-to-br from-violet-600/30 via-fuchsia-600/30 to-cyan-600/30 border border-white/10 flex items-center justify-center backdrop-blur-xl">
+                    <Zap className="w-14 h-14 text-white drop-shadow-2xl" />
+                  </div>
                 </div>
               </motion.div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Modern Stats Grid with enhanced visuals */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 {
                   label: "Today's Appointments",
                   value: todayAppointments.length,
                   icon: Calendar,
-                  color: 'from-blue-500/20 to-blue-500/5',
-                  iconColor: 'text-blue-400',
+                  gradient: 'from-blue-600 to-cyan-500',
+                  bgGradient: 'from-blue-600/20 to-cyan-500/20',
+                  iconBg: 'bg-blue-500/20',
                 },
                 {
                   label: 'Total Services',
                   value: services.length,
                   icon: BarChart3,
-                  color: 'from-purple-500/20 to-purple-500/5',
-                  iconColor: 'text-purple-400',
+                  gradient: 'from-purple-600 to-pink-500',
+                  bgGradient: 'from-purple-600/20 to-pink-500/20',
+                  iconBg: 'bg-purple-500/20',
                 },
                 {
                   label: 'Confirmed Bookings',
                   value: confirmedAppointments,
                   icon: CheckCircle,
-                  color: 'from-green-500/20 to-green-500/5',
-                  iconColor: 'text-green-400',
+                  gradient: 'from-green-600 to-emerald-500',
+                  bgGradient: 'from-green-600/20 to-emerald-500/20',
+                  iconBg: 'bg-green-500/20',
                 },
                 {
                   label: 'Potential Revenue',
                   value: `${totalRevenue.toFixed(2)}`,
                   icon: TrendingUp,
-                  color: 'from-neon-teal/20 to-neon-teal/5',
-                  iconColor: 'text-neon-teal',
+                  gradient: 'from-orange-600 to-amber-500',
+                  bgGradient: 'from-orange-600/20 to-amber-500/20',
+                  iconBg: 'bg-orange-500/20',
                 },
               ].map((stat, idx) => (
                 <motion.div
                   key={idx}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className={`bg-gradient-to-br ${stat.color} border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all`}
+                  transition={{ delay: idx * 0.1, type: "spring", stiffness: 100 }}
+                  whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                  className="group relative"
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-light-gray font-paragraph text-sm mb-2">{stat.label}</p>
-                      <p className="text-3xl font-heading font-bold text-white">{stat.value}</p>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                  <div className="relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 rounded-2xl p-6 backdrop-blur-xl hover:border-white/20 transition-all duration-300">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`w-14 h-14 rounded-xl ${stat.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                        <stat.icon className={`w-7 h-7 bg-gradient-to-br ${stat.gradient} bg-clip-text text-transparent`} style={{ WebkitTextFillColor: 'transparent', backgroundClip: 'text' }} />
+                      </div>
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: idx * 0.1 + 0.3 }}
+                        className={`w-2 h-2 rounded-full bg-gradient-to-r ${stat.gradient}`}
+                      />
                     </div>
-                    <div className={`w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center ${stat.iconColor}`}>
-                      <stat.icon className="w-6 h-6" />
-                    </div>
+                    <p className="text-white/50 font-paragraph text-sm mb-2 font-medium">{stat.label}</p>
+                    <p className={`text-4xl font-heading font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
+                      {stat.value}
+                    </p>
                   </div>
                 </motion.div>
               ))}
@@ -639,89 +665,115 @@ export default function ProviderDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[100rem] mx-auto px-4 py-12">
+      <div className="max-w-[100rem] mx-auto px-6 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          {/* Desktop Navigation - Top */}
-          <TabsList className="hidden md:grid bg-white/5 border border-white/10 rounded-lg p-1 w-full grid-cols-5 gap-1">
+          {/* Modern Desktop Navigation with gradient pills */}
+          <TabsList className="hidden md:flex bg-gradient-to-r from-white/[0.07] to-white/[0.03] border border-white/10 rounded-2xl p-2 w-full gap-2 backdrop-blur-xl">
             {[
-              { value: 'overview', label: 'Overview', icon: BarChart3 },
-              { value: 'appointments', label: 'Appointments', icon: Calendar },
-              { value: 'services', label: 'Services', icon: Zap },
-              { value: 'integrations', label: 'Integrations', icon: Link2 },
-              { value: 'profile', label: 'Profile', icon: Settings },
+              { value: 'overview', label: 'Overview', icon: BarChart3, gradient: 'from-violet-600 to-fuchsia-600' },
+              { value: 'appointments', label: 'Appointments', icon: Calendar, gradient: 'from-blue-600 to-cyan-500' },
+              { value: 'services', label: 'Services', icon: Zap, gradient: 'from-orange-600 to-amber-500' },
+              { value: 'integrations', label: 'Integrations', icon: Link2, gradient: 'from-green-600 to-emerald-500' },
+              { value: 'profile', label: 'Profile', icon: Settings, gradient: 'from-pink-600 to-rose-500' },
             ].map((tab) => (
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="data-[state=active]:bg-neon-teal data-[state=active]:text-deep-charcoal data-[state=active]:shadow-lg data-[state=active]:shadow-neon-teal/20 rounded-md transition-all"
+                className={`flex-1 relative group data-[state=active]:bg-gradient-to-r data-[state=active]:${tab.gradient} data-[state=active]:text-white rounded-xl transition-all duration-300 py-4 font-semibold hover:bg-white/5`}
               >
-                <tab.icon className="w-4 h-4 mr-2" />
-                <span>{tab.label}</span>
+                <div className="flex items-center justify-center gap-2">
+                  <tab.icon className="w-5 h-5" />
+                  <span className="hidden lg:inline">{tab.label}</span>
+                </div>
+                {activeTab === tab.value && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className={`absolute inset-0 bg-gradient-to-r ${tab.gradient} rounded-xl -z-10`}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
               </TabsTrigger>
             ))}
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-8">
-            {/* Upcoming Appointments */}
+            {/* Upcoming Appointments with modern card design */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm"
+              className="relative group"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-heading font-bold text-white flex items-center gap-2">
-                  <Calendar className="w-6 h-6 text-neon-teal" />
-                  Upcoming Appointments
-                </h2>
-                <Button
-                  onClick={() => setActiveTab('appointments')}
-                  variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
-                >
-                  View All
-                </Button>
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-cyan-500/10 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600/20 to-cyan-500/20 flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-cyan-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-heading font-bold text-white">Upcoming Appointments</h2>
+                      <p className="text-white/50 text-sm font-paragraph mt-1">Today's schedule</p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => setActiveTab('appointments')}
+                    className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-90 rounded-xl px-6 font-semibold"
+                  >
+                    View All
+                  </Button>
+                </div>
 
-              {todayAppointments.length === 0 ? (
-                <div className="text-center py-12">
-                  <AlertCircle className="w-12 h-12 text-light-gray/50 mx-auto mb-4" />
-                  <p className="text-light-gray font-paragraph">No appointments scheduled for today</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {todayAppointments.slice(0, 5).map((appt, idx) => (
-                    <motion.div
-                      key={appt._id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="bg-deep-charcoal border border-white/10 rounded-lg p-4 hover:border-neon-teal/30 transition-all group"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 flex-1">
-                          <div className="w-12 h-12 rounded-full bg-neon-teal/20 flex items-center justify-center">
-                            <Clock className="w-6 h-6 text-neon-teal" />
+                {todayAppointments.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center mx-auto mb-6">
+                      <AlertCircle className="w-10 h-10 text-white/30" />
+                    </div>
+                    <p className="text-white/40 font-paragraph text-lg">No appointments scheduled for today</p>
+                    <p className="text-white/30 font-paragraph text-sm mt-2">Your schedule is clear</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {todayAppointments.slice(0, 5).map((appt, idx) => (
+                      <motion.div
+                        key={appt._id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        whileHover={{ x: 4 }}
+                        className="bg-gradient-to-r from-white/[0.05] to-transparent border border-white/10 rounded-2xl p-5 hover:border-cyan-500/30 transition-all group/item"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-5 flex-1">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-600/20 to-blue-600/20 flex items-center justify-center group-hover/item:scale-110 transition-transform">
+                              <Clock className="w-7 h-7 text-cyan-400" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-heading font-bold text-white text-lg mb-1">{appt.clientName}</p>
+                              <div className="flex items-center gap-3 text-sm text-white/50">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="w-4 h-4" />
+                                  {appt.startAt && format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'h:mm a')}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Users className="w-4 h-4" />
+                                  {appt.peopleCount} {appt.peopleCount === 1 ? 'person' : 'people'}
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <p className="font-heading font-semibold text-white">{appt.clientName}</p>
-                            <p className="text-sm text-light-gray">
-                              {appt.startAt && format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'h:mm a')} •{' '}
-                              {appt.peopleCount} {appt.peopleCount === 1 ? 'person' : 'people'}
-                            </p>
-                          </div>
+                          <span className="px-4 py-2 rounded-xl text-sm font-paragraph font-semibold bg-gradient-to-r from-green-600/20 to-emerald-500/20 text-emerald-400 border border-emerald-500/20">
+                            {appt.status}
+                          </span>
                         </div>
-                        <span className="px-3 py-1 rounded-full text-xs font-paragraph bg-neon-teal/20 text-neon-teal">
-                          {appt.status}
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </motion.div>
 
-            {/* Quick Actions */}
+            {/* Quick Actions Grid */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -729,36 +781,57 @@ export default function ProviderDashboard() {
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
               {/* Services Summary */}
-              <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm">
-                <h3 className="text-xl font-heading font-bold text-white mb-4 flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-neon-teal" />
-                  Services
-                </h3>
-                <p className="text-3xl font-heading font-bold text-neon-teal mb-4">{services.length}</p>
-                <Button
-                  onClick={() => setActiveTab('services')}
-                  className="w-full bg-neon-teal/20 text-neon-teal border border-neon-teal/30 hover:bg-neon-teal/30"
-                >
-                  Manage Services
-                </Button>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-amber-500/10 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-600/20 to-amber-500/20 flex items-center justify-center">
+                      <Zap className="w-7 h-7 text-amber-400" />
+                    </div>
+                    <h3 className="text-2xl font-heading font-bold text-white">Services</h3>
+                  </div>
+                  <p className="text-6xl font-heading font-bold bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent mb-6">
+                    {services.length}
+                  </p>
+                  <Button
+                    onClick={() => setActiveTab('services')}
+                    className="w-full bg-gradient-to-r from-orange-600 to-amber-500 text-white hover:opacity-90 rounded-xl py-6 font-semibold text-lg"
+                  >
+                    Manage Services
+                  </Button>
+                </div>
               </div>
 
               {/* Profile Status */}
-              <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm">
-                <h3 className="text-xl font-heading font-bold text-white mb-4 flex items-center gap-2">
-                  <Eye className="w-5 h-5 text-neon-teal" />
-                  Public Profile
-                </h3>
-                <p className="text-sm text-light-gray mb-4 font-paragraph">
-                  Share your profile link with clients
-                </p>
-                <Button
-                  onClick={handleCopySlug}
-                  className="w-full bg-neon-teal text-deep-charcoal hover:opacity-90"
-                >
-                  {slugCopied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                  Copy Profile URL
-                </Button>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 to-fuchsia-600/10 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600/20 to-fuchsia-600/20 flex items-center justify-center">
+                      <Eye className="w-7 h-7 text-fuchsia-400" />
+                    </div>
+                    <h3 className="text-2xl font-heading font-bold text-white">Public Profile</h3>
+                  </div>
+                  <p className="text-white/50 mb-6 font-paragraph">
+                    Share your profile link with clients to start receiving bookings
+                  </p>
+                  <Button
+                    onClick={handleCopySlug}
+                    className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:opacity-90 rounded-xl py-6 font-semibold text-lg"
+                  >
+                    {slugCopied ? (
+                      <>
+                        <Check className="w-5 h-5 mr-2" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-5 h-5 mr-2" />
+                        Copy Profile URL
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </TabsContent>
@@ -768,85 +841,109 @@ export default function ProviderDashboard() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm"
+              className="relative group"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-heading font-bold text-white">All Appointments</h2>
-                <Select
-                  value={appointmentFilter}
-                  onValueChange={(value: any) => setAppointmentFilter(value)}
-                >
-                  <SelectTrigger className="bg-deep-charcoal border-white/20 text-white w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="today">Today</SelectItem>
-                    <SelectItem value="week">This Week</SelectItem>
-                    <SelectItem value="custom">Custom Range</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-cyan-500/10 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600/20 to-cyan-500/20 flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-cyan-400" />
+                    </div>
+                    <h2 className="text-3xl font-heading font-bold text-white">All Appointments</h2>
+                  </div>
+                  <Select
+                    value={appointmentFilter}
+                    onValueChange={(value: any) => setAppointmentFilter(value)}
+                  >
+                    <SelectTrigger className="bg-white/5 border-white/20 text-white w-48 rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1a1a28] border-white/20">
+                      <SelectItem value="today">Today</SelectItem>
+                      <SelectItem value="week">This Week</SelectItem>
+                      <SelectItem value="custom">Custom Range</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {appointmentFilter === 'custom' && (
+                  <div className="flex gap-4 mb-6">
+                    <Input
+                      type="date"
+                      value={customStartDate}
+                      onChange={(e) => setCustomStartDate(e.target.value)}
+                      className="bg-white/5 border-white/20 text-white rounded-xl"
+                    />
+                    <Input
+                      type="date"
+                      value={customEndDate}
+                      onChange={(e) => setCustomEndDate(e.target.value)}
+                      className="bg-white/5 border-white/20 text-white rounded-xl"
+                    />
+                  </div>
+                )}
+
+                {appointments.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center mx-auto mb-6">
+                      <AlertCircle className="w-10 h-10 text-white/30" />
+                    </div>
+                    <p className="text-white/40 font-paragraph text-lg">No appointments found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {appointments.map((appt, idx) => (
+                      <motion.div
+                        key={appt._id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        whileHover={{ x: 4 }}
+                        className="bg-gradient-to-r from-white/[0.05] to-transparent border border-white/10 rounded-2xl p-5 hover:border-cyan-500/30 transition-all"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <p className="font-heading font-bold text-white text-lg mb-2">{appt.clientName}</p>
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-white/50">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                {appt.startAt &&
+                                  format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'EEE, MMM d • h:mm a')}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Mail className="w-4 h-4" />
+                                {appt.clientEmail}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MessageCircle className="w-4 h-4" />
+                                {appt.clientPhone}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-right flex flex-col items-end gap-3">
+                            <span
+                              className={`inline-block px-4 py-2 rounded-xl text-sm font-paragraph font-semibold ${
+                                appt.status === 'CONFIRMED'
+                                  ? 'bg-gradient-to-r from-green-600/20 to-emerald-500/20 text-emerald-400 border border-emerald-500/20'
+                                  : appt.status === 'CANCELLED'
+                                  ? 'bg-gradient-to-r from-red-600/20 to-rose-500/20 text-rose-400 border border-rose-500/20'
+                                  : 'bg-white/5 text-white/50 border border-white/10'
+                              }`}
+                            >
+                              {appt.status}
+                            </span>
+                            <span className="flex items-center gap-1 text-sm text-white/50">
+                              <Users className="w-4 h-4" />
+                              {appt.peopleCount} people
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </div>
-
-              {appointmentFilter === 'custom' && (
-                <div className="flex gap-4 mb-6">
-                  <Input
-                    type="date"
-                    value={customStartDate}
-                    onChange={(e) => setCustomStartDate(e.target.value)}
-                    className="bg-deep-charcoal border-white/20 text-white"
-                  />
-                  <Input
-                    type="date"
-                    value={customEndDate}
-                    onChange={(e) => setCustomEndDate(e.target.value)}
-                    className="bg-deep-charcoal border-white/20 text-white"
-                  />
-                </div>
-              )}
-
-              {appointments.length === 0 ? (
-                <div className="text-center py-12">
-                  <AlertCircle className="w-12 h-12 text-light-gray/50 mx-auto mb-4" />
-                  <p className="text-light-gray font-paragraph">No appointments found</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {appointments.map((appt, idx) => (
-                    <motion.div
-                      key={appt._id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      className="bg-deep-charcoal border border-white/10 rounded-lg p-4 hover:border-neon-teal/30 transition-all"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <p className="font-heading font-semibold text-white">{appt.clientName}</p>
-                          <p className="text-sm text-light-gray">
-                            {appt.startAt &&
-                              format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'EEE, MMM d • h:mm a')}
-                          </p>
-                          <p className="text-xs text-light-gray/70 mt-1">{appt.clientEmail} • {appt.clientPhone}</p>
-                        </div>
-                        <div className="text-right">
-                          <span
-                            className={`inline-block px-3 py-1 rounded-full text-xs font-paragraph ${
-                              appt.status === 'CONFIRMED'
-                                ? 'bg-green-500/20 text-green-400'
-                                : appt.status === 'CANCELLED'
-                                ? 'bg-destructive/20 text-destructive'
-                                : 'bg-light-gray/20 text-light-gray'
-                            }`}
-                          >
-                            {appt.status}
-                          </span>
-                          <p className="text-sm text-light-gray mt-2">{appt.peopleCount} people</p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
             </motion.div>
           </TabsContent>
 
@@ -855,119 +952,145 @@ export default function ProviderDashboard() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-8 backdrop-blur-sm"
+              className="relative group"
             >
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-heading font-bold text-white">Your Services</h2>
-                <Button onClick={() => handleOpenServiceModal()} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Service
-                </Button>
-              </div>
-
-              {services.length === 0 ? (
-                <div className="text-center py-12">
-                  <AlertCircle className="w-12 h-12 text-light-gray/50 mx-auto mb-4" />
-                  <p className="text-light-gray font-paragraph mb-4">No services yet. Create your first service!</p>
-                  <Button onClick={() => handleOpenServiceModal()} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Service
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-amber-500/10 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-600/20 to-amber-500/20 flex items-center justify-center">
+                      <Zap className="w-6 h-6 text-amber-400" />
+                    </div>
+                    <h2 className="text-3xl font-heading font-bold text-white">Your Services</h2>
+                  </div>
+                  <Button 
+                    onClick={() => handleOpenServiceModal()} 
+                    className="bg-gradient-to-r from-orange-600 to-amber-500 text-white hover:opacity-90 rounded-xl px-6 font-semibold"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    Add Service
                   </Button>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {services.map((service, idx) => (
-                    <motion.div
-                      key={service._id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="bg-deep-charcoal border border-white/10 rounded-lg p-6 hover:border-neon-teal/30 transition-all group"
+
+                {services.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center mx-auto mb-6">
+                      <AlertCircle className="w-10 h-10 text-white/30" />
+                    </div>
+                    <p className="text-white/40 font-paragraph text-lg mb-2">No services yet</p>
+                    <p className="text-white/30 font-paragraph text-sm mb-6">Create your first service to get started</p>
+                    <Button 
+                      onClick={() => handleOpenServiceModal()} 
+                      className="bg-gradient-to-r from-orange-600 to-amber-500 text-white hover:opacity-90 rounded-xl px-8 py-6 font-semibold text-lg"
                     >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-heading font-semibold text-white group-hover:text-neon-teal transition-colors">
-                            {service.name}
-                          </h3>
-                          {service.category && (
-                            <p className="text-xs text-neon-teal/70 mt-1">{service.category}</p>
-                          )}
-                        </div>
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => handleOpenServiceModal(service)}
-                            className="p-2 rounded-lg bg-neon-teal/20 text-neon-teal hover:bg-neon-teal/30 transition-colors"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteService(service._id)}
-                            className="p-2 rounded-lg bg-destructive/20 text-destructive hover:bg-destructive/30 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
+                      <Plus className="w-5 h-5 mr-2" />
+                      Create Service
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {services.map((service, idx) => (
+                      <motion.div
+                        key={service._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        whileHover={{ y: -8 }}
+                        className="relative group/card"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 rounded-2xl blur-xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
+                        <div className="relative bg-gradient-to-br from-white/[0.05] to-transparent border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all backdrop-blur-sm">
+                          <div className="flex items-start justify-between mb-6">
+                            <div className="flex-1">
+                              <h3 className="text-xl font-heading font-bold text-white group-hover/card:text-amber-400 transition-colors mb-2">
+                                {service.name}
+                              </h3>
+                              {service.category && (
+                                <span className="inline-block px-3 py-1 rounded-lg text-xs font-paragraph bg-amber-500/20 text-amber-400 border border-amber-500/20">
+                                  {service.category}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex gap-2 opacity-0 group-hover/card:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => handleOpenServiceModal(service)}
+                                className="p-2 rounded-xl bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors border border-blue-500/20"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteService(service._id)}
+                                className="p-2 rounded-xl bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-colors border border-red-500/20"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
 
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-light-gray flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-neon-teal/50" />
-                            Duration
-                          </span>
-                          <span className="font-heading font-semibold text-white">{service.durationMin} min</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-light-gray flex items-center gap-2">
-                            <DollarSign className="w-4 h-4 text-neon-teal/50" />
-                            Price
-                          </span>
-                          <span className="font-heading font-semibold text-neon-teal">${service.price}</span>
-                        </div>
-                        {service.priceOptions && (() => {
-                          try {
-                            const opts = JSON.parse(service.priceOptions);
-                            if (Array.isArray(opts) && opts.length > 0) {
-                              return (
-                                <div className="text-sm">
-                                  <p className="text-light-gray mb-2">Variants:</p>
-                                  <div className="space-y-1">
-                                    {opts.map((opt: PriceOption, idx: number) => (
-                                      <div key={idx} className="text-xs text-light-gray/70">
-                                        {opt.name}: ${opt.price}
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                              <span className="text-white/50 flex items-center gap-2 font-paragraph">
+                                <Clock className="w-4 h-4 text-blue-400" />
+                                Duration
+                              </span>
+                              <span className="font-heading font-bold text-white">{service.durationMin} min</span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                              <span className="text-white/50 flex items-center gap-2 font-paragraph">
+                                <DollarSign className="w-4 h-4 text-green-400" />
+                                Price
+                              </span>
+                              <span className="font-heading font-bold text-green-400">${service.price}</span>
+                            </div>
+                            {service.priceOptions && (() => {
+                              try {
+                                const opts = JSON.parse(service.priceOptions);
+                                if (Array.isArray(opts) && opts.length > 0) {
+                                  return (
+                                    <div className="p-3 rounded-xl bg-white/5">
+                                      <p className="text-white/50 mb-2 text-sm font-paragraph">Variants:</p>
+                                      <div className="space-y-1">
+                                        {opts.map((opt: PriceOption, idx: number) => (
+                                          <div key={idx} className="text-xs text-white/40 flex justify-between">
+                                            <span>{opt.name}</span>
+                                            <span className="text-green-400">${opt.price}</span>
+                                          </div>
+                                        ))}
                                       </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              );
-                            }
-                          } catch {
-                            return null;
-                          }
-                          return null;
-                        })()}
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-light-gray flex items-center gap-2">
-                            <Users className="w-4 h-4 text-neon-teal/50" />
-                            Max People
-                          </span>
-                          <span className="font-heading font-semibold text-white">{service.maxPeoplePerBooking}</span>
-                        </div>
-                      </div>
+                                    </div>
+                                  );
+                                }
+                              } catch {
+                                return null;
+                              }
+                              return null;
+                            })()}
+                            <div className="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                              <span className="text-white/50 flex items-center gap-2 font-paragraph">
+                                <Users className="w-4 h-4 text-purple-400" />
+                                Max People
+                              </span>
+                              <span className="font-heading font-bold text-white">{service.maxPeoplePerBooking}</span>
+                            </div>
+                          </div>
 
-                      <div className="mt-4 pt-4 border-t border-white/10">
-                        <span
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-paragraph ${
-                            service.isActive !== false ? 'bg-green-500/20 text-green-400' : 'bg-light-gray/20 text-light-gray'
-                          }`}
-                        >
-                          {service.isActive !== false ? 'Active' : 'Inactive'}
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
+                          <div className="mt-6 pt-6 border-t border-white/10">
+                            <span
+                              className={`inline-block px-4 py-2 rounded-xl text-sm font-paragraph font-semibold ${
+                                service.isActive !== false 
+                                  ? 'bg-gradient-to-r from-green-600/20 to-emerald-500/20 text-emerald-400 border border-emerald-500/20' 
+                                  : 'bg-white/5 text-white/50 border border-white/10'
+                              }`}
+                            >
+                              {service.isActive !== false ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </motion.div>
           </TabsContent>
 
@@ -1476,27 +1599,40 @@ export default function ProviderDashboard() {
         </Tabs>
       </div>
 
-      {/* Mobile Navigation - Bottom */}
-      <div className="fixed bottom-0 left-0 right-0 md:hidden bg-deep-charcoal border-t border-white/10 backdrop-blur-sm z-50">
-        <div className="flex items-center justify-around h-20">
+      {/* Mobile Navigation - Bottom with modern gradient */}
+      <div className="fixed bottom-0 left-0 right-0 md:hidden bg-gradient-to-t from-[#0a0a0f] to-[#12121a] border-t border-white/10 backdrop-blur-2xl z-50">
+        <div className="flex items-center justify-around h-20 px-2">
           {[
-            { value: 'overview', label: 'Upcoming', icon: Calendar },
-            { value: 'appointments', label: 'All Appts', icon: BarChart3 },
-            { value: 'services', label: 'Services', icon: Zap },
-            { value: 'integrations', label: 'Integrations', icon: Link2 },
-            { value: 'profile', label: 'Settings', icon: Settings },
+            { value: 'overview', label: 'Overview', icon: Calendar, gradient: 'from-violet-600 to-fuchsia-600' },
+            { value: 'appointments', label: 'Bookings', icon: BarChart3, gradient: 'from-blue-600 to-cyan-500' },
+            { value: 'services', label: 'Services', icon: Zap, gradient: 'from-orange-600 to-amber-500' },
+            { value: 'integrations', label: 'Connect', icon: Link2, gradient: 'from-green-600 to-emerald-500' },
+            { value: 'profile', label: 'Profile', icon: Settings, gradient: 'from-pink-600 to-rose-500' },
           ].map((tab) => (
             <button
               key={tab.value}
               onClick={() => setActiveTab(tab.value)}
-              className={`flex flex-col items-center justify-center w-full h-full transition-all ${
+              className={`relative flex flex-col items-center justify-center w-full h-full transition-all group ${
                 activeTab === tab.value
-                  ? 'bg-neon-teal/10 text-neon-teal'
-                  : 'text-light-gray hover:text-white'
+                  ? 'text-white'
+                  : 'text-white/40 hover:text-white/70'
               }`}
             >
-              <tab.icon className="w-6 h-6 mb-1" />
-              <span className="text-xs font-paragraph">{tab.label}</span>
+              {activeTab === tab.value && (
+                <motion.div
+                  layoutId="mobileActiveTab"
+                  className={`absolute inset-0 bg-gradient-to-r ${tab.gradient} opacity-20 rounded-2xl`}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                />
+              )}
+              <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center mb-1 transition-all ${
+                activeTab === tab.value 
+                  ? `bg-gradient-to-r ${tab.gradient}` 
+                  : 'bg-white/5 group-hover:bg-white/10'
+              }`}>
+                <tab.icon className="w-5 h-5" />
+              </div>
+              <span className="text-xs font-paragraph font-medium">{tab.label}</span>
             </button>
           ))}
         </div>
