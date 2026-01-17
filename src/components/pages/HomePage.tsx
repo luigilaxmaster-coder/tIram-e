@@ -1,8 +1,8 @@
-// HPI 2.0-DYNAMIC
+// HPI 3.0-ULTRA-DYNAMIC
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, useAnimation } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, useAnimation, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, Users, Zap, ArrowRight, CheckCircle2, Shield, Smartphone, Globe, ChevronRight, Star, Sparkles, TrendingUp, BarChart3, Network } from 'lucide-react';
+import { Calendar, Clock, Users, Zap, ArrowRight, CheckCircle2, Shield, Smartphone, Globe, ChevronRight, Star, Sparkles, TrendingUp, BarChart3, Network, Layers, Lock, Bell, Rocket, Activity, Database } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 
 // --- Utility Components ---
@@ -43,19 +43,39 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({ children, className, 
   );
 };
 
-// Mouse Glow Effect Component
+// Enhanced Mouse Glow Effect Component with Multi-Layer
 const MouseGlow = ({ x, y }: { x: number; y: number }) => {
   return (
-    <motion.div
-      className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
-      style={{
-        background: `radial-gradient(600px circle at ${x}px ${y}px, rgba(0, 255, 212, 0.15), transparent 40%)`
-      }}
-    />
+    <>
+      <motion.div
+        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(600px circle at ${x}px ${y}px, rgba(0, 255, 212, 0.15), transparent 40%)`
+        }}
+      />
+      <motion.div
+        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-500"
+        style={{
+          background: `radial-gradient(400px circle at ${x}px ${y}px, rgba(102, 120, 255, 0.1), transparent 50%)`
+        }}
+      />
+      <motion.div
+        className="pointer-events-none fixed w-8 h-8 rounded-full border-2 border-neon-teal/30 z-40"
+        animate={{
+          x: x - 16,
+          y: y - 16,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 500,
+          damping: 28
+        }}
+      />
+    </>
   );
 };
 
-// Hover Reveal Text Component
+// Enhanced Hover Reveal Text Component with Animation
 const HoverRevealText = ({ text, className = '' }: { text: string; className?: string }) => {
   const [isHovered, setIsHovered] = useState(false);
   
@@ -66,21 +86,31 @@ const HoverRevealText = ({ text, className = '' }: { text: string; className?: s
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
-        transition={{ duration: 0.3 }}
-        className="absolute inset-0 flex items-center justify-center bg-deep-charcoal/90 backdrop-blur-sm border border-neon-teal/30 rounded-lg"
+        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+        animate={{ 
+          opacity: isHovered ? 1 : 0, 
+          y: isHovered ? 0 : 20,
+          scale: isHovered ? 1 : 0.9
+        }}
+        transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
+        className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-deep-charcoal via-deep-charcoal/95 to-black backdrop-blur-sm border border-neon-teal/40 rounded-lg shadow-[0_0_20px_rgba(0,255,212,0.2)]"
       >
-        <span className="text-neon-teal font-heading text-sm">{text}</span>
+        <span className="text-neon-teal font-heading text-sm font-bold tracking-wide">{text}</span>
+        <motion.div
+          className="absolute inset-0 border border-neon-teal/20 rounded-lg"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
       </motion.div>
     </div>
   );
 };
 
-// 3D Card Component
+// Enhanced 3D Card Component with Depth
 const Card3D = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => {
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
@@ -89,16 +119,21 @@ const Card3D = ({ children, className = '' }: { children: React.ReactNode; class
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateXValue = ((y - centerY) / centerY) * -10;
-    const rotateYValue = ((x - centerX) / centerX) * 10;
+    const rotateXValue = ((y - centerY) / centerY) * -15;
+    const rotateYValue = ((x - centerX) / centerX) * 15;
     
     setRotateX(rotateXValue);
     setRotateY(rotateYValue);
   };
 
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
   const handleMouseLeave = () => {
     setRotateX(0);
     setRotateY(0);
+    setIsHovered(false);
   };
 
   return (
@@ -110,13 +145,22 @@ const Card3D = ({ children, className = '' }: { children: React.ReactNode; class
       }}
       animate={{
         rotateX,
-        rotateY
+        rotateY,
+        scale: isHovered ? 1.02 : 1
       }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {children}
+      <motion.div
+        style={{
+          transformStyle: 'preserve-3d',
+          transform: 'translateZ(50px)'
+        }}
+      >
+        {children}
+      </motion.div>
     </motion.div>
   );
 };
@@ -140,6 +184,133 @@ const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; clas
           className="w-full h-full object-cover"
         />
       </motion.div>
+    </div>
+  );
+};
+
+// Interactive Architecture Diagram Component
+const ArchitectureDiagram = () => {
+  const [activeNode, setActiveNode] = useState<number | null>(null);
+  
+  const nodes = [
+    { id: 1, label: 'Client', icon: Users, x: 10, y: 50, color: 'neon-teal', desc: 'User Interface' },
+    { id: 2, label: 'API', icon: Layers, x: 35, y: 30, color: 'secondary', desc: 'REST Endpoints' },
+    { id: 3, label: 'Auth', icon: Lock, x: 35, y: 70, color: 'secondary', desc: 'Security Layer' },
+    { id: 4, label: 'Database', icon: Database, x: 60, y: 50, color: 'neon-teal', desc: 'Data Storage' },
+    { id: 5, label: 'Scheduler', icon: Clock, x: 85, y: 30, color: 'secondary', desc: 'Slot Manager' },
+    { id: 6, label: 'Notifier', icon: Bell, x: 85, y: 70, color: 'neon-teal', desc: 'Email Service' },
+  ];
+
+  const connections = [
+    { from: 1, to: 2 }, { from: 1, to: 3 }, { from: 2, to: 4 }, 
+    { from: 3, to: 4 }, { from: 4, to: 5 }, { from: 4, to: 6 }
+  ];
+
+  return (
+    <div className="relative w-full h-[500px] bg-white/5 rounded-3xl border border-white/10 p-8 overflow-hidden">
+      {/* Animated Background Grid */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="w-full h-full" style={{
+          backgroundImage: 'linear-gradient(rgba(0,255,212,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,212,0.1) 1px, transparent 1px)',
+          backgroundSize: '40px 40px'
+        }} />
+      </div>
+
+      {/* Connection Lines */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+        {connections.map((conn, i) => {
+          const fromNode = nodes.find(n => n.id === conn.from);
+          const toNode = nodes.find(n => n.id === conn.to);
+          if (!fromNode || !toNode) return null;
+          
+          const isActive = activeNode === conn.from || activeNode === conn.to;
+          
+          return (
+            <motion.line
+              key={i}
+              x1={`${fromNode.x}%`}
+              y1={`${fromNode.y}%`}
+              x2={`${toNode.x}%`}
+              y2={`${toNode.y}%`}
+              stroke={isActive ? '#00FFD4' : 'rgba(255,255,255,0.1)'}
+              strokeWidth={isActive ? '3' : '2'}
+              strokeDasharray="5,5"
+              initial={{ pathLength: 0 }}
+              animate={{ 
+                pathLength: 1,
+                stroke: isActive ? '#00FFD4' : 'rgba(255,255,255,0.1)'
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          );
+        })}
+      </svg>
+
+      {/* Nodes */}
+      {nodes.map((node) => {
+        const Icon = node.icon;
+        const isActive = activeNode === node.id;
+        
+        return (
+          <motion.div
+            key={node.id}
+            className="absolute cursor-pointer"
+            style={{
+              left: `${node.x}%`,
+              top: `${node.y}%`,
+              transform: 'translate(-50%, -50%)'
+            }}
+            onMouseEnter={() => setActiveNode(node.id)}
+            onMouseLeave={() => setActiveNode(null)}
+            whileHover={{ scale: 1.2 }}
+          >
+            <motion.div
+              className={`relative w-20 h-20 rounded-2xl bg-${node.color}/10 border-2 border-${node.color}/30 flex items-center justify-center backdrop-blur-sm`}
+              animate={{
+                borderColor: isActive ? '#00FFD4' : `rgba(${node.color === 'neon-teal' ? '0,255,212' : '102,120,255'},0.3)`,
+                boxShadow: isActive ? '0 0 30px rgba(0,255,212,0.4)' : '0 0 0px rgba(0,0,0,0)'
+              }}
+            >
+              <Icon className={`w-8 h-8 text-${node.color}`} />
+              
+              {/* Pulse Effect */}
+              {isActive && (
+                <motion.div
+                  className="absolute inset-0 rounded-2xl border-2 border-neon-teal"
+                  initial={{ scale: 1, opacity: 1 }}
+                  animate={{ scale: 1.5, opacity: 0 }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                />
+              )}
+            </motion.div>
+            
+            {/* Label */}
+            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
+              <div className={`text-sm font-heading font-bold ${isActive ? 'text-neon-teal' : 'text-white/70'}`}>
+                {node.label}
+              </div>
+              <AnimatePresence>
+                {isActive && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-xs text-white/50 mt-1"
+                  >
+                    {node.desc}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        );
+      })}
+
+      {/* Title */}
+      <div className="absolute top-4 left-4">
+        <h4 className="text-lg font-heading font-bold text-white/80">System Architecture</h4>
+        <p className="text-xs text-white/40">Hover nodes to explore</p>
+      </div>
     </div>
   );
 };
@@ -223,28 +394,49 @@ export default function HomePage() {
         }
 
         .text-glow {
-          text-shadow: 0 0 20px rgba(0, 255, 212, 0.3);
+          text-shadow: 0 0 20px rgba(0, 255, 212, 0.5), 0 0 40px rgba(0, 255, 212, 0.3);
         }
 
         .neon-border {
-          box-shadow: 0 0 10px rgba(0, 255, 212, 0.2), inset 0 0 10px rgba(0, 255, 212, 0.1);
+          box-shadow: 0 0 15px rgba(0, 255, 212, 0.3), inset 0 0 15px rgba(0, 255, 212, 0.15);
         }
 
         .hover-lift {
-          transition: transform 0.3s ease;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .hover-lift:hover {
-          transform: translateY(-8px);
+          transform: translateY(-12px) scale(1.02);
+          box-shadow: 0 20px 40px rgba(0, 255, 212, 0.2);
         }
 
         @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(5deg); }
         }
 
         .float-animation {
           animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 212, 0.3); }
+          50% { box-shadow: 0 0 40px rgba(0, 255, 212, 0.6); }
+        }
+
+        .pulse-glow {
+          animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+          0% { background-position: -1000px 0; }
+          100% { background-position: 1000px 0; }
+        }
+
+        .shimmer {
+          background: linear-gradient(90deg, transparent, rgba(0, 255, 212, 0.1), transparent);
+          background-size: 1000px 100%;
+          animation: shimmer 3s infinite;
         }
       `}</style>
 
@@ -260,7 +452,7 @@ export default function HomePage() {
               scale: 1.1
             }}
           />
-          {/* Floating Orbs with Enhanced Animation */}
+          {/* Enhanced Floating Orbs */}
           <motion.div 
             className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-teal/10 rounded-full blur-[100px]"
             animate={{ 
@@ -279,24 +471,50 @@ export default function HomePage() {
             }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           />
-          {/* Additional Floating Particles */}
-          {[...Array(8)].map((_, i) => (
+          {/* Additional Floating Particles with Enhanced Animation */}
+          {[...Array(12)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute w-2 h-2 bg-neon-teal/30 rounded-full"
               style={{
-                left: `${10 + i * 12}%`,
-                top: `${20 + (i % 3) * 25}%`
+                left: `${10 + i * 8}%`,
+                top: `${20 + (i % 4) * 20}%`
               }}
               animate={{
-                y: [0, -30, 0],
-                opacity: [0.3, 0.8, 0.3]
+                y: [0, -40, 0],
+                x: [0, Math.sin(i) * 20, 0],
+                opacity: [0.3, 0.9, 0.3],
+                scale: [1, 1.5, 1]
               }}
               transition={{
                 duration: 4 + i * 0.5,
                 repeat: Infinity,
                 ease: "easeInOut",
                 delay: i * 0.3
+              }}
+            />
+          ))}
+          {/* Animated Rings */}
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={`ring-${i}`}
+              className="absolute top-1/2 left-1/2 border border-neon-teal/10 rounded-full"
+              style={{
+                width: `${300 + i * 200}px`,
+                height: `${300 + i * 200}px`,
+                marginLeft: `-${150 + i * 100}px`,
+                marginTop: `-${150 + i * 100}px`
+              }}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.1, 0.3, 0.1],
+                rotate: [0, 360]
+              }}
+              transition={{
+                duration: 20 + i * 5,
+                repeat: Infinity,
+                ease: "linear",
+                delay: i * 2
               }}
             />
           ))}
@@ -360,7 +578,7 @@ export default function HomePage() {
             </AnimatedElement>
           </div>
 
-          {/* Hero Visual - Enhanced 3D Cards */}
+          {/* Hero Visual - Enhanced 3D Cards with Shimmer */}
           <div className="lg:col-span-5 relative h-[600px] hidden lg:block">
             <motion.div 
               className="absolute inset-0"
@@ -368,12 +586,12 @@ export default function HomePage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, delay: 0.5 }}
             >
-              <div className="relative w-full h-full" style={{ perspective: '1000px' }}>
-                {/* Abstract Cards Stack with 3D Effect */}
+              <div className="relative w-full h-full" style={{ perspective: '1500px' }}>
+                {/* Abstract Cards Stack with Enhanced 3D Effect */}
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
-                    className="absolute top-0 right-0 w-full aspect-[4/5] glass-panel rounded-2xl border-t border-l border-white/10 p-6 flex flex-col justify-between hover-lift"
+                    className="absolute top-0 right-0 w-full aspect-[4/5] glass-panel rounded-2xl border-t border-l border-white/10 p-6 flex flex-col justify-between hover-lift overflow-hidden"
                     style={{
                       zIndex: 3 - i,
                       top: i * 40,
@@ -383,24 +601,29 @@ export default function HomePage() {
                       transformStyle: 'preserve-3d'
                     }}
                     animate={{
-                      y: [0, -10, 0],
-                      rotateY: [0, 5, 0]
+                      y: [0, -15, 0],
+                      rotateY: [0, 8, 0],
+                      rotateX: [0, 3, 0]
                     }}
                     transition={{
-                      duration: 4,
+                      duration: 5,
                       delay: i * 0.5,
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
                     whileHover={{
-                      scale: 1.05,
-                      rotateY: 10,
+                      scale: 1.08,
+                      rotateY: 15,
+                      rotateX: 5,
                       transition: { duration: 0.3 }
                     }}
                   >
+                    {/* Shimmer Effect */}
+                    <div className="absolute inset-0 shimmer pointer-events-none" />
+                    
                     <div className="flex justify-between items-center border-b border-white/10 pb-4">
                       <div className="h-3 w-24 bg-white/20 rounded-full" />
-                      <div className="h-8 w-8 rounded-full bg-neon-teal/20 flex items-center justify-center">
+                      <div className="h-8 w-8 rounded-full bg-neon-teal/20 flex items-center justify-center pulse-glow">
                         <Clock className="w-4 h-4 text-neon-teal" />
                       </div>
                     </div>
@@ -413,6 +636,12 @@ export default function HomePage() {
                       <div className="h-10 flex-1 bg-neon-teal rounded-md opacity-80" />
                       <div className="h-10 w-10 bg-white/10 rounded-md" />
                     </div>
+                    
+                    {/* Hover Reveal Corner */}
+                    <HoverRevealText 
+                      text="Preview"
+                      className="absolute top-4 right-4 w-20 h-8"
+                    />
                   </motion.div>
                 ))}
               </div>
@@ -445,8 +674,13 @@ export default function HomePage() {
             </AnimatedElement>
           </div>
 
+          {/* Architecture Diagram */}
+          <AnimatedElement delay={200}>
+            <ArchitectureDiagram />
+          </AnimatedElement>
+
           {/* Interactive Flow Diagram */}
-          <div className="relative">
+          <div className="relative mt-20">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
               {/* Connection Lines */}
               <div className="hidden md:block absolute top-1/2 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-neon-teal/30 to-transparent -translate-y-1/2" />
@@ -460,24 +694,27 @@ export default function HomePage() {
                 <AnimatedElement key={index} delay={index * 150}>
                   <Card3D className="relative z-10">
                     <motion.div
-                      className="group relative p-8 bg-white/5 border border-white/10 rounded-2xl hover:border-neon-teal/50 transition-all cursor-pointer"
+                      className="group relative p-8 bg-white/5 border border-white/10 rounded-2xl hover:border-neon-teal/50 transition-all cursor-pointer overflow-hidden"
                       whileHover={{ scale: 1.05 }}
                     >
+                      {/* Shimmer on Hover */}
+                      <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+                      
                       {/* Hover Reveal Text */}
                       <HoverRevealText 
                         text={`Step ${index + 1}`}
-                        className="absolute top-2 right-2 w-20 h-8"
+                        className="absolute top-2 right-2 w-20 h-8 z-10"
                       />
                       
-                      <div className={`w-16 h-16 rounded-full bg-${step.color}/10 flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform`}>
+                      <div className={`w-16 h-16 rounded-full bg-${step.color}/10 flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform relative z-10`}>
                         <step.icon className={`w-8 h-8 text-${step.color}`} />
                       </div>
                       
-                      <h3 className="text-xl font-heading font-bold text-white mb-3 text-center">
+                      <h3 className="text-xl font-heading font-bold text-white mb-3 text-center relative z-10">
                         {step.title}
                       </h3>
                       
-                      <p className="text-light-gray/60 text-sm text-center">
+                      <p className="text-light-gray/60 text-sm text-center relative z-10">
                         {step.desc}
                       </p>
 
@@ -496,10 +733,29 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Live Data Visualization */}
+          {/* Live Data Visualization with Enhanced Interactivity */}
           <AnimatedElement delay={600}>
-            <div className="mt-20 p-12 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+            <div className="mt-20 p-12 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl relative overflow-hidden">
+              {/* Animated Background Pattern */}
+              <div className="absolute inset-0 opacity-10">
+                <motion.div
+                  className="w-full h-full"
+                  style={{
+                    backgroundImage: 'radial-gradient(circle, rgba(0,255,212,0.3) 1px, transparent 1px)',
+                    backgroundSize: '30px 30px'
+                  }}
+                  animate={{
+                    backgroundPosition: ['0px 0px', '30px 30px']
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                />
+              </div>
+
+              <div className="flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
                 <div className="flex-1">
                   <h3 className="text-3xl font-heading font-bold text-white mb-4">
                     Real-Time Analytics
@@ -515,32 +771,56 @@ export default function HomePage() {
                     ].map((stat, i) => (
                       <motion.div
                         key={i}
-                        className="text-center p-4 bg-white/5 rounded-xl border border-white/10"
-                        whileHover={{ scale: 1.05, borderColor: 'rgba(0, 255, 212, 0.3)' }}
+                        className="text-center p-4 bg-white/5 rounded-xl border border-white/10 relative overflow-hidden cursor-pointer"
+                        whileHover={{ 
+                          scale: 1.05, 
+                          borderColor: 'rgba(0, 255, 212, 0.3)',
+                          boxShadow: '0 0 20px rgba(0, 255, 212, 0.2)'
+                        }}
                       >
-                        <stat.icon className="w-6 h-6 text-neon-teal mx-auto mb-2" />
-                        <div className="text-2xl font-heading font-bold text-white mb-1">
+                        <div className="absolute inset-0 shimmer opacity-0 hover:opacity-100 transition-opacity" />
+                        <stat.icon className="w-6 h-6 text-neon-teal mx-auto mb-2 relative z-10" />
+                        <motion.div 
+                          className="text-2xl font-heading font-bold text-white mb-1 relative z-10"
+                          initial={{ opacity: 0, y: 10 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                        >
                           {stat.value}
-                        </div>
-                        <div className="text-xs text-light-gray/50">
+                        </motion.div>
+                        <div className="text-xs text-light-gray/50 relative z-10">
                           {stat.label}
                         </div>
+                        <HoverRevealText 
+                          text="View Details"
+                          className="absolute inset-0"
+                        />
                       </motion.div>
                     ))}
                   </div>
                 </div>
 
-                {/* Animated Chart Visualization */}
+                {/* Enhanced Animated Chart Visualization */}
                 <div className="flex-1 relative h-64">
                   <div className="absolute inset-0 flex items-end justify-around gap-4">
                     {[40, 65, 45, 80, 55, 90, 70].map((height, i) => (
                       <motion.div
                         key={i}
-                        className="flex-1 bg-gradient-to-t from-neon-teal to-secondary rounded-t-lg"
+                        className="flex-1 bg-gradient-to-t from-neon-teal to-secondary rounded-t-lg relative cursor-pointer"
                         initial={{ height: 0 }}
                         whileInView={{ height: `${height}%` }}
+                        whileHover={{ 
+                          scale: 1.05,
+                          filter: 'brightness(1.2)'
+                        }}
                         transition={{ duration: 1, delay: i * 0.1 }}
-                      />
+                      >
+                        <motion.div
+                          className="absolute inset-0 bg-white/20 rounded-t-lg"
+                          initial={{ opacity: 0 }}
+                          whileHover={{ opacity: 1 }}
+                        />
+                      </motion.div>
                     ))}
                   </div>
                 </div>
@@ -609,17 +889,30 @@ export default function HomePage() {
                   <Card3D>
                     <div className="group relative p-1 bg-gradient-to-b from-white/10 to-transparent rounded-2xl overflow-hidden">
                       <div className="absolute inset-0 bg-neon-teal/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      
+                      {/* Shimmer Effect */}
+                      <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+                      
                       <div className="relative bg-deep-charcoal/90 backdrop-blur-xl p-8 rounded-xl h-full border border-white/5 group-hover:border-neon-teal/30 transition-colors">
                         {/* Hover Reveal in Corner */}
                         <HoverRevealText 
                           text="Learn More →"
-                          className="absolute top-4 right-4 w-32 h-10"
+                          className="absolute top-4 right-4 w-32 h-10 z-10"
                         />
                         
                         <div className="flex justify-between items-start mb-6">
-                          <div className="p-4 bg-white/5 rounded-lg text-neon-teal group-hover:scale-110 transition-transform duration-300">
+                          <motion.div 
+                            className="p-4 bg-white/5 rounded-lg text-neon-teal relative"
+                            whileHover={{ scale: 1.15, rotate: 5 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                          >
                             <feature.icon className="w-8 h-8" />
-                          </div>
+                            <motion.div
+                              className="absolute inset-0 bg-neon-teal/20 rounded-lg blur-xl"
+                              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            />
+                          </motion.div>
                           <span className="text-xs font-heading font-bold text-white/30 border border-white/10 px-3 py-1 rounded-full">
                             {feature.stat}
                           </span>
@@ -630,6 +923,15 @@ export default function HomePage() {
                         <p className="text-light-gray/60 leading-relaxed">
                           {feature.description}
                         </p>
+                        
+                        {/* Progress Bar */}
+                        <motion.div
+                          className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-neon-teal to-secondary"
+                          initial={{ scaleX: 0 }}
+                          whileInView={{ scaleX: 1 }}
+                          transition={{ duration: 1, delay: index * 0.2 }}
+                          style={{ transformOrigin: 'left' }}
+                        />
                       </div>
                     </div>
                   </Card3D>
@@ -680,34 +982,55 @@ export default function HomePage() {
                 <Card3D className="relative h-full">
                   {/* Connector Line */}
                   {index < STEPS_DATA.length - 1 && (
-                    <div className="hidden lg:block absolute top-8 left-full w-full h-[1px] bg-white/10 -translate-x-8 z-0" />
+                    <motion.div 
+                      className="hidden lg:block absolute top-8 left-full w-full h-[1px] bg-white/10 -translate-x-8 z-0"
+                      initial={{ scaleX: 0 }}
+                      whileInView={{ scaleX: 1 }}
+                      transition={{ duration: 0.8, delay: index * 0.2 }}
+                      style={{ transformOrigin: 'left' }}
+                    />
                   )}
                   
-                  <div className="relative z-10 bg-white/5 border border-white/10 p-8 rounded-2xl hover:bg-white/10 hover:border-neon-teal/30 transition-all h-full cursor-pointer">
+                  <div className="relative z-10 bg-white/5 border border-white/10 p-8 rounded-2xl hover:bg-white/10 hover:border-neon-teal/30 transition-all h-full cursor-pointer group overflow-hidden">
+                    {/* Shimmer Effect */}
+                    <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+                    
                     {/* Hover Reveal */}
                     <HoverRevealText 
                       text="✓ Complete"
-                      className="absolute top-2 right-2 w-24 h-8"
+                      className="absolute top-2 right-2 w-24 h-8 z-10"
                     />
                     
-                    <span className="block text-6xl font-heading font-bold text-white/5 mb-6">
+                    <motion.span 
+                      className="block text-6xl font-heading font-bold text-white/5 mb-6 relative z-10"
+                      whileHover={{ scale: 1.1, color: 'rgba(0, 255, 212, 0.1)' }}
+                    >
                       {step.num}
-                    </span>
-                    <h3 className="text-xl font-heading font-bold text-white mb-4">
+                    </motion.span>
+                    <h3 className="text-xl font-heading font-bold text-white mb-4 relative z-10 group-hover:text-neon-teal transition-colors">
                       {step.title}
                     </h3>
-                    <p className="text-light-gray/60 text-sm">
+                    <p className="text-light-gray/60 text-sm relative z-10">
                       {step.desc}
                     </p>
 
                     {/* Animated Sparkle on Hover */}
                     <motion.div
-                      className="absolute top-4 left-4 opacity-0 group-hover:opacity-100"
+                      className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 z-10"
                       whileHover={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
                       transition={{ duration: 0.6 }}
                     >
                       <Sparkles className="w-5 h-5 text-neon-teal" />
                     </motion.div>
+
+                    {/* Progress Indicator */}
+                    <motion.div
+                      className="absolute bottom-0 left-0 right-0 h-1 bg-neon-teal/30 rounded-b-2xl"
+                      initial={{ scaleX: 0 }}
+                      whileInView={{ scaleX: 1 }}
+                      transition={{ duration: 0.8, delay: index * 0.15 }}
+                      style={{ transformOrigin: 'left' }}
+                    />
                   </div>
                 </Card3D>
               </AnimatedElement>
@@ -728,11 +1051,14 @@ export default function HomePage() {
                     src="https://static.wixstatic.com/media/307f6c_218fa57912714e82aedd67e6403d4507~mv2.png?originWidth=768&originHeight=768"
                     alt="Provider Dashboard Interface"
                     width={800}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-tr from-deep-charcoal/80 to-transparent" />
                   
-                  {/* Floating UI Element with Hover Reveal */}
+                  {/* Shimmer Effect */}
+                  <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+                  
+                  {/* Floating UI Element with Enhanced Hover Reveal */}
                   <motion.div 
                     className="absolute bottom-8 left-8 right-8 glass-panel p-6 rounded-xl"
                     whileHover={{ scale: 1.05, y: -10 }}
@@ -756,12 +1082,17 @@ export default function HomePage() {
                       {[1, 2, 3].map((i) => (
                         <motion.div
                           key={i}
-                          className="flex items-center gap-4 p-3 bg-white/5 rounded-lg"
+                          className="flex items-center gap-4 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
                           initial={{ opacity: 0, x: -20 }}
                           whileInView={{ opacity: 1, x: 0 }}
+                          whileHover={{ x: 5 }}
                           transition={{ delay: i * 0.1 }}
                         >
-                          <div className="w-2 h-2 rounded-full bg-green-500" />
+                          <motion.div 
+                            className="w-2 h-2 rounded-full bg-green-500"
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                          />
                           <div className="h-2 w-20 bg-white/20 rounded-full" />
                           <div className="h-2 w-12 bg-white/10 rounded-full ml-auto" />
                         </motion.div>
@@ -840,25 +1171,68 @@ export default function HomePage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-tl from-deep-charcoal via-transparent to-transparent" />
                   
-                  {/* Animated Dots on Map with Hover Reveals */}
+                  {/* Shimmer Effect */}
+                  <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+                  
+                  {/* Enhanced Animated Dots on Map with Hover Reveals */}
                   {[1, 2, 3, 4, 5].map((i) => (
                     <motion.div 
                       key={i}
-                      className="absolute w-3 h-3 bg-neon-teal rounded-full cursor-pointer"
+                      className="absolute w-3 h-3 bg-neon-teal rounded-full cursor-pointer z-10"
                       style={{
                         top: `${20 + i * 15}%`,
                         left: `${10 + i * 18}%`,
                         boxShadow: '0 0 20px rgba(0, 255, 212, 0.5)'
                       }}
-                      whileHover={{ scale: 2 }}
+                      whileHover={{ scale: 2.5 }}
+                      animate={{
+                        scale: [1, 1.2, 1]
+                      }}
+                      transition={{
+                        scale: {
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: i * 0.3
+                        }
+                      }}
                     >
-                      <div className="absolute inset-0 bg-neon-teal rounded-full animate-ping opacity-75" />
+                      <motion.div 
+                        className="absolute inset-0 bg-neon-teal rounded-full animate-ping opacity-75"
+                        animate={{
+                          scale: [1, 2, 1],
+                          opacity: [0.75, 0, 0.75]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: i * 0.2
+                        }}
+                      />
                       <HoverRevealText 
                         text={`GMT+${i}`}
                         className="absolute -top-10 -left-8 w-20 h-8"
                       />
                     </motion.div>
                   ))}
+                  
+                  {/* Connection Lines Between Dots */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    {[1, 2, 3, 4].map((i) => (
+                      <motion.line
+                        key={i}
+                        x1={`${10 + i * 18}%`}
+                        y1={`${20 + i * 15}%`}
+                        x2={`${10 + (i + 1) * 18}%`}
+                        y2={`${20 + (i + 1) * 15}%`}
+                        stroke="rgba(0, 255, 212, 0.3)"
+                        strokeWidth="2"
+                        strokeDasharray="5,5"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 2, delay: i * 0.3 }}
+                      />
+                    ))}
+                  </svg>
                 </div>
               </Card3D>
             </AnimatedElement>
