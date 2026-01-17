@@ -1,8 +1,8 @@
-// HPI 3.0-ULTRA-DYNAMIC
-import React, { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, useAnimation, AnimatePresence } from 'framer-motion';
+// HPI 4.0-HYPER-FLUID-DYNAMIC
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, useAnimation, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, Users, Zap, ArrowRight, CheckCircle2, Shield, Smartphone, Globe, ChevronRight, Star, Sparkles, TrendingUp, BarChart3, Network, Layers, Lock, Bell, Rocket, Activity, Database } from 'lucide-react';
+import { Calendar, Clock, Users, Zap, ArrowRight, CheckCircle2, Shield, Smartphone, Globe, ChevronRight, Star, Sparkles, TrendingUp, BarChart3, Network, Layers, Lock, Bell, Rocket, Activity, Database, Eye, MousePointer2, Cpu, Gauge } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 
 // --- Utility Components ---
@@ -15,10 +15,14 @@ type AnimatedElementProps = {
 
 const AnimatedElement: React.FC<AnimatedElementProps> = ({ children, className, delay = 0 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const element = ref.current;
-    if (!element) return;
+    if (!element || prefersReducedMotion) {
+      if (element) element.classList.add('is-visible');
+      return;
+    }
 
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
@@ -27,11 +31,11 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({ children, className, 
         }, delay);
         observer.unobserve(element);
       }
-    }, { threshold: 0.1 });
+    }, { threshold: 0.1, rootMargin: '50px' });
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, [delay]);
+  }, [delay, prefersReducedMotion]);
 
   return (
     <div 
@@ -43,39 +47,50 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({ children, className, 
   );
 };
 
-// Enhanced Mouse Glow Effect Component with Multi-Layer
+// Enhanced Mouse Glow Effect Component with Multi-Layer + Magnetic Cursor
 const MouseGlow = ({ x, y }: { x: number; y: number }) => {
+  const springConfig = { damping: 25, stiffness: 300 };
+  const mouseX = useSpring(x, springConfig);
+  const mouseY = useSpring(y, springConfig);
+
   return (
     <>
       <motion.div
         className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
         style={{
-          background: `radial-gradient(600px circle at ${x}px ${y}px, rgba(0, 255, 212, 0.15), transparent 40%)`
+          background: useMotionTemplate`radial-gradient(700px circle at ${mouseX}px ${mouseY}px, rgba(0, 255, 212, 0.18), transparent 40%)`
         }}
       />
       <motion.div
         className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-500"
         style={{
-          background: `radial-gradient(400px circle at ${x}px ${y}px, rgba(102, 120, 255, 0.1), transparent 50%)`
+          background: useMotionTemplate`radial-gradient(450px circle at ${mouseX}px ${mouseY}px, rgba(102, 120, 255, 0.12), transparent 50%)`
         }}
       />
       <motion.div
-        className="pointer-events-none fixed w-8 h-8 rounded-full border-2 border-neon-teal/30 z-40"
-        animate={{
-          x: x - 16,
-          y: y - 16,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 500,
-          damping: 28
+        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-700"
+        style={{
+          background: useMotionTemplate`radial-gradient(300px circle at ${mouseX}px ${mouseY}px, rgba(255, 255, 255, 0.03), transparent 60%)`
         }}
       />
+      <motion.div
+        className="pointer-events-none fixed w-10 h-10 rounded-full border-2 border-neon-teal/40 z-40"
+        style={{
+          x: useTransform(mouseX, (val) => val - 20),
+          y: useTransform(mouseY, (val) => val - 20),
+        }}
+      >
+        <motion.div 
+          className="absolute inset-0 rounded-full bg-neon-teal/10"
+          animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      </motion.div>
     </>
   );
 };
 
-// Enhanced Hover Reveal Text Component with Animation
+// Enhanced Hover Reveal Text Component with Advanced Animation
 const HoverRevealText = ({ text, className = '' }: { text: string; className?: string }) => {
   const [isHovered, setIsHovered] = useState(false);
   
@@ -86,69 +101,77 @@ const HoverRevealText = ({ text, className = '' }: { text: string; className?: s
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+        initial={{ opacity: 0, y: 20, scale: 0.9, rotateX: -15 }}
         animate={{ 
           opacity: isHovered ? 1 : 0, 
           y: isHovered ? 0 : 20,
-          scale: isHovered ? 1 : 0.9
+          scale: isHovered ? 1 : 0.9,
+          rotateX: isHovered ? 0 : -15
         }}
-        transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
-        className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-deep-charcoal via-deep-charcoal/95 to-black backdrop-blur-sm border border-neon-teal/40 rounded-lg shadow-[0_0_20px_rgba(0,255,212,0.2)]"
+        transition={{ duration: 0.4, type: "spring", stiffness: 400, damping: 25 }}
+        className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-deep-charcoal via-deep-charcoal/95 to-black backdrop-blur-md border border-neon-teal/50 rounded-lg shadow-[0_0_30px_rgba(0,255,212,0.3)]"
+        style={{ transformStyle: 'preserve-3d' }}
       >
-        <span className="text-neon-teal font-heading text-sm font-bold tracking-wide">{text}</span>
+        <span className="text-neon-teal font-heading text-sm font-bold tracking-wide flex items-center gap-2">
+          <Eye className="w-3 h-3" />
+          {text}
+        </span>
         <motion.div
-          className="absolute inset-0 border border-neon-teal/20 rounded-lg"
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute inset-0 border border-neon-teal/30 rounded-lg"
+          animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 2.5, repeat: Infinity }}
         />
       </motion.div>
     </div>
   );
 };
 
-// Enhanced 3D Card Component with Depth
+// Enhanced 3D Card Component with Advanced Depth & Magnetic Effect
 const Card3D = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => {
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateXValue = ((y - centerY) / centerY) * -15;
-    const rotateYValue = ((x - centerX) / centerX) * 15;
+    const rotateXValue = ((y - centerY) / centerY) * -18;
+    const rotateYValue = ((x - centerX) / centerX) * 18;
     
     setRotateX(rotateXValue);
     setRotateY(rotateYValue);
-  };
+  }, []);
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = useCallback(() => {
     setIsHovered(true);
-  };
+  }, []);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     setRotateX(0);
     setRotateY(0);
     setIsHovered(false);
-  };
+  }, []);
 
   return (
     <motion.div
+      ref={cardRef}
       className={className}
       style={{
         transformStyle: 'preserve-3d',
-        perspective: '1000px'
+        perspective: '1200px'
       }}
       animate={{
         rotateX,
         rotateY,
-        scale: isHovered ? 1.02 : 1
+        scale: isHovered ? 1.03 : 1,
+        z: isHovered ? 50 : 0
       }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      transition={{ type: 'spring', stiffness: 350, damping: 35 }}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -156,8 +179,14 @@ const Card3D = ({ children, className = '' }: { children: React.ReactNode; class
       <motion.div
         style={{
           transformStyle: 'preserve-3d',
-          transform: 'translateZ(50px)'
+          transform: 'translateZ(60px)'
         }}
+        animate={{
+          boxShadow: isHovered 
+            ? '0 30px 60px rgba(0, 255, 212, 0.2), 0 0 0 1px rgba(0, 255, 212, 0.1)' 
+            : '0 10px 30px rgba(0, 0, 0, 0.3)'
+        }}
+        className="rounded-2xl"
       >
         {children}
       </motion.div>
@@ -188,10 +217,18 @@ const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; clas
   );
 };
 
-// Interactive Architecture Diagram Component
+// Interactive Architecture Diagram Component with Enhanced Interactivity
 const ArchitectureDiagram = () => {
   const [activeNode, setActiveNode] = useState<number | null>(null);
+  const [connectionPulse, setConnectionPulse] = useState(0);
   
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setConnectionPulse(prev => (prev + 1) % 6);
+    }, 800);
+    return () => clearInterval(interval);
+  }, []);
+
   const nodes = [
     { id: 1, label: 'Client', icon: Users, x: 10, y: 50, color: 'neon-teal', desc: 'User Interface' },
     { id: 2, label: 'API', icon: Layers, x: 35, y: 30, color: 'secondary', desc: 'REST Endpoints' },
@@ -207,16 +244,27 @@ const ArchitectureDiagram = () => {
   ];
 
   return (
-    <div className="relative w-full h-[500px] bg-white/5 rounded-3xl border border-white/10 p-8 overflow-hidden">
-      {/* Animated Background Grid */}
+    <div className="relative w-full h-[500px] bg-gradient-to-br from-white/5 via-white/3 to-transparent rounded-3xl border border-white/10 p-8 overflow-hidden backdrop-blur-sm">
+      {/* Animated Background Grid with Depth */}
       <div className="absolute inset-0 opacity-20">
-        <div className="w-full h-full" style={{
-          backgroundImage: 'linear-gradient(rgba(0,255,212,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,212,0.1) 1px, transparent 1px)',
-          backgroundSize: '40px 40px'
-        }} />
+        <motion.div 
+          className="w-full h-full" 
+          style={{
+            backgroundImage: 'linear-gradient(rgba(0,255,212,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,212,0.15) 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
+          }}
+          animate={{
+            backgroundPosition: ['0px 0px', '40px 40px']
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: 'linear'
+          }}
+        />
       </div>
 
-      {/* Connection Lines */}
+      {/* Connection Lines with Data Flow Animation */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {connections.map((conn, i) => {
           const fromNode = nodes.find(n => n.id === conn.from);
@@ -224,29 +272,49 @@ const ArchitectureDiagram = () => {
           if (!fromNode || !toNode) return null;
           
           const isActive = activeNode === conn.from || activeNode === conn.to;
+          const isPulsing = connectionPulse === i;
           
           return (
-            <motion.line
-              key={i}
-              x1={`${fromNode.x}%`}
-              y1={`${fromNode.y}%`}
-              x2={`${toNode.x}%`}
-              y2={`${toNode.y}%`}
-              stroke={isActive ? '#00FFD4' : 'rgba(255,255,255,0.1)'}
-              strokeWidth={isActive ? '3' : '2'}
-              strokeDasharray="5,5"
-              initial={{ pathLength: 0 }}
-              animate={{ 
-                pathLength: 1,
-                stroke: isActive ? '#00FFD4' : 'rgba(255,255,255,0.1)'
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
+            <g key={i}>
+              <motion.line
+                x1={`${fromNode.x}%`}
+                y1={`${fromNode.y}%`}
+                x2={`${toNode.x}%`}
+                y2={`${toNode.y}%`}
+                stroke={isActive ? '#00FFD4' : 'rgba(255,255,255,0.15)'}
+                strokeWidth={isActive ? '3' : '2'}
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ 
+                  pathLength: 1,
+                  opacity: 1,
+                  stroke: isActive ? '#00FFD4' : 'rgba(255,255,255,0.15)'
+                }}
+                transition={{ duration: 2 }}
+              />
+              {/* Data Flow Particles */}
+              {isPulsing && (
+                <motion.circle
+                  r="4"
+                  fill="#00FFD4"
+                  initial={{ 
+                    cx: `${fromNode.x}%`, 
+                    cy: `${fromNode.y}%`,
+                    opacity: 0
+                  }}
+                  animate={{ 
+                    cx: `${toNode.x}%`, 
+                    cy: `${toNode.y}%`,
+                    opacity: [0, 1, 0]
+                  }}
+                  transition={{ duration: 1.5, ease: 'easeInOut' }}
+                />
+              )}
+            </g>
           );
         })}
       </svg>
 
-      {/* Nodes */}
+      {/* Nodes with Enhanced Interactions */}
       {nodes.map((node) => {
         const Icon = node.icon;
         const isActive = activeNode === node.id;
@@ -262,40 +330,58 @@ const ArchitectureDiagram = () => {
             }}
             onMouseEnter={() => setActiveNode(node.id)}
             onMouseLeave={() => setActiveNode(null)}
-            whileHover={{ scale: 1.2 }}
+            whileHover={{ scale: 1.25, z: 50 }}
+            whileTap={{ scale: 0.95 }}
           >
             <motion.div
-              className={`relative w-20 h-20 rounded-2xl bg-${node.color}/10 border-2 border-${node.color}/30 flex items-center justify-center backdrop-blur-sm`}
+              className={`relative w-20 h-20 rounded-2xl bg-${node.color}/10 border-2 border-${node.color}/30 flex items-center justify-center backdrop-blur-md`}
               animate={{
                 borderColor: isActive ? '#00FFD4' : `rgba(${node.color === 'neon-teal' ? '0,255,212' : '102,120,255'},0.3)`,
-                boxShadow: isActive ? '0 0 30px rgba(0,255,212,0.4)' : '0 0 0px rgba(0,0,0,0)'
+                boxShadow: isActive ? '0 0 40px rgba(0,255,212,0.5), 0 0 80px rgba(0,255,212,0.2)' : '0 0 0px rgba(0,0,0,0)',
+                scale: isActive ? 1.1 : 1
               }}
+              style={{ transformStyle: 'preserve-3d' }}
             >
-              <Icon className={`w-8 h-8 text-${node.color}`} />
+              <motion.div
+                animate={{ rotateY: isActive ? 360 : 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <Icon className={`w-8 h-8 text-${node.color}`} />
+              </motion.div>
               
-              {/* Pulse Effect */}
+              {/* Enhanced Pulse Effect */}
               {isActive && (
-                <motion.div
-                  className="absolute inset-0 rounded-2xl border-2 border-neon-teal"
-                  initial={{ scale: 1, opacity: 1 }}
-                  animate={{ scale: 1.5, opacity: 0 }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                />
+                <>
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl border-2 border-neon-teal"
+                    initial={{ scale: 1, opacity: 1 }}
+                    animate={{ scale: 1.6, opacity: 0 }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl bg-neon-teal/20"
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0, 0.3] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  />
+                </>
               )}
             </motion.div>
             
-            {/* Label */}
-            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
-              <div className={`text-sm font-heading font-bold ${isActive ? 'text-neon-teal' : 'text-white/70'}`}>
+            {/* Enhanced Label with Tooltip */}
+            <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
+              <motion.div 
+                className={`text-sm font-heading font-bold ${isActive ? 'text-neon-teal' : 'text-white/70'}`}
+                animate={{ scale: isActive ? 1.1 : 1 }}
+              >
                 {node.label}
-              </div>
+              </motion.div>
               <AnimatePresence>
                 {isActive && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="text-xs text-white/50 mt-1"
+                    initial={{ opacity: 0, y: -10, scale: 0.8 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.8 }}
+                    className="text-xs text-white/60 mt-1 px-3 py-1 bg-deep-charcoal/90 rounded-full border border-neon-teal/30"
                   >
                     {node.desc}
                   </motion.div>
@@ -306,11 +392,27 @@ const ArchitectureDiagram = () => {
         );
       })}
 
-      {/* Title */}
+      {/* Enhanced Title with Performance Indicator */}
       <div className="absolute top-4 left-4">
-        <h4 className="text-lg font-heading font-bold text-white/80">System Architecture</h4>
-        <p className="text-xs text-white/40">Hover nodes to explore</p>
+        <h4 className="text-lg font-heading font-bold text-white/80 flex items-center gap-2">
+          <Cpu className="w-5 h-5 text-neon-teal" />
+          System Architecture
+        </h4>
+        <p className="text-xs text-white/40 flex items-center gap-2 mt-1">
+          <MousePointer2 className="w-3 h-3" />
+          Hover nodes to explore
+        </p>
       </div>
+
+      {/* Performance Metrics */}
+      <motion.div 
+        className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-2 bg-deep-charcoal/80 rounded-full border border-neon-teal/20 backdrop-blur-md"
+        animate={{ opacity: [0.7, 1, 0.7] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        <Gauge className="w-4 h-4 text-neon-teal" />
+        <span className="text-xs text-white/70 font-heading">99.9% Uptime</span>
+      </motion.div>
     </div>
   );
 };
@@ -357,16 +459,23 @@ export default function HomePage() {
   const { scrollY } = useScroll();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showMouseGlow, setShowMouseGlow] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  // Optimized mouse tracking with throttling
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (prefersReducedMotion) return;
     const { clientX, clientY } = e;
     setMousePosition({ x: clientX, y: clientY });
     setShowMouseGlow(true);
-  };
+  }, [prefersReducedMotion]);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     setShowMouseGlow(false);
-  };
+  }, []);
+
+  // Memoized parallax transforms for performance
+  const heroGridY = useTransform(scrollY, [0, 1000], [0, 250]);
+  const heroScale = useTransform(scrollY, [0, 500], [1, 1.15]);
 
   return (
     <div 
@@ -374,150 +483,190 @@ export default function HomePage() {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Mouse Glow Effect */}
-      {showMouseGlow && <MouseGlow x={mousePosition.x} y={mousePosition.y} />}
+      {/* Mouse Glow Effect - Performance Optimized */}
+      {showMouseGlow && !prefersReducedMotion && <MouseGlow x={mousePosition.x} y={mousePosition.y} />}
       
-      {/* Global Styles for Custom Effects */}
+      {/* Global Styles for Custom Effects - Enhanced */}
       <style>{`
         .neon-grid-bg {
           background-size: 50px 50px;
-          background-image: linear-gradient(to right, rgba(0, 255, 212, 0.05) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(0, 255, 212, 0.05) 1px, transparent 1px);
-          mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 80%);
+          background-image: linear-gradient(to right, rgba(0, 255, 212, 0.06) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(0, 255, 212, 0.06) 1px, transparent 1px);
+          mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 85%);
+          will-change: transform;
         }
         
         .glass-panel {
-          background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+          background: rgba(255, 255, 255, 0.04);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
 
         .text-glow {
-          text-shadow: 0 0 20px rgba(0, 255, 212, 0.5), 0 0 40px rgba(0, 255, 212, 0.3);
+          text-shadow: 0 0 25px rgba(0, 255, 212, 0.6), 0 0 50px rgba(0, 255, 212, 0.4), 0 0 75px rgba(0, 255, 212, 0.2);
         }
 
         .neon-border {
-          box-shadow: 0 0 15px rgba(0, 255, 212, 0.3), inset 0 0 15px rgba(0, 255, 212, 0.15);
+          box-shadow: 0 0 20px rgba(0, 255, 212, 0.4), inset 0 0 20px rgba(0, 255, 212, 0.2);
         }
 
         .hover-lift {
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+          will-change: transform;
         }
 
         .hover-lift:hover {
-          transform: translateY(-12px) scale(1.02);
-          box-shadow: 0 20px 40px rgba(0, 255, 212, 0.2);
+          transform: translateY(-16px) scale(1.03) rotateX(2deg);
+          box-shadow: 0 25px 50px rgba(0, 255, 212, 0.25);
         }
 
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
+          33% { transform: translateY(-25px) rotate(3deg); }
+          66% { transform: translateY(-15px) rotate(-3deg); }
         }
 
         .float-animation {
-          animation: float 6s ease-in-out infinite;
+          animation: float 7s ease-in-out infinite;
         }
 
         @keyframes pulse-glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 212, 0.3); }
-          50% { box-shadow: 0 0 40px rgba(0, 255, 212, 0.6); }
+          0%, 100% { box-shadow: 0 0 25px rgba(0, 255, 212, 0.4); }
+          50% { box-shadow: 0 0 50px rgba(0, 255, 212, 0.7), 0 0 75px rgba(0, 255, 212, 0.3); }
         }
 
         .pulse-glow {
-          animation: pulse-glow 2s ease-in-out infinite;
+          animation: pulse-glow 2.5s ease-in-out infinite;
         }
 
         @keyframes shimmer {
-          0% { background-position: -1000px 0; }
-          100% { background-position: 1000px 0; }
+          0% { background-position: -1200px 0; }
+          100% { background-position: 1200px 0; }
         }
 
         .shimmer {
-          background: linear-gradient(90deg, transparent, rgba(0, 255, 212, 0.1), transparent);
-          background-size: 1000px 100%;
-          animation: shimmer 3s infinite;
+          background: linear-gradient(90deg, transparent, rgba(0, 255, 212, 0.15), transparent);
+          background-size: 1200px 100%;
+          animation: shimmer 3.5s infinite;
+        }
+
+        @keyframes data-flow {
+          0% { transform: translateX(-100%) translateY(-100%); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateX(100%) translateY(100%); opacity: 0; }
+        }
+
+        .data-flow {
+          animation: data-flow 2s ease-in-out infinite;
+        }
+
+        /* Performance optimization */
+        * {
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
         }
       `}</style>
 
       {/* --- HERO SECTION --- */}
       <section className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden pt-20">
-        {/* Dynamic Background */}
+        {/* Dynamic Background - Enhanced with Depth Layers */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-deep-charcoal" />
+          <div className="absolute inset-0 bg-gradient-to-b from-deep-charcoal via-deep-charcoal to-black" />
           <motion.div 
-            className="absolute inset-0 neon-grid-bg opacity-50"
+            className="absolute inset-0 neon-grid-bg opacity-60"
             style={{ 
-              y: useTransform(scrollY, [0, 1000], [0, 200]),
-              scale: 1.1
+              y: heroGridY,
+              scale: heroScale
             }}
           />
-          {/* Enhanced Floating Orbs */}
+          {/* Enhanced Floating Orbs with Depth */}
           <motion.div 
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-teal/10 rounded-full blur-[100px]"
+            className="absolute top-1/4 left-1/4 w-[28rem] h-[28rem] bg-neon-teal/12 rounded-full blur-[120px]"
             animate={{ 
-              x: [0, 50, 0],
-              y: [0, -50, 0],
-              scale: [1, 1.2, 1]
+              x: [0, 60, 0],
+              y: [0, -60, 0],
+              scale: [1, 1.25, 1]
             }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div 
-            className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-secondary/10 rounded-full blur-[120px]"
+            className="absolute bottom-1/4 right-1/4 w-[35rem] h-[35rem] bg-secondary/12 rounded-full blur-[140px]"
             animate={{ 
-              x: [0, -30, 0],
-              y: [0, 30, 0],
-              scale: [1, 1.1, 1]
+              x: [0, -40, 0],
+              y: [0, 40, 0],
+              scale: [1, 1.15, 1]
             }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           />
-          {/* Additional Floating Particles with Enhanced Animation */}
-          {[...Array(12)].map((_, i) => (
+          <motion.div 
+            className="absolute top-1/2 left-1/2 w-[25rem] h-[25rem] bg-white/5 rounded-full blur-[100px]"
+            animate={{ 
+              x: [0, 30, -30, 0],
+              y: [0, -30, 30, 0],
+              scale: [1, 1.2, 1.1, 1]
+            }}
+            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+          />
+          {/* Enhanced Floating Particles with Varied Sizes */}
+          {[...Array(16)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-2 h-2 bg-neon-teal/30 rounded-full"
+              className="absolute rounded-full bg-neon-teal/30"
               style={{
-                left: `${10 + i * 8}%`,
-                top: `${20 + (i % 4) * 20}%`
+                width: `${2 + (i % 3)}px`,
+                height: `${2 + (i % 3)}px`,
+                left: `${8 + i * 6}%`,
+                top: `${15 + (i % 5) * 18}%`
               }}
               animate={{
-                y: [0, -40, 0],
-                x: [0, Math.sin(i) * 20, 0],
-                opacity: [0.3, 0.9, 0.3],
-                scale: [1, 1.5, 1]
+                y: [0, -50, 0],
+                x: [0, Math.sin(i) * 25, 0],
+                opacity: [0.2, 1, 0.2],
+                scale: [1, 1.8, 1]
               }}
               transition={{
-                duration: 4 + i * 0.5,
+                duration: 5 + i * 0.4,
                 repeat: Infinity,
                 ease: "easeInOut",
-                delay: i * 0.3
+                delay: i * 0.25
               }}
             />
           ))}
-          {/* Animated Rings */}
-          {[...Array(3)].map((_, i) => (
+          {/* Animated Rings with Depth */}
+          {[...Array(4)].map((_, i) => (
             <motion.div
               key={`ring-${i}`}
               className="absolute top-1/2 left-1/2 border border-neon-teal/10 rounded-full"
               style={{
-                width: `${300 + i * 200}px`,
-                height: `${300 + i * 200}px`,
-                marginLeft: `-${150 + i * 100}px`,
-                marginTop: `-${150 + i * 100}px`
+                width: `${250 + i * 180}px`,
+                height: `${250 + i * 180}px`,
+                marginLeft: `-${125 + i * 90}px`,
+                marginTop: `-${125 + i * 90}px`
               }}
               animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.1, 0.3, 0.1],
-                rotate: [0, 360]
+                scale: [1, 1.25, 1],
+                opacity: [0.08, 0.35, 0.08],
+                rotate: [0, i % 2 === 0 ? 360 : -360]
               }}
               transition={{
-                duration: 20 + i * 5,
+                duration: 22 + i * 6,
                 repeat: Infinity,
                 ease: "linear",
-                delay: i * 2
+                delay: i * 2.5
               }}
             />
           ))}
+          {/* Mesh Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-neon-teal/5 via-transparent to-secondary/5 opacity-40" />
         </div>
 
         <div className="relative z-10 max-w-[120rem] w-full px-6 mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -559,39 +708,44 @@ export default function HomePage() {
 
             <AnimatedElement delay={300}>
               <div className="flex flex-col sm:flex-row gap-6">
-                <Link
-                  to="/pro/dashboard"
-                  className="group relative px-8 py-4 bg-neon-teal text-deep-charcoal font-heading font-bold text-lg rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,212,0.4)]"
-                >
-                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-                  <span className="relative flex items-center gap-2">
-                    Access Dashboard <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                </Link>
-                <Link
-                  to="/pro/dashboard"
-                  className="px-8 py-4 bg-transparent border border-white/20 text-white font-heading font-bold text-lg rounded-lg hover:bg-white/5 hover:border-neon-teal/50 transition-all flex items-center justify-center gap-2"
-                >
-                  View Demo
-                </Link>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                    to="/pro/dashboard"
+                    className="group relative px-8 py-4 bg-neon-teal text-deep-charcoal font-heading font-bold text-lg rounded-lg overflow-hidden transition-all shadow-[0_0_30px_rgba(0,255,212,0.3)] hover:shadow-[0_0_50px_rgba(0,255,212,0.5)]"
+                  >
+                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                    <span className="relative flex items-center gap-2">
+                      Access Dashboard <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </Link>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                    to="/pro/dashboard"
+                    className="px-8 py-4 bg-transparent border-2 border-white/20 text-white font-heading font-bold text-lg rounded-lg hover:bg-white/5 hover:border-neon-teal/50 transition-all flex items-center justify-center gap-2 backdrop-blur-sm"
+                  >
+                    <Rocket className="w-5 h-5" />
+                    View Demo
+                  </Link>
+                </motion.div>
               </div>
             </AnimatedElement>
           </div>
 
-          {/* Hero Visual - Enhanced 3D Cards with Shimmer */}
+          {/* Hero Visual - Enhanced 3D Cards with Advanced Effects */}
           <div className="lg:col-span-5 relative h-[600px] hidden lg:block">
             <motion.div 
               className="absolute inset-0"
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1, delay: 0.5 }}
+              initial={{ opacity: 0, x: 100, rotateY: -15 }}
+              animate={{ opacity: 1, x: 0, rotateY: 0 }}
+              transition={{ duration: 1.2, delay: 0.5, type: "spring", stiffness: 80 }}
             >
-              <div className="relative w-full h-full" style={{ perspective: '1500px' }}>
-                {/* Abstract Cards Stack with Enhanced 3D Effect */}
+              <div className="relative w-full h-full" style={{ perspective: '1800px' }}>
+                {/* Abstract Cards Stack with Enhanced 3D Effect & Magnetic Hover */}
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
-                    className="absolute top-0 right-0 w-full aspect-[4/5] glass-panel rounded-2xl border-t border-l border-white/10 p-6 flex flex-col justify-between hover-lift overflow-hidden"
+                    className="absolute top-0 right-0 w-full aspect-[4/5] glass-panel rounded-2xl border-t border-l border-white/10 p-6 flex flex-col justify-between hover-lift overflow-hidden cursor-pointer"
                     style={{
                       zIndex: 3 - i,
                       top: i * 40,
@@ -601,46 +755,61 @@ export default function HomePage() {
                       transformStyle: 'preserve-3d'
                     }}
                     animate={{
-                      y: [0, -15, 0],
-                      rotateY: [0, 8, 0],
-                      rotateX: [0, 3, 0]
+                      y: [0, -18, 0],
+                      rotateY: [0, 10, 0],
+                      rotateX: [0, 4, 0]
                     }}
                     transition={{
-                      duration: 5,
-                      delay: i * 0.5,
+                      duration: 6,
+                      delay: i * 0.6,
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
                     whileHover={{
-                      scale: 1.08,
-                      rotateY: 15,
-                      rotateX: 5,
-                      transition: { duration: 0.3 }
+                      scale: 1.1,
+                      rotateY: 18,
+                      rotateX: 6,
+                      z: 100,
+                      transition: { duration: 0.4, type: "spring", stiffness: 300 }
                     }}
                   >
-                    {/* Shimmer Effect */}
+                    {/* Enhanced Shimmer Effect */}
                     <div className="absolute inset-0 shimmer pointer-events-none" />
                     
-                    <div className="flex justify-between items-center border-b border-white/10 pb-4">
+                    {/* Gradient Overlay on Hover */}
+                    <motion.div 
+                      className="absolute inset-0 bg-gradient-to-br from-neon-teal/10 via-transparent to-secondary/10 opacity-0 pointer-events-none"
+                      whileHover={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                    
+                    <div className="flex justify-between items-center border-b border-white/10 pb-4 relative z-10">
                       <div className="h-3 w-24 bg-white/20 rounded-full" />
                       <div className="h-8 w-8 rounded-full bg-neon-teal/20 flex items-center justify-center pulse-glow">
                         <Clock className="w-4 h-4 text-neon-teal" />
                       </div>
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-4 relative z-10">
                       <div className="h-2 w-full bg-white/10 rounded-full" />
                       <div className="h-2 w-3/4 bg-white/10 rounded-full" />
                       <div className="h-2 w-1/2 bg-white/10 rounded-full" />
                     </div>
-                    <div className="flex gap-2 mt-auto">
+                    <div className="flex gap-2 mt-auto relative z-10">
                       <div className="h-10 flex-1 bg-neon-teal rounded-md opacity-80" />
                       <div className="h-10 w-10 bg-white/10 rounded-md" />
                     </div>
                     
-                    {/* Hover Reveal Corner */}
+                    {/* Enhanced Hover Reveal Corner */}
                     <HoverRevealText 
-                      text="Preview"
-                      className="absolute top-4 right-4 w-20 h-8"
+                      text="Interactive"
+                      className="absolute top-4 right-4 w-24 h-10 z-20"
+                    />
+
+                    {/* Corner Accent */}
+                    <motion.div
+                      className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-neon-teal/20 to-transparent rounded-bl-full opacity-0"
+                      whileHover={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
                     />
                   </motion.div>
                 ))}
@@ -649,14 +818,29 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Scroll Indicator */}
+        {/* Enhanced Scroll Indicator with Animation */}
         <motion.div 
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 text-white/50 cursor-pointer group"
+          animate={{ y: [0, 12, 0] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          whileHover={{ scale: 1.1 }}
         >
-          <span className="text-xs font-heading tracking-widest uppercase">Scroll to Explore</span>
-          <div className="w-[1px] h-12 bg-gradient-to-b from-neon-teal to-transparent" />
+          <span className="text-xs font-heading tracking-widest uppercase group-hover:text-neon-teal transition-colors">Scroll to Explore</span>
+          <div className="relative">
+            <div className="w-[2px] h-16 bg-gradient-to-b from-neon-teal via-neon-teal/50 to-transparent" />
+            <motion.div
+              className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-3 bg-neon-teal rounded-full"
+              animate={{ y: [0, 48, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </div>
+          <motion.div
+            className="w-6 h-6 border-2 border-neon-teal/30 rounded-full flex items-center justify-center"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <ChevronRight className="w-3 h-3 text-neon-teal rotate-90" />
+          </motion.div>
         </motion.div>
       </section>
 
