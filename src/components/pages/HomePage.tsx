@@ -47,72 +47,91 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({ children, className, 
   );
 };
 
-// Ultra-Enhanced Mouse Glow Effect with Advanced Layering + Trail Effect
+// Optimized Mouse Glow Effect - Smoother & More Performant
 const MouseGlow = ({ x, y }: { x: number; y: number }) => {
-  const springConfig = { damping: 20, stiffness: 250, mass: 0.5 };
+  // Optimized spring config for smoother, more fluid motion
+  const springConfig = { damping: 25, stiffness: 300, mass: 0.3 };
   const mouseX = useSpring(x, springConfig);
   const mouseY = useSpring(y, springConfig);
+  
+  // Reduced trail length and optimized updates for better performance
   const [trail, setTrail] = useState<Array<{ x: number; y: number; id: number }>>([]);
+  const lastTrailUpdate = useRef(0);
 
   useEffect(() => {
-    const id = Date.now();
-    setTrail(prev => [...prev.slice(-8), { x, y, id }]);
+    const now = Date.now();
+    // Throttle trail updates to every 50ms for smoother performance
+    if (now - lastTrailUpdate.current < 50) return;
+    
+    lastTrailUpdate.current = now;
+    const id = now;
+    setTrail(prev => [...prev.slice(-5), { x, y, id }]); // Reduced from 8 to 5 particles
   }, [x, y]);
+
+  // Memoized gradient backgrounds for better performance
+  const primaryGlow = useMotionTemplate`radial-gradient(800px circle at ${mouseX}px ${mouseY}px, rgba(0, 255, 212, 0.18), transparent 40%)`;
+  const secondaryGlow = useMotionTemplate`radial-gradient(500px circle at ${mouseX}px ${mouseY}px, rgba(102, 120, 255, 0.12), transparent 50%)`;
+  const accentGlow = useMotionTemplate`radial-gradient(300px circle at ${mouseX}px ${mouseY}px, rgba(255, 255, 255, 0.04), transparent 60%)`;
 
   return (
     <>
-      {/* Multi-layer gradient glow with enhanced depth */}
+      {/* Optimized multi-layer gradient glow with will-change for GPU acceleration */}
       <motion.div
-        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-200"
+        className="pointer-events-none fixed inset-0 z-30"
         style={{
-          background: useMotionTemplate`radial-gradient(900px circle at ${mouseX}px ${mouseY}px, rgba(0, 255, 212, 0.22), transparent 35%)`
+          background: primaryGlow,
+          willChange: 'transform'
         }}
       />
       <motion.div
-        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-400"
+        className="pointer-events-none fixed inset-0 z-30"
         style={{
-          background: useMotionTemplate`radial-gradient(550px circle at ${mouseX}px ${mouseY}px, rgba(102, 120, 255, 0.16), transparent 45%)`
+          background: secondaryGlow,
+          willChange: 'transform'
         }}
       />
       <motion.div
-        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-600"
+        className="pointer-events-none fixed inset-0 z-30"
         style={{
-          background: useMotionTemplate`radial-gradient(350px circle at ${mouseX}px ${mouseY}px, rgba(255, 255, 255, 0.05), transparent 55%)`
+          background: accentGlow,
+          willChange: 'transform'
         }}
       />
       
-      {/* Mouse trail particles */}
-      {trail.map((point, i) => (
+      {/* Optimized mouse trail particles with reduced count */}
+      {trail.map((point) => (
         <motion.div
           key={point.id}
-          className="pointer-events-none fixed w-2 h-2 rounded-full bg-neon-teal/30 z-29"
-          initial={{ opacity: 0.6, scale: 1 }}
+          className="pointer-events-none fixed w-1.5 h-1.5 rounded-full bg-neon-teal/25 z-29"
+          initial={{ opacity: 0.5, scale: 1 }}
           animate={{ opacity: 0, scale: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           style={{
-            left: point.x - 4,
-            top: point.y - 4,
+            left: point.x - 3,
+            top: point.y - 3,
+            willChange: 'transform, opacity'
           }}
         />
       ))}
 
-      {/* Enhanced magnetic cursor with ripple effect */}
+      {/* Optimized magnetic cursor with smoother ripple effect */}
       <motion.div
-        className="pointer-events-none fixed w-12 h-12 rounded-full border-2 border-neon-teal/50 z-40"
+        className="pointer-events-none fixed w-10 h-10 rounded-full border border-neon-teal/40 z-40"
         style={{
-          x: useTransform(mouseX, (val) => val - 24),
-          y: useTransform(mouseY, (val) => val - 24),
+          x: useTransform(mouseX, (val) => val - 20),
+          y: useTransform(mouseY, (val) => val - 20),
+          willChange: 'transform'
         }}
       >
         <motion.div 
-          className="absolute inset-0 rounded-full bg-neon-teal/15"
-          animate={{ scale: [1, 1.6, 1], opacity: [0.6, 0, 0.6] }}
-          transition={{ duration: 1.8, repeat: Infinity }}
+          className="absolute inset-0 rounded-full bg-neon-teal/10"
+          animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div 
-          className="absolute inset-0 rounded-full border border-neon-teal/30"
-          animate={{ scale: [1, 2, 1], opacity: [0.4, 0, 0.4] }}
-          transition={{ duration: 2.2, repeat: Infinity, delay: 0.3 }}
+          className="absolute inset-0 rounded-full border border-neon-teal/20"
+          animate={{ scale: [1, 1.8, 1], opacity: [0.3, 0, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 0.2, ease: "easeInOut" }}
         />
       </motion.div>
     </>
@@ -646,12 +665,13 @@ export default function HomePage() {
   const prefersReducedMotion = useReducedMotion();
   const lastUpdateTime = useRef(0);
 
-  // Ultra-optimized mouse tracking with RAF throttling
+  // Optimized mouse tracking with improved throttling for smoother performance
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (prefersReducedMotion) return;
     
     const now = Date.now();
-    if (now - lastUpdateTime.current < 16) return; // ~60fps throttle
+    // Reduced throttle to 8ms (~120fps) for smoother tracking
+    if (now - lastUpdateTime.current < 8) return;
     
     lastUpdateTime.current = now;
     const { clientX, clientY } = e;
