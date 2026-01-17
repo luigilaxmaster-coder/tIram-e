@@ -654,6 +654,8 @@ export default function ProviderDashboard() {
                   gradient: 'from-blue-600 to-cyan-500',
                   bgGradient: 'from-blue-600/20 to-cyan-500/20',
                   iconBg: 'bg-blue-500/20',
+                  subtitle: todayAppointments.length === 0 ? 'No bookings yet' : todayAppointments.length === 1 ? '1 booking today' : `${todayAppointments.length} bookings today`,
+                  trend: null,
                 },
                 {
                   label: 'Total Services',
@@ -662,6 +664,8 @@ export default function ProviderDashboard() {
                   gradient: 'from-purple-600 to-pink-500',
                   bgGradient: 'from-purple-600/20 to-pink-500/20',
                   iconBg: 'bg-purple-500/20',
+                  subtitle: services.filter(s => s.isActive !== false).length === services.length ? 'All active' : `${services.filter(s => s.isActive !== false).length} active`,
+                  trend: null,
                 },
                 {
                   label: 'Confirmed Bookings',
@@ -670,14 +674,18 @@ export default function ProviderDashboard() {
                   gradient: 'from-green-600 to-emerald-500',
                   bgGradient: 'from-green-600/20 to-emerald-500/20',
                   iconBg: 'bg-green-500/20',
+                  subtitle: appointments.length > 0 ? `${Math.round((confirmedAppointments / appointments.length) * 100)}% confirmation rate` : 'No bookings yet',
+                  trend: confirmedAppointments > 0 ? '+' + confirmedAppointments : null,
                 },
                 {
                   label: 'Potential Revenue',
-                  value: `${totalRevenue.toFixed(2)}`,
+                  value: `${totalRevenue.toFixed(0)}`,
                   icon: TrendingUp,
                   gradient: 'from-orange-600 to-amber-500',
                   bgGradient: 'from-orange-600/20 to-amber-500/20',
                   iconBg: 'bg-orange-500/20',
+                  subtitle: services.length > 0 ? `Avg ${(totalRevenue / services.length).toFixed(0)} per service` : 'Add services to start',
+                  trend: totalRevenue > 0 ? `${totalRevenue.toFixed(2)}` : null,
                 },
               ].map((stat, idx) => (
                 <motion.div
@@ -685,26 +693,77 @@ export default function ProviderDashboard() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.1, type: "spring", stiffness: 100 }}
-                  whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                  whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.2 } }}
                   className="group relative"
                 >
+                  {/* Animated glow effect on hover */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                  <div className="relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 rounded-2xl p-6 backdrop-blur-xl hover:border-white/20 transition-all duration-300">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className={`w-14 h-14 rounded-xl ${stat.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                        <stat.icon className={`w-7 h-7 bg-gradient-to-br ${stat.gradient} bg-clip-text text-transparent`} style={{ WebkitTextFillColor: 'transparent', backgroundClip: 'text' }} />
+                  
+                  {/* Main card */}
+                  <div className="relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 rounded-2xl p-6 backdrop-blur-xl hover:border-white/20 transition-all duration-300 overflow-hidden">
+                    {/* Decorative corner gradient */}
+                    <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.bgGradient} rounded-full blur-3xl opacity-20 -translate-y-16 translate-x-16 group-hover:opacity-40 transition-opacity duration-500`} />
+                    
+                    {/* Header with icon and pulse indicator */}
+                    <div className="relative flex items-start justify-between mb-4">
+                      <div className={`w-16 h-16 rounded-xl ${stat.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 relative`}>
+                        <stat.icon className={`w-8 h-8 bg-gradient-to-br ${stat.gradient} bg-clip-text text-transparent`} style={{ WebkitTextFillColor: 'transparent', backgroundClip: 'text' }} />
+                        {/* Pulse ring animation */}
+                        <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-20 animate-pulse`} />
                       </div>
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: idx * 0.1 + 0.3 }}
-                        className={`w-2 h-2 rounded-full bg-gradient-to-r ${stat.gradient}`}
-                      />
+                        className="flex flex-col items-end gap-1"
+                      >
+                        <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${stat.gradient} animate-pulse`} />
+                        {stat.trend && (
+                          <motion.span 
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 + 0.5 }}
+                            className={`text-xs font-semibold font-paragraph px-2 py-0.5 rounded-full bg-gradient-to-r ${stat.bgGradient} border border-white/10`}
+                          >
+                            {stat.trend}
+                          </motion.span>
+                        )}
+                      </motion.div>
                     </div>
-                    <p className="text-white/50 font-paragraph text-sm mb-2 font-medium">{stat.label}</p>
-                    <p className={`text-4xl font-heading font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
-                      {stat.value}
-                    </p>
+                    
+                    {/* Label */}
+                    <p className="relative text-white/60 font-paragraph text-sm mb-2 font-medium tracking-wide uppercase">{stat.label}</p>
+                    
+                    {/* Value with enhanced styling */}
+                    <div className="relative flex items-baseline gap-2 mb-3">
+                      <motion.p 
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: idx * 0.1 + 0.2, type: "spring", stiffness: 200 }}
+                        className={`text-5xl font-heading font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent leading-none`}
+                      >
+                        {stat.value}
+                      </motion.p>
+                    </div>
+                    
+                    {/* Subtitle/description */}
+                    <motion.p 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: idx * 0.1 + 0.4 }}
+                      className="relative text-white/40 font-paragraph text-xs font-medium"
+                    >
+                      {stat.subtitle}
+                    </motion.p>
+                    
+                    {/* Bottom accent line */}
+                    <motion.div 
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ delay: idx * 0.1 + 0.5, duration: 0.5 }}
+                      className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                      style={{ transformOrigin: 'left' }}
+                    />
                   </div>
                 </motion.div>
               ))}
