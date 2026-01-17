@@ -92,6 +92,15 @@ export default function ProviderDashboard() {
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
 
+  // Theme customization
+  const [showThemeCustomizer, setShowThemeCustomizer] = useState(false);
+  const [dashboardTheme, setDashboardTheme] = useState({
+    primaryColor: '#00FFD4',
+    secondaryColor: '#6678FF',
+    accentColor: '#FF4136',
+    backgroundGradient: 'from-[#0a0a0f] via-[#12121a] to-[#1a1a28]',
+  });
+
   useEffect(() => {
     loadProviderData();
     // Check for Google OAuth callback messages
@@ -558,7 +567,7 @@ export default function ProviderDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#12121a] to-[#1a1a28] pb-24 md:pb-0">
+    <div className={`min-h-screen bg-gradient-to-br ${dashboardTheme.backgroundGradient} pb-24 md:pb-0`}>
       {/* Modern Header with animated gradient */}
       <div className="relative overflow-hidden border-b border-white/5">
         <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 via-fuchsia-600/10 to-cyan-600/10 animate-pulse" />
