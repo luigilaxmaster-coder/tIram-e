@@ -1,8 +1,8 @@
-// HPI 4.0-HYPER-FLUID-DYNAMIC
+// HPI 5.0-ULTRA-FLUID-DYNAMIC-OPTIMIZED
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, useAnimation, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, useAnimation, AnimatePresence, useReducedMotion, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, Users, Zap, ArrowRight, CheckCircle2, Shield, Smartphone, Globe, ChevronRight, Star, Sparkles, TrendingUp, BarChart3, Network, Layers, Lock, Bell, Rocket, Activity, Database, Eye, MousePointer2, Cpu, Gauge } from 'lucide-react';
+import { Calendar, Clock, Users, Zap, ArrowRight, CheckCircle2, Shield, Smartphone, Globe, ChevronRight, Star, Sparkles, TrendingUp, BarChart3, Network, Layers, Lock, Bell, Rocket, Activity, Database, Eye, MousePointer2, Cpu, Gauge, Waves, Maximize2, Minimize2 } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 
 // --- Utility Components ---
@@ -47,86 +47,150 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({ children, className, 
   );
 };
 
-// Enhanced Mouse Glow Effect Component with Multi-Layer + Magnetic Cursor
+// Ultra-Enhanced Mouse Glow Effect with Advanced Layering + Trail Effect
 const MouseGlow = ({ x, y }: { x: number; y: number }) => {
-  const springConfig = { damping: 25, stiffness: 300 };
+  const springConfig = { damping: 20, stiffness: 250, mass: 0.5 };
   const mouseX = useSpring(x, springConfig);
   const mouseY = useSpring(y, springConfig);
+  const [trail, setTrail] = useState<Array<{ x: number; y: number; id: number }>>([]);
+
+  useEffect(() => {
+    const id = Date.now();
+    setTrail(prev => [...prev.slice(-8), { x, y, id }]);
+  }, [x, y]);
 
   return (
     <>
+      {/* Multi-layer gradient glow with enhanced depth */}
       <motion.div
-        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
+        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-200"
         style={{
-          background: useMotionTemplate`radial-gradient(700px circle at ${mouseX}px ${mouseY}px, rgba(0, 255, 212, 0.18), transparent 40%)`
+          background: useMotionTemplate`radial-gradient(900px circle at ${mouseX}px ${mouseY}px, rgba(0, 255, 212, 0.22), transparent 35%)`
         }}
       />
       <motion.div
-        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-500"
+        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-400"
         style={{
-          background: useMotionTemplate`radial-gradient(450px circle at ${mouseX}px ${mouseY}px, rgba(102, 120, 255, 0.12), transparent 50%)`
+          background: useMotionTemplate`radial-gradient(550px circle at ${mouseX}px ${mouseY}px, rgba(102, 120, 255, 0.16), transparent 45%)`
         }}
       />
       <motion.div
-        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-700"
+        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-600"
         style={{
-          background: useMotionTemplate`radial-gradient(300px circle at ${mouseX}px ${mouseY}px, rgba(255, 255, 255, 0.03), transparent 60%)`
+          background: useMotionTemplate`radial-gradient(350px circle at ${mouseX}px ${mouseY}px, rgba(255, 255, 255, 0.05), transparent 55%)`
         }}
       />
+      
+      {/* Mouse trail particles */}
+      {trail.map((point, i) => (
+        <motion.div
+          key={point.id}
+          className="pointer-events-none fixed w-2 h-2 rounded-full bg-neon-teal/30 z-29"
+          initial={{ opacity: 0.6, scale: 1 }}
+          animate={{ opacity: 0, scale: 0 }}
+          transition={{ duration: 0.8 }}
+          style={{
+            left: point.x - 4,
+            top: point.y - 4,
+          }}
+        />
+      ))}
+
+      {/* Enhanced magnetic cursor with ripple effect */}
       <motion.div
-        className="pointer-events-none fixed w-10 h-10 rounded-full border-2 border-neon-teal/40 z-40"
+        className="pointer-events-none fixed w-12 h-12 rounded-full border-2 border-neon-teal/50 z-40"
         style={{
-          x: useTransform(mouseX, (val) => val - 20),
-          y: useTransform(mouseY, (val) => val - 20),
+          x: useTransform(mouseX, (val) => val - 24),
+          y: useTransform(mouseY, (val) => val - 24),
         }}
       >
         <motion.div 
-          className="absolute inset-0 rounded-full bg-neon-teal/10"
-          animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute inset-0 rounded-full bg-neon-teal/15"
+          animate={{ scale: [1, 1.6, 1], opacity: [0.6, 0, 0.6] }}
+          transition={{ duration: 1.8, repeat: Infinity }}
+        />
+        <motion.div 
+          className="absolute inset-0 rounded-full border border-neon-teal/30"
+          animate={{ scale: [1, 2, 1], opacity: [0.4, 0, 0.4] }}
+          transition={{ duration: 2.2, repeat: Infinity, delay: 0.3 }}
         />
       </motion.div>
     </>
   );
 };
 
-// Enhanced Hover Reveal Text Component with Advanced Animation
+// Ultra-Enhanced Hover Reveal Text with 3D Transform & Particle Effects
 const HoverRevealText = ({ text, className = '' }: { text: string; className?: string }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
   
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    // Generate particles on hover
+    const newParticles = Array.from({ length: 6 }, (_, i) => ({
+      id: Date.now() + i,
+      x: Math.random() * 100 - 50,
+      y: Math.random() * 100 - 50
+    }));
+    setParticles(newParticles);
+  };
+
   return (
     <div 
       className={`relative overflow-hidden ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.9, rotateX: -15 }}
+        initial={{ opacity: 0, y: 25, scale: 0.85, rotateX: -20, z: -50 }}
         animate={{ 
           opacity: isHovered ? 1 : 0, 
-          y: isHovered ? 0 : 20,
-          scale: isHovered ? 1 : 0.9,
-          rotateX: isHovered ? 0 : -15
+          y: isHovered ? 0 : 25,
+          scale: isHovered ? 1 : 0.85,
+          rotateX: isHovered ? 0 : -20,
+          z: isHovered ? 0 : -50
         }}
-        transition={{ duration: 0.4, type: "spring", stiffness: 400, damping: 25 }}
-        className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-deep-charcoal via-deep-charcoal/95 to-black backdrop-blur-md border border-neon-teal/50 rounded-lg shadow-[0_0_30px_rgba(0,255,212,0.3)]"
+        transition={{ duration: 0.35, type: "spring", stiffness: 450, damping: 22 }}
+        className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-deep-charcoal via-deep-charcoal/98 to-black backdrop-blur-xl border-2 border-neon-teal/60 rounded-xl shadow-[0_0_40px_rgba(0,255,212,0.4),0_0_80px_rgba(0,255,212,0.2)]"
         style={{ transformStyle: 'preserve-3d' }}
       >
-        <span className="text-neon-teal font-heading text-sm font-bold tracking-wide flex items-center gap-2">
-          <Eye className="w-3 h-3" />
+        <span className="text-neon-teal font-heading text-sm font-bold tracking-wide flex items-center gap-2 relative z-10">
+          <Eye className="w-3.5 h-3.5" />
           {text}
         </span>
+        
+        {/* Animated border pulse */}
         <motion.div
-          className="absolute inset-0 border border-neon-teal/30 rounded-lg"
-          animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.8, 0.5] }}
-          transition={{ duration: 2.5, repeat: Infinity }}
+          className="absolute inset-0 border-2 border-neon-teal/40 rounded-xl"
+          animate={{ scale: [1, 1.12, 1], opacity: [0.6, 0.9, 0.6] }}
+          transition={{ duration: 2, repeat: Infinity }}
         />
+        
+        {/* Particle effects */}
+        {particles.map((particle) => (
+          <motion.div
+            key={particle.id}
+            className="absolute w-1 h-1 bg-neon-teal rounded-full"
+            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+            animate={{ 
+              x: particle.x, 
+              y: particle.y, 
+              opacity: 0, 
+              scale: 0 
+            }}
+            transition={{ duration: 0.8 }}
+            style={{
+              left: '50%',
+              top: '50%'
+            }}
+          />
+        ))}
       </motion.div>
     </div>
   );
 };
 
-// Enhanced 3D Card Component with Advanced Depth & Magnetic Effect
+// Ultra-Enhanced 3D Card with Advanced Physics & Magnetic Attraction
 const Card3D = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => {
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
@@ -140,8 +204,8 @@ const Card3D = ({ children, className = '' }: { children: React.ReactNode; class
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateXValue = ((y - centerY) / centerY) * -18;
-    const rotateYValue = ((x - centerX) / centerX) * 18;
+    const rotateXValue = ((y - centerY) / centerY) * -22;
+    const rotateYValue = ((x - centerX) / centerX) * 22;
     
     setRotateX(rotateXValue);
     setRotateY(rotateYValue);
@@ -163,15 +227,15 @@ const Card3D = ({ children, className = '' }: { children: React.ReactNode; class
       className={className}
       style={{
         transformStyle: 'preserve-3d',
-        perspective: '1200px'
+        perspective: '1400px'
       }}
       animate={{
         rotateX,
         rotateY,
-        scale: isHovered ? 1.03 : 1,
-        z: isHovered ? 50 : 0
+        scale: isHovered ? 1.05 : 1,
+        z: isHovered ? 60 : 0
       }}
-      transition={{ type: 'spring', stiffness: 350, damping: 35 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -179,12 +243,12 @@ const Card3D = ({ children, className = '' }: { children: React.ReactNode; class
       <motion.div
         style={{
           transformStyle: 'preserve-3d',
-          transform: 'translateZ(60px)'
+          transform: 'translateZ(70px)'
         }}
         animate={{
           boxShadow: isHovered 
-            ? '0 30px 60px rgba(0, 255, 212, 0.2), 0 0 0 1px rgba(0, 255, 212, 0.1)' 
-            : '0 10px 30px rgba(0, 0, 0, 0.3)'
+            ? '0 35px 70px rgba(0, 255, 212, 0.25), 0 0 0 2px rgba(0, 255, 212, 0.15), 0 0 60px rgba(102, 120, 255, 0.15)' 
+            : '0 12px 35px rgba(0, 0, 0, 0.35)'
         }}
         className="rounded-2xl"
       >
@@ -201,11 +265,12 @@ const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; clas
     offset: ["start end", "end start"]
   });
   
-  const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+  const y = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.1, 1, 1.1]);
 
   return (
     <div ref={ref} className={`overflow-hidden ${className}`}>
-      <motion.div style={{ y }} className="w-full h-[120%] -mt-[10%]">
+      <motion.div style={{ y, scale }} className="w-full h-[130%] -mt-[15%]">
         <Image
           src={src}
           alt={alt}
@@ -217,25 +282,78 @@ const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; clas
   );
 };
 
-// Interactive Architecture Diagram Component with Enhanced Interactivity
+// New: 3D Page Transition Effect Component
+const PageTransition3D = ({ children }: { children: React.ReactNode }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: false, amount: 0.3 });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, rotateX: -15, y: 50, scale: 0.95 }}
+      animate={isInView ? { 
+        opacity: 1, 
+        rotateX: 0, 
+        y: 0, 
+        scale: 1 
+      } : { 
+        opacity: 0, 
+        rotateX: -15, 
+        y: 50, 
+        scale: 0.95 
+      }}
+      transition={{ 
+        duration: 0.8, 
+        ease: [0.22, 1, 0.36, 1],
+        staggerChildren: 0.1
+      }}
+      style={{ 
+        transformStyle: 'preserve-3d',
+        perspective: '2000px'
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// Ultra-Interactive Architecture Diagram with Real-Time Data Flow
 const ArchitectureDiagram = () => {
   const [activeNode, setActiveNode] = useState<number | null>(null);
   const [connectionPulse, setConnectionPulse] = useState(0);
+  const [dataPackets, setDataPackets] = useState<Array<{ id: number; from: number; to: number }>>([]);
   
   useEffect(() => {
     const interval = setInterval(() => {
       setConnectionPulse(prev => (prev + 1) % 6);
-    }, 800);
+    }, 700);
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const packetInterval = setInterval(() => {
+      const connections = [
+        { from: 1, to: 2 }, { from: 1, to: 3 }, { from: 2, to: 4 }, 
+        { from: 3, to: 4 }, { from: 4, to: 5 }, { from: 4, to: 6 }
+      ];
+      const randomConnection = connections[Math.floor(Math.random() * connections.length)];
+      setDataPackets(prev => [...prev, { ...randomConnection, id: Date.now() }]);
+      
+      setTimeout(() => {
+        setDataPackets(prev => prev.slice(1));
+      }, 1500);
+    }, 1200);
+    
+    return () => clearInterval(packetInterval);
+  }, []);
+
   const nodes = [
-    { id: 1, label: 'Client', icon: Users, x: 10, y: 50, color: 'neon-teal', desc: 'User Interface' },
-    { id: 2, label: 'API', icon: Layers, x: 35, y: 30, color: 'secondary', desc: 'REST Endpoints' },
-    { id: 3, label: 'Auth', icon: Lock, x: 35, y: 70, color: 'secondary', desc: 'Security Layer' },
-    { id: 4, label: 'Database', icon: Database, x: 60, y: 50, color: 'neon-teal', desc: 'Data Storage' },
-    { id: 5, label: 'Scheduler', icon: Clock, x: 85, y: 30, color: 'secondary', desc: 'Slot Manager' },
-    { id: 6, label: 'Notifier', icon: Bell, x: 85, y: 70, color: 'neon-teal', desc: 'Email Service' },
+    { id: 1, label: 'Client', icon: Users, x: 10, y: 50, color: 'neon-teal', desc: 'User Interface', metric: '2.3K/s' },
+    { id: 2, label: 'API', icon: Layers, x: 35, y: 30, color: 'secondary', desc: 'REST Endpoints', metric: '1.8K/s' },
+    { id: 3, label: 'Auth', icon: Lock, x: 35, y: 70, color: 'secondary', desc: 'Security Layer', metric: '450/s' },
+    { id: 4, label: 'Database', icon: Database, x: 60, y: 50, color: 'neon-teal', desc: 'Data Storage', metric: '3.1K/s' },
+    { id: 5, label: 'Scheduler', icon: Clock, x: 85, y: 30, color: 'secondary', desc: 'Slot Manager', metric: '890/s' },
+    { id: 6, label: 'Notifier', icon: Bell, x: 85, y: 70, color: 'neon-teal', desc: 'Email Service', metric: '320/s' },
   ];
 
   const connections = [
@@ -244,28 +362,36 @@ const ArchitectureDiagram = () => {
   ];
 
   return (
-    <div className="relative w-full h-[500px] bg-gradient-to-br from-white/5 via-white/3 to-transparent rounded-3xl border border-white/10 p-8 overflow-hidden backdrop-blur-sm">
-      {/* Animated Background Grid with Depth */}
+    <div className="relative w-full h-[550px] bg-gradient-to-br from-white/5 via-white/3 to-transparent rounded-3xl border border-white/10 p-8 overflow-hidden backdrop-blur-sm">
+      {/* Enhanced Animated Background Grid */}
       <div className="absolute inset-0 opacity-20">
         <motion.div 
           className="w-full h-full" 
           style={{
-            backgroundImage: 'linear-gradient(rgba(0,255,212,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,212,0.15) 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
+            backgroundImage: 'linear-gradient(rgba(0,255,212,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,212,0.2) 1px, transparent 1px)',
+            backgroundSize: '35px 35px'
           }}
           animate={{
-            backgroundPosition: ['0px 0px', '40px 40px']
+            backgroundPosition: ['0px 0px', '35px 35px']
           }}
           transition={{
-            duration: 20,
+            duration: 18,
             repeat: Infinity,
             ease: 'linear'
           }}
         />
       </div>
 
-      {/* Connection Lines with Data Flow Animation */}
+      {/* Connection Lines with Enhanced Data Flow */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
+        <defs>
+          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(0,255,212,0.1)" />
+            <stop offset="50%" stopColor="rgba(0,255,212,0.4)" />
+            <stop offset="100%" stopColor="rgba(0,255,212,0.1)" />
+          </linearGradient>
+        </defs>
+        
         {connections.map((conn, i) => {
           const fromNode = nodes.find(n => n.id === conn.from);
           const toNode = nodes.find(n => n.id === conn.to);
@@ -281,40 +407,87 @@ const ArchitectureDiagram = () => {
                 y1={`${fromNode.y}%`}
                 x2={`${toNode.x}%`}
                 y2={`${toNode.y}%`}
-                stroke={isActive ? '#00FFD4' : 'rgba(255,255,255,0.15)'}
-                strokeWidth={isActive ? '3' : '2'}
+                stroke={isActive ? '#00FFD4' : 'url(#lineGradient)'}
+                strokeWidth={isActive ? '3.5' : '2.5'}
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ 
                   pathLength: 1,
                   opacity: 1,
-                  stroke: isActive ? '#00FFD4' : 'rgba(255,255,255,0.15)'
+                  stroke: isActive ? '#00FFD4' : 'url(#lineGradient)'
                 }}
                 transition={{ duration: 2 }}
               />
-              {/* Data Flow Particles */}
+              
+              {/* Enhanced Data Flow Particles */}
               {isPulsing && (
-                <motion.circle
-                  r="4"
-                  fill="#00FFD4"
-                  initial={{ 
-                    cx: `${fromNode.x}%`, 
-                    cy: `${fromNode.y}%`,
-                    opacity: 0
-                  }}
-                  animate={{ 
-                    cx: `${toNode.x}%`, 
-                    cy: `${toNode.y}%`,
-                    opacity: [0, 1, 0]
-                  }}
-                  transition={{ duration: 1.5, ease: 'easeInOut' }}
-                />
+                <>
+                  <motion.circle
+                    r="5"
+                    fill="#00FFD4"
+                    initial={{ 
+                      cx: `${fromNode.x}%`, 
+                      cy: `${fromNode.y}%`,
+                      opacity: 0
+                    }}
+                    animate={{ 
+                      cx: `${toNode.x}%`, 
+                      cy: `${toNode.y}%`,
+                      opacity: [0, 1, 0.8, 0]
+                    }}
+                    transition={{ duration: 1.3, ease: 'easeInOut' }}
+                  />
+                  <motion.circle
+                    r="8"
+                    fill="none"
+                    stroke="#00FFD4"
+                    strokeWidth="2"
+                    initial={{ 
+                      cx: `${fromNode.x}%`, 
+                      cy: `${fromNode.y}%`,
+                      opacity: 0.6
+                    }}
+                    animate={{ 
+                      cx: `${toNode.x}%`, 
+                      cy: `${toNode.y}%`,
+                      opacity: 0,
+                      r: 12
+                    }}
+                    transition={{ duration: 1.3, ease: 'easeOut' }}
+                  />
+                </>
               )}
             </g>
           );
         })}
+        
+        {/* Real-time data packets */}
+        {dataPackets.map((packet) => {
+          const fromNode = nodes.find(n => n.id === packet.from);
+          const toNode = nodes.find(n => n.id === packet.to);
+          if (!fromNode || !toNode) return null;
+          
+          return (
+            <motion.circle
+              key={packet.id}
+              r="4"
+              fill="#6678FF"
+              initial={{ 
+                cx: `${fromNode.x}%`, 
+                cy: `${fromNode.y}%`,
+                opacity: 0.8
+              }}
+              animate={{ 
+                cx: `${toNode.x}%`, 
+                cy: `${toNode.y}%`,
+                opacity: 0
+              }}
+              transition={{ duration: 1.5, ease: 'easeInOut' }}
+            />
+          );
+        })}
       </svg>
 
-      {/* Nodes with Enhanced Interactions */}
+      {/* Enhanced Nodes with Metrics */}
       {nodes.map((node) => {
         const Icon = node.icon;
         const isActive = activeNode === node.id;
@@ -330,60 +503,70 @@ const ArchitectureDiagram = () => {
             }}
             onMouseEnter={() => setActiveNode(node.id)}
             onMouseLeave={() => setActiveNode(null)}
-            whileHover={{ scale: 1.25, z: 50 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.3, z: 60 }}
+            whileTap={{ scale: 0.92 }}
           >
             <motion.div
-              className={`relative w-20 h-20 rounded-2xl bg-${node.color}/10 border-2 border-${node.color}/30 flex items-center justify-center backdrop-blur-md`}
+              className={`relative w-24 h-24 rounded-2xl bg-${node.color}/10 border-2 border-${node.color}/30 flex items-center justify-center backdrop-blur-md`}
               animate={{
                 borderColor: isActive ? '#00FFD4' : `rgba(${node.color === 'neon-teal' ? '0,255,212' : '102,120,255'},0.3)`,
-                boxShadow: isActive ? '0 0 40px rgba(0,255,212,0.5), 0 0 80px rgba(0,255,212,0.2)' : '0 0 0px rgba(0,0,0,0)',
-                scale: isActive ? 1.1 : 1
+                boxShadow: isActive ? '0 0 50px rgba(0,255,212,0.6), 0 0 100px rgba(0,255,212,0.3)' : '0 0 0px rgba(0,0,0,0)',
+                scale: isActive ? 1.15 : 1
               }}
               style={{ transformStyle: 'preserve-3d' }}
             >
               <motion.div
                 animate={{ rotateY: isActive ? 360 : 0 }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: 0.7 }}
               >
-                <Icon className={`w-8 h-8 text-${node.color}`} />
+                <Icon className={`w-9 h-9 text-${node.color}`} />
               </motion.div>
               
-              {/* Enhanced Pulse Effect */}
+              {/* Enhanced Multi-layer Pulse */}
               {isActive && (
                 <>
                   <motion.div
                     className="absolute inset-0 rounded-2xl border-2 border-neon-teal"
                     initial={{ scale: 1, opacity: 1 }}
-                    animate={{ scale: 1.6, opacity: 0 }}
-                    transition={{ duration: 1, repeat: Infinity }}
+                    animate={{ scale: 1.7, opacity: 0 }}
+                    transition={{ duration: 0.9, repeat: Infinity }}
+                  />
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl border-2 border-secondary"
+                    initial={{ scale: 1, opacity: 0.8 }}
+                    animate={{ scale: 1.9, opacity: 0 }}
+                    transition={{ duration: 1.1, repeat: Infinity, delay: 0.2 }}
                   />
                   <motion.div
                     className="absolute inset-0 rounded-2xl bg-neon-teal/20"
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0, 0.3] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
+                    animate={{ scale: [1, 1.25, 1], opacity: [0.4, 0, 0.4] }}
+                    transition={{ duration: 1.4, repeat: Infinity }}
                   />
                 </>
               )}
             </motion.div>
             
-            {/* Enhanced Label with Tooltip */}
-            <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
+            {/* Enhanced Label with Metrics */}
+            <div className="absolute top-full mt-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
               <motion.div 
                 className={`text-sm font-heading font-bold ${isActive ? 'text-neon-teal' : 'text-white/70'}`}
-                animate={{ scale: isActive ? 1.1 : 1 }}
+                animate={{ scale: isActive ? 1.15 : 1 }}
               >
                 {node.label}
               </motion.div>
               <AnimatePresence>
                 {isActive && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.8 }}
+                    initial={{ opacity: 0, y: -12, scale: 0.75 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.8 }}
-                    className="text-xs text-white/60 mt-1 px-3 py-1 bg-deep-charcoal/90 rounded-full border border-neon-teal/30"
+                    exit={{ opacity: 0, y: -12, scale: 0.75 }}
+                    className="text-xs text-white/60 mt-2 px-4 py-2 bg-deep-charcoal/95 rounded-full border border-neon-teal/40 backdrop-blur-md"
                   >
-                    {node.desc}
+                    <div className="font-medium">{node.desc}</div>
+                    <div className="text-neon-teal text-[10px] mt-1 flex items-center justify-center gap-1">
+                      <Activity className="w-2.5 h-2.5" />
+                      {node.metric}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -392,7 +575,7 @@ const ArchitectureDiagram = () => {
         );
       })}
 
-      {/* Enhanced Title with Performance Indicator */}
+      {/* Enhanced Title */}
       <div className="absolute top-4 left-4">
         <h4 className="text-lg font-heading font-bold text-white/80 flex items-center gap-2">
           <Cpu className="w-5 h-5 text-neon-teal" />
@@ -404,14 +587,15 @@ const ArchitectureDiagram = () => {
         </p>
       </div>
 
-      {/* Performance Metrics */}
+      {/* Enhanced Performance Metrics */}
       <motion.div 
-        className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-2 bg-deep-charcoal/80 rounded-full border border-neon-teal/20 backdrop-blur-md"
+        className="absolute bottom-4 right-4 flex items-center gap-3 px-4 py-2.5 bg-deep-charcoal/90 rounded-full border border-neon-teal/30 backdrop-blur-md"
         animate={{ opacity: [0.7, 1, 0.7] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
         <Gauge className="w-4 h-4 text-neon-teal" />
-        <span className="text-xs text-white/70 font-heading">99.9% Uptime</span>
+        <span className="text-xs text-white/70 font-heading font-medium">99.9% Uptime</span>
+        <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse" />
       </motion.div>
     </div>
   );
@@ -460,13 +644,22 @@ export default function HomePage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showMouseGlow, setShowMouseGlow] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const lastUpdateTime = useRef(0);
 
-  // Optimized mouse tracking with throttling
+  // Ultra-optimized mouse tracking with RAF throttling
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (prefersReducedMotion) return;
+    
+    const now = Date.now();
+    if (now - lastUpdateTime.current < 16) return; // ~60fps throttle
+    
+    lastUpdateTime.current = now;
     const { clientX, clientY } = e;
-    setMousePosition({ x: clientX, y: clientY });
-    setShowMouseGlow(true);
+    
+    requestAnimationFrame(() => {
+      setMousePosition({ x: clientX, y: clientY });
+      setShowMouseGlow(true);
+    });
   }, [prefersReducedMotion]);
 
   const handleMouseLeave = useCallback(() => {
@@ -474,8 +667,8 @@ export default function HomePage() {
   }, []);
 
   // Memoized parallax transforms for performance
-  const heroGridY = useTransform(scrollY, [0, 1000], [0, 250]);
-  const heroScale = useTransform(scrollY, [0, 500], [1, 1.15]);
+  const heroGridY = useTransform(scrollY, [0, 1000], [0, 300]);
+  const heroScale = useTransform(scrollY, [0, 500], [1, 1.2]);
 
   return (
     <div 
@@ -486,85 +679,100 @@ export default function HomePage() {
       {/* Mouse Glow Effect - Performance Optimized */}
       {showMouseGlow && !prefersReducedMotion && <MouseGlow x={mousePosition.x} y={mousePosition.y} />}
       
-      {/* Global Styles for Custom Effects - Enhanced */}
+      {/* Global Styles for Custom Effects - Ultra Enhanced */}
       <style>{`
         .neon-grid-bg {
           background-size: 50px 50px;
-          background-image: linear-gradient(to right, rgba(0, 255, 212, 0.06) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(0, 255, 212, 0.06) 1px, transparent 1px);
+          background-image: linear-gradient(to right, rgba(0, 255, 212, 0.08) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(0, 255, 212, 0.08) 1px, transparent 1px);
           mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 85%);
           will-change: transform;
+          transform: translateZ(0);
         }
         
         .glass-panel {
-          background: rgba(255, 255, 255, 0.04);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
         }
 
         .text-glow {
-          text-shadow: 0 0 25px rgba(0, 255, 212, 0.6), 0 0 50px rgba(0, 255, 212, 0.4), 0 0 75px rgba(0, 255, 212, 0.2);
+          text-shadow: 0 0 30px rgba(0, 255, 212, 0.7), 0 0 60px rgba(0, 255, 212, 0.5), 0 0 90px rgba(0, 255, 212, 0.3);
         }
 
         .neon-border {
-          box-shadow: 0 0 20px rgba(0, 255, 212, 0.4), inset 0 0 20px rgba(0, 255, 212, 0.2);
+          box-shadow: 0 0 25px rgba(0, 255, 212, 0.5), inset 0 0 25px rgba(0, 255, 212, 0.25);
         }
 
         .hover-lift {
-          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+          transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
           will-change: transform;
+          transform: translateZ(0);
         }
 
         .hover-lift:hover {
-          transform: translateY(-16px) scale(1.03) rotateX(2deg);
-          box-shadow: 0 25px 50px rgba(0, 255, 212, 0.25);
+          transform: translateY(-18px) scale(1.04) rotateX(3deg) translateZ(0);
+          box-shadow: 0 28px 55px rgba(0, 255, 212, 0.3);
         }
 
         @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          33% { transform: translateY(-25px) rotate(3deg); }
-          66% { transform: translateY(-15px) rotate(-3deg); }
+          0%, 100% { transform: translateY(0px) rotate(0deg) translateZ(0); }
+          33% { transform: translateY(-28px) rotate(4deg) translateZ(0); }
+          66% { transform: translateY(-18px) rotate(-4deg) translateZ(0); }
         }
 
         .float-animation {
-          animation: float 7s ease-in-out infinite;
+          animation: float 6.5s ease-in-out infinite;
         }
 
         @keyframes pulse-glow {
-          0%, 100% { box-shadow: 0 0 25px rgba(0, 255, 212, 0.4); }
-          50% { box-shadow: 0 0 50px rgba(0, 255, 212, 0.7), 0 0 75px rgba(0, 255, 212, 0.3); }
+          0%, 100% { box-shadow: 0 0 28px rgba(0, 255, 212, 0.45); }
+          50% { box-shadow: 0 0 55px rgba(0, 255, 212, 0.75), 0 0 85px rgba(0, 255, 212, 0.35); }
         }
 
         .pulse-glow {
-          animation: pulse-glow 2.5s ease-in-out infinite;
+          animation: pulse-glow 2.2s ease-in-out infinite;
         }
 
         @keyframes shimmer {
-          0% { background-position: -1200px 0; }
-          100% { background-position: 1200px 0; }
+          0% { background-position: -1400px 0; }
+          100% { background-position: 1400px 0; }
         }
 
         .shimmer {
-          background: linear-gradient(90deg, transparent, rgba(0, 255, 212, 0.15), transparent);
-          background-size: 1200px 100%;
-          animation: shimmer 3.5s infinite;
+          background: linear-gradient(90deg, transparent, rgba(0, 255, 212, 0.18), transparent);
+          background-size: 1400px 100%;
+          animation: shimmer 3s infinite;
         }
 
         @keyframes data-flow {
-          0% { transform: translateX(-100%) translateY(-100%); opacity: 0; }
+          0% { transform: translateX(-100%) translateY(-100%) translateZ(0); opacity: 0; }
           50% { opacity: 1; }
-          100% { transform: translateX(100%) translateY(100%); opacity: 0; }
+          100% { transform: translateX(100%) translateY(100%) translateZ(0); opacity: 0; }
         }
 
         .data-flow {
-          animation: data-flow 2s ease-in-out infinite;
+          animation: data-flow 1.8s ease-in-out infinite;
         }
 
-        /* Performance optimization */
+        @keyframes wave {
+          0%, 100% { transform: translateX(0) translateZ(0); }
+          50% { transform: translateX(-50%) translateZ(0); }
+        }
+
+        .wave-animation {
+          animation: wave 20s linear infinite;
+        }
+
+        /* Ultra Performance optimization */
         * {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+          overscroll-behavior: none;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -574,99 +782,122 @@ export default function HomePage() {
             transition-duration: 0.01ms !important;
           }
         }
+
+        /* Hardware acceleration */
+        .hw-accelerate {
+          transform: translateZ(0);
+          backface-visibility: hidden;
+          perspective: 1000px;
+        }
       `}</style>
 
       {/* --- HERO SECTION --- */}
-      <section className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden pt-20">
-        {/* Dynamic Background - Enhanced with Depth Layers */}
+      <section className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden pt-20 hw-accelerate">
+        {/* Ultra-Dynamic Background with Enhanced Depth Layers */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-b from-deep-charcoal via-deep-charcoal to-black" />
           <motion.div 
-            className="absolute inset-0 neon-grid-bg opacity-60"
+            className="absolute inset-0 neon-grid-bg opacity-70"
             style={{ 
               y: heroGridY,
               scale: heroScale
             }}
           />
-          {/* Enhanced Floating Orbs with Depth */}
+          {/* Ultra-Enhanced Floating Orbs with Complex Motion */}
           <motion.div 
-            className="absolute top-1/4 left-1/4 w-[28rem] h-[28rem] bg-neon-teal/12 rounded-full blur-[120px]"
+            className="absolute top-1/4 left-1/4 w-[32rem] h-[32rem] bg-neon-teal/14 rounded-full blur-[140px]"
             animate={{ 
-              x: [0, 60, 0],
-              y: [0, -60, 0],
-              scale: [1, 1.25, 1]
+              x: [0, 70, -30, 0],
+              y: [0, -70, 30, 0],
+              scale: [1, 1.3, 1.1, 1]
             }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div 
-            className="absolute bottom-1/4 right-1/4 w-[35rem] h-[35rem] bg-secondary/12 rounded-full blur-[140px]"
+            className="absolute bottom-1/4 right-1/4 w-[40rem] h-[40rem] bg-secondary/14 rounded-full blur-[160px]"
             animate={{ 
-              x: [0, -40, 0],
-              y: [0, 40, 0],
-              scale: [1, 1.15, 1]
+              x: [0, -50, 40, 0],
+              y: [0, 50, -40, 0],
+              scale: [1, 1.2, 1.15, 1]
             }}
-            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           />
           <motion.div 
-            className="absolute top-1/2 left-1/2 w-[25rem] h-[25rem] bg-white/5 rounded-full blur-[100px]"
+            className="absolute top-1/2 left-1/2 w-[28rem] h-[28rem] bg-white/6 rounded-full blur-[120px]"
             animate={{ 
-              x: [0, 30, -30, 0],
-              y: [0, -30, 30, 0],
-              scale: [1, 1.2, 1.1, 1]
+              x: [0, 40, -40, 0],
+              y: [0, -40, 40, 0],
+              scale: [1, 1.25, 1.15, 1]
             }}
-            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 4 }}
           />
-          {/* Enhanced Floating Particles with Varied Sizes */}
-          {[...Array(16)].map((_, i) => (
+          {/* Ultra-Enhanced Floating Particles with Varied Motion */}
+          {[...Array(20)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute rounded-full bg-neon-teal/30"
+              className="absolute rounded-full bg-neon-teal/35"
               style={{
-                width: `${2 + (i % 3)}px`,
-                height: `${2 + (i % 3)}px`,
-                left: `${8 + i * 6}%`,
-                top: `${15 + (i % 5) * 18}%`
+                width: `${2 + (i % 4)}px`,
+                height: `${2 + (i % 4)}px`,
+                left: `${5 + i * 5}%`,
+                top: `${10 + (i % 6) * 15}%`
               }}
               animate={{
-                y: [0, -50, 0],
-                x: [0, Math.sin(i) * 25, 0],
+                y: [0, -60, 0],
+                x: [0, Math.sin(i) * 30, 0],
                 opacity: [0.2, 1, 0.2],
-                scale: [1, 1.8, 1]
+                scale: [1, 2, 1]
               }}
               transition={{
-                duration: 5 + i * 0.4,
+                duration: 5.5 + i * 0.35,
                 repeat: Infinity,
                 ease: "easeInOut",
-                delay: i * 0.25
+                delay: i * 0.2
               }}
             />
           ))}
-          {/* Animated Rings with Depth */}
-          {[...Array(4)].map((_, i) => (
+          {/* Ultra-Enhanced Animated Rings with Complex Patterns */}
+          {[...Array(5)].map((_, i) => (
             <motion.div
               key={`ring-${i}`}
-              className="absolute top-1/2 left-1/2 border border-neon-teal/10 rounded-full"
+              className="absolute top-1/2 left-1/2 border border-neon-teal/12 rounded-full"
               style={{
-                width: `${250 + i * 180}px`,
-                height: `${250 + i * 180}px`,
-                marginLeft: `-${125 + i * 90}px`,
-                marginTop: `-${125 + i * 90}px`
+                width: `${280 + i * 200}px`,
+                height: `${280 + i * 200}px`,
+                marginLeft: `-${140 + i * 100}px`,
+                marginTop: `-${140 + i * 100}px`
               }}
               animate={{
-                scale: [1, 1.25, 1],
-                opacity: [0.08, 0.35, 0.08],
+                scale: [1, 1.3, 1],
+                opacity: [0.1, 0.4, 0.1],
                 rotate: [0, i % 2 === 0 ? 360 : -360]
               }}
               transition={{
-                duration: 22 + i * 6,
+                duration: 24 + i * 7,
                 repeat: Infinity,
                 ease: "linear",
-                delay: i * 2.5
+                delay: i * 3
               }}
             />
           ))}
-          {/* Mesh Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-neon-teal/5 via-transparent to-secondary/5 opacity-40" />
+          {/* Wave Effect Overlay */}
+          <motion.div 
+            className="absolute inset-0 opacity-30"
+            style={{
+              background: 'radial-gradient(circle at 50% 50%, rgba(0,255,212,0.05) 0%, transparent 70%)'
+            }}
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.2, 0.4, 0.2]
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          {/* Enhanced Mesh Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-neon-teal/6 via-transparent to-secondary/6 opacity-50" />
         </div>
 
         <div className="relative z-10 max-w-[120rem] w-full px-6 mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -845,23 +1076,24 @@ export default function HomePage() {
       </section>
 
       {/* --- INTERACTIVE DIAGRAM SECTION --- */}
-      <section className="py-32 px-6 bg-gradient-to-b from-deep-charcoal to-black/50">
-        <div className="max-w-[120rem] mx-auto">
-          <div className="text-center mb-20">
-            <AnimatedElement>
-              <h2 className="text-5xl md:text-7xl font-heading font-bold text-white mb-6">
-                How It <span className="text-neon-teal">Works</span>
-              </h2>
-              <p className="text-xl text-light-gray/70 max-w-3xl mx-auto">
-                A seamless flow from booking to confirmation. Watch the magic happen in real-time.
-              </p>
-            </AnimatedElement>
-          </div>
+      <PageTransition3D>
+        <section className="py-32 px-6 bg-gradient-to-b from-deep-charcoal to-black/50">
+          <div className="max-w-[120rem] mx-auto">
+            <div className="text-center mb-20">
+              <AnimatedElement>
+                <h2 className="text-5xl md:text-7xl font-heading font-bold text-white mb-6">
+                  How It <span className="text-neon-teal">Works</span>
+                </h2>
+                <p className="text-xl text-light-gray/70 max-w-3xl mx-auto">
+                  A seamless flow from booking to confirmation. Watch the magic happen in real-time.
+                </p>
+              </AnimatedElement>
+            </div>
 
-          {/* Architecture Diagram */}
-          <AnimatedElement delay={200}>
-            <ArchitectureDiagram />
-          </AnimatedElement>
+            {/* Architecture Diagram */}
+            <AnimatedElement delay={200}>
+              <ArchitectureDiagram />
+            </AnimatedElement>
 
           {/* Interactive Flow Diagram */}
           <div className="relative mt-20">
@@ -1013,6 +1245,7 @@ export default function HomePage() {
           </AnimatedElement>
         </div>
       </section>
+      </PageTransition3D>
 
       {/* --- TICKER SECTION --- */}
       <section className="py-8 border-y border-white/5 bg-black/20 backdrop-blur-sm overflow-hidden">
