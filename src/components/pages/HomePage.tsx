@@ -1,8 +1,8 @@
-// HPI 5.0-ULTRA-FLUID-DYNAMIC-OPTIMIZED
+// HPI 6.0-ULTRA-OPTIMIZED-ENHANCED
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, useAnimation, AnimatePresence, useReducedMotion, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, Users, Zap, ArrowRight, CheckCircle2, Shield, Smartphone, Globe, ChevronRight, Star, Sparkles, TrendingUp, BarChart3, Network, Layers, Lock, Bell, Rocket, Activity, Database, Eye, MousePointer2, Cpu, Gauge, Waves, Maximize2, Minimize2 } from 'lucide-react';
+import { Calendar, Clock, Users, Zap, ArrowRight, CheckCircle2, Shield, Smartphone, Globe, ChevronRight, Star, Sparkles, TrendingUp, BarChart3, Network, Layers, Lock, Bell, Rocket, Activity, Database, Eye, MousePointer2, Cpu, Gauge, Waves, Maximize2, Minimize2, Target, Award, Briefcase, HeartHandshake } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 
 // --- Utility Components ---
@@ -627,33 +627,37 @@ const FEATURES_DATA = [
     icon: Calendar,
     title: 'Smart Scheduling',
     description: 'Intelligent slot management prevents double-booking automatically. Our algorithm ensures your calendar is always conflict-free.',
-    stat: '100% Conflict Free'
+    stat: '100% Conflict Free',
+    color: 'neon-teal'
   },
   {
     icon: Clock,
     title: 'Real-time Updates',
     description: 'See availability instantly as appointments are booked. No page refreshes needed, just live, breathing data.',
-    stat: '<50ms Latency'
+    stat: '<50ms Latency',
+    color: 'secondary'
   },
   {
     icon: Users,
     title: 'Client Management',
     description: 'Track appointments and client information effortlessly. Build a database of loyal customers with zero manual entry.',
-    stat: 'Automated CRM'
+    stat: 'Automated CRM',
+    color: 'neon-teal'
   },
   {
     icon: Zap,
     title: 'Automated Reminders',
     description: 'Email confirmations and reminders sent automatically. Reduce no-shows and keep your schedule running like clockwork.',
-    stat: '-40% No-Shows'
+    stat: '-40% No-Shows',
+    color: 'secondary'
   },
 ];
 
 const STEPS_DATA = [
-  { num: '01', title: 'Create Profile', desc: 'Set up your public provider page in seconds.' },
-  { num: '02', title: 'Define Slots', desc: 'Customize your availability window and service duration.' },
-  { num: '03', title: 'Share Link', desc: 'Send your unique /p/{slug} to clients.' },
-  { num: '04', title: 'Get Booked', desc: 'Watch your calendar fill up automatically.' },
+  { num: '01', title: 'Create Profile', desc: 'Set up your public provider page in seconds.', icon: Target },
+  { num: '02', title: 'Define Slots', desc: 'Customize your availability window and service duration.', icon: Clock },
+  { num: '03', title: 'Share Link', desc: 'Send your unique /p/{slug} to clients.', icon: Network },
+  { num: '04', title: 'Get Booked', desc: 'Watch your calendar fill up automatically.', icon: Award },
 ];
 
 // --- Main Component ---
