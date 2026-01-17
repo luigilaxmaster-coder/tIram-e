@@ -1,8 +1,8 @@
-// HPI 1.6-G
+// HPI 2.0-DYNAMIC
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, useAnimation } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, Users, Zap, ArrowRight, CheckCircle2, Shield, Smartphone, Globe, ChevronRight, Star } from 'lucide-react';
+import { Calendar, Clock, Users, Zap, ArrowRight, CheckCircle2, Shield, Smartphone, Globe, ChevronRight, Star, Sparkles, TrendingUp, BarChart3, Network } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 
 // --- Utility Components ---
@@ -40,6 +40,84 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({ children, className, 
     >
       {children}
     </div>
+  );
+};
+
+// Mouse Glow Effect Component
+const MouseGlow = ({ x, y }: { x: number; y: number }) => {
+  return (
+    <motion.div
+      className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
+      style={{
+        background: `radial-gradient(600px circle at ${x}px ${y}px, rgba(0, 255, 212, 0.15), transparent 40%)`
+      }}
+    />
+  );
+};
+
+// Hover Reveal Text Component
+const HoverRevealText = ({ text, className = '' }: { text: string; className?: string }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  return (
+    <div 
+      className={`relative overflow-hidden ${className}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
+        transition={{ duration: 0.3 }}
+        className="absolute inset-0 flex items-center justify-center bg-deep-charcoal/90 backdrop-blur-sm border border-neon-teal/30 rounded-lg"
+      >
+        <span className="text-neon-teal font-heading text-sm">{text}</span>
+      </motion.div>
+    </div>
+  );
+};
+
+// 3D Card Component
+const Card3D = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => {
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateXValue = ((y - centerY) / centerY) * -10;
+    const rotateYValue = ((x - centerX) / centerX) * 10;
+    
+    setRotateX(rotateXValue);
+    setRotateY(rotateYValue);
+  };
+
+  const handleMouseLeave = () => {
+    setRotateX(0);
+    setRotateY(0);
+  };
+
+  return (
+    <motion.div
+      className={className}
+      style={{
+        transformStyle: 'preserve-3d',
+        perspective: '1000px'
+      }}
+      animate={{
+        rotateX,
+        rotateY
+      }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {children}
+    </motion.div>
   );
 };
 
@@ -107,14 +185,26 @@ const STEPS_DATA = [
 export default function HomePage() {
   const { scrollY } = useScroll();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [showMouseGlow, setShowMouseGlow] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     setMousePosition({ x: clientX, y: clientY });
+    setShowMouseGlow(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowMouseGlow(false);
   };
 
   return (
-    <div className="min-h-screen bg-deep-charcoal text-foreground font-paragraph selection:bg-neon-teal selection:text-deep-charcoal overflow-x-clip" onMouseMove={handleMouseMove}>
+    <div 
+      className="min-h-screen bg-deep-charcoal text-foreground font-paragraph selection:bg-neon-teal selection:text-deep-charcoal overflow-x-clip" 
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Mouse Glow Effect */}
+      {showMouseGlow && <MouseGlow x={mousePosition.x} y={mousePosition.y} />}
       
       {/* Global Styles for Custom Effects */}
       <style>{`
@@ -139,6 +229,23 @@ export default function HomePage() {
         .neon-border {
           box-shadow: 0 0 10px rgba(0, 255, 212, 0.2), inset 0 0 10px rgba(0, 255, 212, 0.1);
         }
+
+        .hover-lift {
+          transition: transform 0.3s ease;
+        }
+
+        .hover-lift:hover {
+          transform: translateY(-8px);
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+
+        .float-animation {
+          animation: float 6s ease-in-out infinite;
+        }
       `}</style>
 
       {/* --- HERO SECTION --- */}
@@ -153,7 +260,7 @@ export default function HomePage() {
               scale: 1.1
             }}
           />
-          {/* Floating Orbs */}
+          {/* Floating Orbs with Enhanced Animation */}
           <motion.div 
             className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-teal/10 rounded-full blur-[100px]"
             animate={{ 
@@ -172,6 +279,27 @@ export default function HomePage() {
             }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           />
+          {/* Additional Floating Particles */}
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 bg-neon-teal/30 rounded-full"
+              style={{
+                left: `${10 + i * 12}%`,
+                top: `${20 + (i % 3) * 25}%`
+              }}
+              animate={{
+                y: [0, -30, 0],
+                opacity: [0.3, 0.8, 0.3]
+              }}
+              transition={{
+                duration: 4 + i * 0.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 0.3
+              }}
+            />
+          ))}
         </div>
 
         <div className="relative z-10 max-w-[120rem] w-full px-6 mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -187,11 +315,22 @@ export default function HomePage() {
             </AnimatedElement>
             
             <AnimatedElement delay={100}>
-              <h1 className="text-7xl md:text-8xl xl:text-9xl font-heading font-bold text-white leading-[0.9] tracking-tight mb-8">
-                TíramE<span className="text-neon-teal">.</span><br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50">Schedule</span><br />
+              <motion.h1 
+                className="text-7xl md:text-8xl xl:text-9xl font-heading font-bold text-white leading-[0.9] tracking-tight mb-8"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
+                TíramE<span className="text-neon-teal text-glow">.</span><br />
+                <motion.span 
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50"
+                  animate={{ backgroundPosition: ['0%', '100%', '0%'] }}
+                  transition={{ duration: 5, repeat: Infinity }}
+                >
+                  Schedule
+                </motion.span><br />
                 <span className="italic font-light text-white/80">Smarter.</span>
-              </h1>
+              </motion.h1>
             </AnimatedElement>
 
             <AnimatedElement delay={200}>
@@ -204,16 +343,16 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-6">
                 <Link
                   to="/pro/dashboard"
-                  className="group relative px-8 py-4 bg-neon-teal text-deep-charcoal font-heading font-bold text-lg rounded-lg overflow-hidden transition-all hover:scale-105"
+                  className="group relative px-8 py-4 bg-neon-teal text-deep-charcoal font-heading font-bold text-lg rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,212,0.4)]"
                 >
                   <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
                   <span className="relative flex items-center gap-2">
-                    Access Dashboard <ArrowRight className="w-5 h-5" />
+                    Access Dashboard <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </Link>
                 <Link
                   to="/pro/dashboard"
-                  className="px-8 py-4 bg-transparent border border-white/20 text-white font-heading font-bold text-lg rounded-lg hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
+                  className="px-8 py-4 bg-transparent border border-white/20 text-white font-heading font-bold text-lg rounded-lg hover:bg-white/5 hover:border-neon-teal/50 transition-all flex items-center justify-center gap-2"
                 >
                   View Demo
                 </Link>
@@ -221,7 +360,7 @@ export default function HomePage() {
             </AnimatedElement>
           </div>
 
-          {/* Hero Visual - Abstract Scheduler */}
+          {/* Hero Visual - Enhanced 3D Cards */}
           <div className="lg:col-span-5 relative h-[600px] hidden lg:block">
             <motion.div 
               className="absolute inset-0"
@@ -229,27 +368,34 @@ export default function HomePage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, delay: 0.5 }}
             >
-              <div className="relative w-full h-full">
-                {/* Abstract Cards Stack */}
+              <div className="relative w-full h-full" style={{ perspective: '1000px' }}>
+                {/* Abstract Cards Stack with 3D Effect */}
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
-                    className="absolute top-0 right-0 w-full aspect-[4/5] glass-panel rounded-2xl border-t border-l border-white/10 p-6 flex flex-col justify-between"
+                    className="absolute top-0 right-0 w-full aspect-[4/5] glass-panel rounded-2xl border-t border-l border-white/10 p-6 flex flex-col justify-between hover-lift"
                     style={{
                       zIndex: 3 - i,
                       top: i * 40,
                       right: i * 40,
                       scale: 1 - i * 0.05,
-                      opacity: 1 - i * 0.2
+                      opacity: 1 - i * 0.2,
+                      transformStyle: 'preserve-3d'
                     }}
                     animate={{
                       y: [0, -10, 0],
+                      rotateY: [0, 5, 0]
                     }}
                     transition={{
                       duration: 4,
                       delay: i * 0.5,
                       repeat: Infinity,
                       ease: "easeInOut"
+                    }}
+                    whileHover={{
+                      scale: 1.05,
+                      rotateY: 10,
+                      transition: { duration: 0.3 }
                     }}
                   >
                     <div className="flex justify-between items-center border-b border-white/10 pb-4">
@@ -283,6 +429,125 @@ export default function HomePage() {
           <span className="text-xs font-heading tracking-widest uppercase">Scroll to Explore</span>
           <div className="w-[1px] h-12 bg-gradient-to-b from-neon-teal to-transparent" />
         </motion.div>
+      </section>
+
+      {/* --- INTERACTIVE DIAGRAM SECTION --- */}
+      <section className="py-32 px-6 bg-gradient-to-b from-deep-charcoal to-black/50">
+        <div className="max-w-[120rem] mx-auto">
+          <div className="text-center mb-20">
+            <AnimatedElement>
+              <h2 className="text-5xl md:text-7xl font-heading font-bold text-white mb-6">
+                How It <span className="text-neon-teal">Works</span>
+              </h2>
+              <p className="text-xl text-light-gray/70 max-w-3xl mx-auto">
+                A seamless flow from booking to confirmation. Watch the magic happen in real-time.
+              </p>
+            </AnimatedElement>
+          </div>
+
+          {/* Interactive Flow Diagram */}
+          <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+              {/* Connection Lines */}
+              <div className="hidden md:block absolute top-1/2 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-neon-teal/30 to-transparent -translate-y-1/2" />
+              
+              {[
+                { icon: Users, title: 'Client Books', desc: 'Customer selects time slot', color: 'neon-teal' },
+                { icon: Zap, title: 'Instant Lock', desc: 'Slot reserved in milliseconds', color: 'secondary' },
+                { icon: CheckCircle2, title: 'Confirmation', desc: 'Email sent automatically', color: 'neon-teal' },
+                { icon: Calendar, title: 'Synced', desc: 'Calendar updated everywhere', color: 'secondary' }
+              ].map((step, index) => (
+                <AnimatedElement key={index} delay={index * 150}>
+                  <Card3D className="relative z-10">
+                    <motion.div
+                      className="group relative p-8 bg-white/5 border border-white/10 rounded-2xl hover:border-neon-teal/50 transition-all cursor-pointer"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      {/* Hover Reveal Text */}
+                      <HoverRevealText 
+                        text={`Step ${index + 1}`}
+                        className="absolute top-2 right-2 w-20 h-8"
+                      />
+                      
+                      <div className={`w-16 h-16 rounded-full bg-${step.color}/10 flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform`}>
+                        <step.icon className={`w-8 h-8 text-${step.color}`} />
+                      </div>
+                      
+                      <h3 className="text-xl font-heading font-bold text-white mb-3 text-center">
+                        {step.title}
+                      </h3>
+                      
+                      <p className="text-light-gray/60 text-sm text-center">
+                        {step.desc}
+                      </p>
+
+                      {/* Animated Progress Indicator */}
+                      <motion.div
+                        className="absolute bottom-0 left-0 right-0 h-1 bg-neon-teal/30 rounded-b-2xl"
+                        initial={{ scaleX: 0 }}
+                        whileInView={{ scaleX: 1 }}
+                        transition={{ duration: 1, delay: index * 0.2 }}
+                        style={{ transformOrigin: 'left' }}
+                      />
+                    </motion.div>
+                  </Card3D>
+                </AnimatedElement>
+              ))}
+            </div>
+          </div>
+
+          {/* Live Data Visualization */}
+          <AnimatedElement delay={600}>
+            <div className="mt-20 p-12 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+                <div className="flex-1">
+                  <h3 className="text-3xl font-heading font-bold text-white mb-4">
+                    Real-Time Analytics
+                  </h3>
+                  <p className="text-light-gray/70 mb-6">
+                    Monitor your booking performance with live metrics and insights.
+                  </p>
+                  <div className="grid grid-cols-3 gap-6">
+                    {[
+                      { label: 'Bookings', value: '847', icon: TrendingUp },
+                      { label: 'Revenue', value: '$12.4K', icon: BarChart3 },
+                      { label: 'Clients', value: '234', icon: Network }
+                    ].map((stat, i) => (
+                      <motion.div
+                        key={i}
+                        className="text-center p-4 bg-white/5 rounded-xl border border-white/10"
+                        whileHover={{ scale: 1.05, borderColor: 'rgba(0, 255, 212, 0.3)' }}
+                      >
+                        <stat.icon className="w-6 h-6 text-neon-teal mx-auto mb-2" />
+                        <div className="text-2xl font-heading font-bold text-white mb-1">
+                          {stat.value}
+                        </div>
+                        <div className="text-xs text-light-gray/50">
+                          {stat.label}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Animated Chart Visualization */}
+                <div className="flex-1 relative h-64">
+                  <div className="absolute inset-0 flex items-end justify-around gap-4">
+                    {[40, 65, 45, 80, 55, 90, 70].map((height, i) => (
+                      <motion.div
+                        key={i}
+                        className="flex-1 bg-gradient-to-t from-neon-teal to-secondary rounded-t-lg"
+                        initial={{ height: 0 }}
+                        whileInView={{ height: `${height}%` }}
+                        transition={{ duration: 1, delay: i * 0.1 }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </AnimatedElement>
+        </div>
       </section>
 
       {/* --- TICKER SECTION --- */}
@@ -341,25 +606,33 @@ export default function HomePage() {
             <div className="flex flex-col gap-8">
               {FEATURES_DATA.map((feature, index) => (
                 <AnimatedElement key={index} delay={index * 100}>
-                  <div className="group relative p-1 bg-gradient-to-b from-white/10 to-transparent rounded-2xl overflow-hidden">
-                    <div className="absolute inset-0 bg-neon-teal/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative bg-deep-charcoal/90 backdrop-blur-xl p-8 rounded-xl h-full border border-white/5 group-hover:border-neon-teal/30 transition-colors">
-                      <div className="flex justify-between items-start mb-6">
-                        <div className="p-4 bg-white/5 rounded-lg text-neon-teal group-hover:scale-110 transition-transform duration-300">
-                          <feature.icon className="w-8 h-8" />
+                  <Card3D>
+                    <div className="group relative p-1 bg-gradient-to-b from-white/10 to-transparent rounded-2xl overflow-hidden">
+                      <div className="absolute inset-0 bg-neon-teal/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="relative bg-deep-charcoal/90 backdrop-blur-xl p-8 rounded-xl h-full border border-white/5 group-hover:border-neon-teal/30 transition-colors">
+                        {/* Hover Reveal in Corner */}
+                        <HoverRevealText 
+                          text="Learn More →"
+                          className="absolute top-4 right-4 w-32 h-10"
+                        />
+                        
+                        <div className="flex justify-between items-start mb-6">
+                          <div className="p-4 bg-white/5 rounded-lg text-neon-teal group-hover:scale-110 transition-transform duration-300">
+                            <feature.icon className="w-8 h-8" />
+                          </div>
+                          <span className="text-xs font-heading font-bold text-white/30 border border-white/10 px-3 py-1 rounded-full">
+                            {feature.stat}
+                          </span>
                         </div>
-                        <span className="text-xs font-heading font-bold text-white/30 border border-white/10 px-3 py-1 rounded-full">
-                          {feature.stat}
-                        </span>
+                        <h3 className="text-2xl font-heading font-bold text-white mb-4 group-hover:text-neon-teal transition-colors">
+                          {feature.title}
+                        </h3>
+                        <p className="text-light-gray/60 leading-relaxed">
+                          {feature.description}
+                        </p>
                       </div>
-                      <h3 className="text-2xl font-heading font-bold text-white mb-4 group-hover:text-neon-teal transition-colors">
-                        {feature.title}
-                      </h3>
-                      <p className="text-light-gray/60 leading-relaxed">
-                        {feature.description}
-                      </p>
                     </div>
-                  </div>
+                  </Card3D>
                 </AnimatedElement>
               ))}
             </div>
@@ -404,13 +677,19 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {STEPS_DATA.map((step, index) => (
               <AnimatedElement key={index} delay={index * 150}>
-                <div className="relative h-full">
+                <Card3D className="relative h-full">
                   {/* Connector Line */}
                   {index < STEPS_DATA.length - 1 && (
                     <div className="hidden lg:block absolute top-8 left-full w-full h-[1px] bg-white/10 -translate-x-8 z-0" />
                   )}
                   
-                  <div className="relative z-10 bg-white/5 border border-white/10 p-8 rounded-2xl hover:bg-white/10 transition-colors h-full">
+                  <div className="relative z-10 bg-white/5 border border-white/10 p-8 rounded-2xl hover:bg-white/10 hover:border-neon-teal/30 transition-all h-full cursor-pointer">
+                    {/* Hover Reveal */}
+                    <HoverRevealText 
+                      text="✓ Complete"
+                      className="absolute top-2 right-2 w-24 h-8"
+                    />
+                    
                     <span className="block text-6xl font-heading font-bold text-white/5 mb-6">
                       {step.num}
                     </span>
@@ -420,8 +699,17 @@ export default function HomePage() {
                     <p className="text-light-gray/60 text-sm">
                       {step.desc}
                     </p>
+
+                    {/* Animated Sparkle on Hover */}
+                    <motion.div
+                      className="absolute top-4 left-4 opacity-0 group-hover:opacity-100"
+                      whileHover={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
+                      transition={{ duration: 0.6 }}
+                    >
+                      <Sparkles className="w-5 h-5 text-neon-teal" />
+                    </motion.div>
                   </div>
-                </div>
+                </Card3D>
               </AnimatedElement>
             ))}
           </div>
@@ -434,32 +722,54 @@ export default function HomePage() {
           {/* Feature 1 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center mb-32">
             <AnimatedElement className="order-2 lg:order-1">
-              <div className="relative aspect-square rounded-3xl overflow-hidden border border-white/10 group">
-                <Image 
-                  src="https://static.wixstatic.com/media/307f6c_218fa57912714e82aedd67e6403d4507~mv2.png?originWidth=768&originHeight=768"
-                  alt="Provider Dashboard Interface"
-                  width={800}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-tr from-deep-charcoal/80 to-transparent" />
-                
-                {/* Floating UI Element */}
-                <div className="absolute bottom-8 left-8 right-8 glass-panel p-6 rounded-xl">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-white font-heading">Today's Schedule</span>
-                    <span className="text-neon-teal text-sm">Live</span>
-                  </div>
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex items-center gap-4 p-3 bg-white/5 rounded-lg">
-                        <div className="w-2 h-2 rounded-full bg-green-500" />
-                        <div className="h-2 w-20 bg-white/20 rounded-full" />
-                        <div className="h-2 w-12 bg-white/10 rounded-full ml-auto" />
-                      </div>
-                    ))}
-                  </div>
+              <Card3D>
+                <div className="relative aspect-square rounded-3xl overflow-hidden border border-white/10 group">
+                  <Image 
+                    src="https://static.wixstatic.com/media/307f6c_218fa57912714e82aedd67e6403d4507~mv2.png?originWidth=768&originHeight=768"
+                    alt="Provider Dashboard Interface"
+                    width={800}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-deep-charcoal/80 to-transparent" />
+                  
+                  {/* Floating UI Element with Hover Reveal */}
+                  <motion.div 
+                    className="absolute bottom-8 left-8 right-8 glass-panel p-6 rounded-xl"
+                    whileHover={{ scale: 1.05, y: -10 }}
+                    transition={{ type: 'spring', stiffness: 300 }}
+                  >
+                    <HoverRevealText 
+                      text="Interactive Dashboard"
+                      className="absolute -top-8 left-0 right-0 h-8"
+                    />
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-white font-heading">Today's Schedule</span>
+                      <span className="text-neon-teal text-sm flex items-center gap-1">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-teal opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-teal"></span>
+                        </span>
+                        Live
+                      </span>
+                    </div>
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <motion.div
+                          key={i}
+                          className="flex items-center gap-4 p-3 bg-white/5 rounded-lg"
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                        >
+                          <div className="w-2 h-2 rounded-full bg-green-500" />
+                          <div className="h-2 w-20 bg-white/20 rounded-full" />
+                          <div className="h-2 w-12 bg-white/10 rounded-full ml-auto" />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
                 </div>
-              </div>
+              </Card3D>
             </AnimatedElement>
             
             <div className="order-1 lg:order-2">
@@ -520,30 +830,37 @@ export default function HomePage() {
             </div>
 
             <AnimatedElement delay={200}>
-              <div className="relative aspect-[4/3] rounded-3xl overflow-hidden border border-white/10">
-                <Image 
-                  src="https://static.wixstatic.com/media/307f6c_3f411236c14341eeafde988db141a9d3~mv2.png?originWidth=768&originHeight=768"
-                  alt="Global Timezone Map"
-                  width={800}
-                  className="w-full h-full object-cover opacity-60"
-                />
-                <div className="absolute inset-0 bg-gradient-to-tl from-deep-charcoal via-transparent to-transparent" />
-                
-                {/* Animated Dots on Map */}
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div 
-                    key={i}
-                    className="absolute w-3 h-3 bg-neon-teal rounded-full"
-                    style={{
-                      top: `${20 + i * 15}%`,
-                      left: `${10 + i * 18}%`,
-                      boxShadow: '0 0 20px rgba(0, 255, 212, 0.5)'
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-neon-teal rounded-full animate-ping opacity-75" />
-                  </div>
-                ))}
-              </div>
+              <Card3D>
+                <div className="relative aspect-[4/3] rounded-3xl overflow-hidden border border-white/10 group">
+                  <Image 
+                    src="https://static.wixstatic.com/media/307f6c_3f411236c14341eeafde988db141a9d3~mv2.png?originWidth=768&originHeight=768"
+                    alt="Global Timezone Map"
+                    width={800}
+                    className="w-full h-full object-cover opacity-60 transition-opacity group-hover:opacity-80"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-tl from-deep-charcoal via-transparent to-transparent" />
+                  
+                  {/* Animated Dots on Map with Hover Reveals */}
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <motion.div 
+                      key={i}
+                      className="absolute w-3 h-3 bg-neon-teal rounded-full cursor-pointer"
+                      style={{
+                        top: `${20 + i * 15}%`,
+                        left: `${10 + i * 18}%`,
+                        boxShadow: '0 0 20px rgba(0, 255, 212, 0.5)'
+                      }}
+                      whileHover={{ scale: 2 }}
+                    >
+                      <div className="absolute inset-0 bg-neon-teal rounded-full animate-ping opacity-75" />
+                      <HoverRevealText 
+                        text={`GMT+${i}`}
+                        className="absolute -top-10 -left-8 w-20 h-8"
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              </Card3D>
             </AnimatedElement>
           </div>
         </div>
@@ -554,18 +871,48 @@ export default function HomePage() {
         {/* Background Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-neon-teal/5 rounded-full blur-[150px] pointer-events-none" />
         
+        {/* Floating Elements */}
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-4 h-4 bg-neon-teal/20 rounded-full"
+            style={{
+              left: `${15 + i * 15}%`,
+              top: `${30 + (i % 2) * 40}%`
+            }}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0.2, 0.6, 0.2]
+            }}
+            transition={{
+              duration: 3 + i * 0.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.2
+            }}
+          />
+        ))}
+        
         <div className="max-w-5xl mx-auto relative z-10 text-center">
           <AnimatedElement>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/60 mb-8 backdrop-blur-md">
+            <motion.div 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/60 mb-8 backdrop-blur-md"
+              whileHover={{ scale: 1.05, borderColor: 'rgba(0, 255, 212, 0.3)' }}
+            >
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
               <span className="text-sm font-medium">Join 10,000+ Providers</span>
-            </div>
+            </motion.div>
           </AnimatedElement>
 
           <AnimatedElement delay={100}>
-            <h2 className="text-6xl md:text-8xl font-heading font-bold text-white mb-8 tracking-tight">
-              Ready to <span className="text-neon-teal">Scale?</span>
-            </h2>
+            <motion.h2 
+              className="text-6xl md:text-8xl font-heading font-bold text-white mb-8 tracking-tight"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+            >
+              Ready to <span className="text-neon-teal text-glow">Scale?</span>
+            </motion.h2>
           </AnimatedElement>
 
           <AnimatedElement delay={200}>
@@ -578,9 +925,18 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row justify-center gap-6">
               <Link
                 to="/pro/dashboard"
-                className="px-10 py-5 bg-neon-teal text-deep-charcoal font-heading font-bold text-xl rounded-xl hover:bg-neon-teal/90 transition-colors shadow-[0_0_30px_rgba(0,255,212,0.3)] hover:shadow-[0_0_50px_rgba(0,255,212,0.5)]"
+                className="group px-10 py-5 bg-neon-teal text-deep-charcoal font-heading font-bold text-xl rounded-xl hover:bg-neon-teal/90 transition-all shadow-[0_0_30px_rgba(0,255,212,0.3)] hover:shadow-[0_0_50px_rgba(0,255,212,0.5)] relative overflow-hidden"
               >
-                Get Started Now
+                <motion.div
+                  className="absolute inset-0 bg-white/20"
+                  initial={{ x: '-100%' }}
+                  whileHover={{ x: '100%' }}
+                  transition={{ duration: 0.6 }}
+                />
+                <span className="relative flex items-center gap-2">
+                  Get Started Now
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                </span>
               </Link>
             </div>
           </AnimatedElement>
