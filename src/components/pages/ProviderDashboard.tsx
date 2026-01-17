@@ -707,7 +707,9 @@ export default function ProviderDashboard() {
                     {/* Header with icon and pulse indicator */}
                     <div className="relative flex items-start justify-between mb-4">
                       <div className={`w-16 h-16 rounded-xl ${stat.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 relative`}>
-                        <stat.icon className={`w-8 h-8 bg-gradient-to-br ${stat.gradient} bg-clip-text text-transparent`} style={{ WebkitTextFillColor: 'transparent', backgroundClip: 'text' }} />
+                        <stat.icon className={`w-8 h-8 text-white`} style={{ 
+                          filter: `drop-shadow(0 0 8px ${stat.gradient.includes('blue') ? '#0EA5E9' : stat.gradient.includes('purple') ? '#A855F7' : stat.gradient.includes('green') ? '#10B981' : '#F59E0B'})` 
+                        }} />
                         {/* Pulse ring animation */}
                         <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-20 animate-pulse`} />
                       </div>
