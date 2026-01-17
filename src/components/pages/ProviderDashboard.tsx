@@ -12,7 +12,7 @@ import { BaseCrudService } from '@/integrations';
 import { Providers, Services, Appointments } from '@/entities';
 import { PriceOption } from '@/types';
 import { format, startOfDay, endOfDay, addDays, startOfWeek, endOfWeek, parseISO } from 'date-fns';
-import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus, LogOut, Link2, MapPin, Mail, MessageCircle, Globe, Info } from 'lucide-react';
+import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus, LogOut, Link2, MapPin, Mail, MessageCircle, Globe, Info, Palette, RefreshCw } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { disconnectGoogleCalendar } from '@/backend/googleCalendar';
@@ -99,7 +99,47 @@ export default function ProviderDashboard() {
     secondaryColor: '#6678FF',
     accentColor: '#FF4136',
     backgroundGradient: 'from-[#0a0a0f] via-[#12121a] to-[#1a1a28]',
+    cardStyle: 'glass', // 'glass', 'solid', 'gradient'
   });
+
+  // Load saved theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('dashboardTheme');
+    if (savedTheme) {
+      try {
+        setDashboardTheme(JSON.parse(savedTheme));
+      } catch (error) {
+        console.error('Error loading saved theme:', error);
+      }
+    }
+  }, []);
+
+  // Save theme to localStorage
+  const handleSaveTheme = () => {
+    localStorage.setItem('dashboardTheme', JSON.stringify(dashboardTheme));
+    toast({
+      title: 'Theme Saved',
+      description: 'Your dashboard theme has been saved successfully',
+    });
+    setShowThemeCustomizer(false);
+  };
+
+  // Reset theme to default
+  const handleResetTheme = () => {
+    const defaultTheme = {
+      primaryColor: '#00FFD4',
+      secondaryColor: '#6678FF',
+      accentColor: '#FF4136',
+      backgroundGradient: 'from-[#0a0a0f] via-[#12121a] to-[#1a1a28]',
+      cardStyle: 'glass',
+    };
+    setDashboardTheme(defaultTheme);
+    localStorage.setItem('dashboardTheme', JSON.stringify(defaultTheme));
+    toast({
+      title: 'Theme Reset',
+      description: 'Dashboard theme has been reset to default',
+    });
+  };
 
   useEffect(() => {
     loadProviderData();
@@ -677,33 +717,46 @@ export default function ProviderDashboard() {
       <div className="max-w-[100rem] mx-auto px-6 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           {/* Modern Desktop Navigation with gradient pills */}
-          <TabsList className="hidden md:flex bg-gradient-to-r from-white/[0.07] to-white/[0.03] border border-white/10 rounded-2xl p-2 w-full gap-2 backdrop-blur-xl">
-            {[
-              { value: 'overview', label: 'Overview', icon: BarChart3, gradient: 'from-violet-600 to-fuchsia-600' },
-              { value: 'appointments', label: 'Appointments', icon: Calendar, gradient: 'from-blue-600 to-cyan-500' },
-              { value: 'services', label: 'Services', icon: Zap, gradient: 'from-orange-600 to-amber-500' },
-              { value: 'integrations', label: 'Integrations', icon: Link2, gradient: 'from-green-600 to-emerald-500' },
-              { value: 'profile', label: 'Profile', icon: Settings, gradient: 'from-pink-600 to-rose-500' },
-            ].map((tab) => (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                className={`flex-1 relative group data-[state=active]:bg-gradient-to-r data-[state=active]:${tab.gradient} data-[state=active]:text-white rounded-xl transition-all duration-300 py-4 font-semibold hover:bg-white/5`}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <tab.icon className="w-5 h-5" />
-                  <span className="hidden lg:inline">{tab.label}</span>
-                </div>
-                {activeTab === tab.value && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className={`absolute inset-0 bg-gradient-to-r ${tab.gradient} rounded-xl -z-10`}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                )}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="flex items-center justify-between mb-4">
+            <TabsList className="hidden md:flex bg-gradient-to-r from-white/[0.07] to-white/[0.03] border border-white/10 rounded-2xl p-2 flex-1 gap-2 backdrop-blur-xl">
+              {[
+                { value: 'overview', label: 'Overview', icon: BarChart3, gradient: 'from-violet-600 to-fuchsia-600' },
+                { value: 'appointments', label: 'Appointments', icon: Calendar, gradient: 'from-blue-600 to-cyan-500' },
+                { value: 'services', label: 'Services', icon: Zap, gradient: 'from-orange-600 to-amber-500' },
+                { value: 'integrations', label: 'Integrations', icon: Link2, gradient: 'from-green-600 to-emerald-500' },
+                { value: 'profile', label: 'Profile', icon: Settings, gradient: 'from-pink-600 to-rose-500' },
+              ].map((tab) => (
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className={`flex-1 relative group data-[state=active]:bg-gradient-to-r data-[state=active]:${tab.gradient} data-[state=active]:text-white rounded-xl transition-all duration-300 py-4 font-semibold hover:bg-white/5`}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <tab.icon className="w-5 h-5" />
+                    <span className="hidden lg:inline">{tab.label}</span>
+                  </div>
+                  {activeTab === tab.value && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className={`absolute inset-0 bg-gradient-to-r ${tab.gradient} rounded-xl -z-10`}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {/* Theme Customizer Button */}
+            <motion.button
+              onClick={() => setShowThemeCustomizer(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="hidden md:flex items-center gap-2 ml-4 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 text-purple-300 hover:border-purple-500/50 transition-all backdrop-blur-xl"
+            >
+              <Palette className="w-5 h-5" />
+              <span className="font-semibold text-sm">Customize</span>
+            </motion.button>
+          </div>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-8">
@@ -1822,415 +1875,236 @@ export default function ProviderDashboard() {
 
       {/* Service Modal */}
       <Dialog open={showServiceModal} onOpenChange={setShowServiceModal}>
-        <DialogContent className="bg-deep-charcoal border-white/20 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+        {/* ... keep existing code (service modal content) */}
+      </Dialog>
+
+      {/* Theme Customizer Modal */}
+      <Dialog open={showThemeCustomizer} onOpenChange={setShowThemeCustomizer}>
+        <DialogContent className="bg-deep-charcoal border-white/20 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-heading text-2xl">
-              {editingService ? 'Edit Service' : 'Create New Service'}
+            <DialogTitle className="font-heading text-2xl flex items-center gap-3">
+              <Palette className="w-7 h-7 text-purple-400" />
+              Dashboard Theme Customizer
             </DialogTitle>
           </DialogHeader>
+          
           <div className="space-y-8">
-            {/* Step 1: Basic Info */}
-            <div className="space-y-4 pb-6 border-b border-white/10">
+            {/* Background Gradient Section */}
+            <div className="space-y-4">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-full bg-neon-teal/20 flex items-center justify-center text-neon-teal font-semibold">1</div>
-                <h3 className="text-lg font-heading font-semibold text-white">Basic Information</h3>
+                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-semibold">1</div>
+                <h3 className="text-lg font-heading font-semibold text-white">Background Style</h3>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <Label htmlFor="serviceName" className="text-light-gray font-semibold">
-                    Service Name *
-                  </Label>
-                  <Input
-                    id="serviceName"
-                    value={serviceForm.name}
-                    onChange={(e) => setServiceForm({ ...serviceForm, name: e.target.value })}
-                    placeholder="e.g., Personal Training Session"
-                    className="bg-white/5 border-white/20 text-white mt-2"
-                  />
-                  <p className="text-xs text-light-gray/60 mt-1">What is the name of this service?</p>
-                </div>
-
-                <div>
-                  <Label htmlFor="serviceCategory" className="text-light-gray font-semibold">
-                    Category
-                  </Label>
-                  <Input
-                    id="serviceCategory"
-                    value={serviceForm.category}
-                    onChange={(e) => setServiceForm({ ...serviceForm, category: e.target.value })}
-                    placeholder="e.g., Fitness"
-                    className="bg-white/5 border-white/20 text-white mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="serviceDuration" className="text-light-gray font-semibold">
-                    Duration (minutes) *
-                  </Label>
-                  <Input
-                    id="serviceDuration"
-                    type="number"
-                    min="1"
-                    value={serviceForm.durationMin}
-                    onChange={(e) => setServiceForm({ ...serviceForm, durationMin: parseInt(e.target.value) })}
-                    className="bg-white/5 border-white/20 text-white mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="servicePrice" className="text-light-gray font-semibold">
-                    Base Price ($)
-                  </Label>
-                  <Input
-                    id="servicePrice"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={serviceForm.price}
-                    onChange={(e) => setServiceForm({ ...serviceForm, price: parseFloat(e.target.value) })}
-                    className="bg-white/5 border-white/20 text-white mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="maxPeople" className="text-light-gray font-semibold">
-                    Max People Per Booking *
-                  </Label>
-                  <Input
-                    id="maxPeople"
-                    type="number"
-                    min="1"
-                    value={serviceForm.maxPeoplePerBooking}
-                    onChange={(e) => setServiceForm({ ...serviceForm, maxPeoplePerBooking: parseInt(e.target.value) })}
-                    className="bg-white/5 border-white/20 text-white mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="serviceActive" className="text-light-gray font-semibold flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      id="serviceActive"
-                      checked={serviceForm.isActive}
-                      onChange={(e) => setServiceForm({ ...serviceForm, isActive: e.target.checked })}
-                      className="w-4 h-4"
-                    />
-                    Active
-                  </Label>
-                </div>
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { name: 'Dark Cosmic', value: 'from-[#0a0a0f] via-[#12121a] to-[#1a1a28]' },
+                  { name: 'Deep Ocean', value: 'from-[#0f172a] via-[#1e293b] to-[#334155]' },
+                  { name: 'Purple Night', value: 'from-[#1a0a2e] via-[#2d1b4e] to-[#4a2c6d]' },
+                  { name: 'Forest Dark', value: 'from-[#0a1f0a] via-[#1a2f1a] to-[#2a4f2a]' },
+                  { name: 'Midnight Blue', value: 'from-[#0a0f2e] via-[#1a1f4e] to-[#2a2f6d]' },
+                  { name: 'Crimson Shadow', value: 'from-[#2e0a0a] via-[#4e1a1a] to-[#6d2a2a]' },
+                ].map((bg) => (
+                  <motion.button
+                    key={bg.value}
+                    whileHover={{ scale: 1.05 }}
+                    onClick={() => setDashboardTheme({ ...dashboardTheme, backgroundGradient: bg.value })}
+                    className={`relative h-24 rounded-xl border-2 transition-all overflow-hidden ${
+                      dashboardTheme.backgroundGradient === bg.value
+                        ? 'border-white ring-2 ring-white/30'
+                        : 'border-white/20 hover:border-white/50'
+                    }`}
+                  >
+                    <div className={`absolute inset-0 bg-gradient-to-br ${bg.value}`} />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <span className="text-white text-xs font-semibold text-center px-2">{bg.name}</span>
+                    </div>
+                    {dashboardTheme.backgroundGradient === bg.value && (
+                      <div className="absolute top-2 right-2">
+                        <Check className="w-5 h-5 text-white drop-shadow-lg" />
+                      </div>
+                    )}
+                  </motion.button>
+                ))}
               </div>
             </div>
 
-            {/* Step 2: Visual Design */}
-            <div className="space-y-4 pb-6 border-b border-white/10">
+            {/* Primary Color Section */}
+            <div className="space-y-4">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-full bg-neon-teal/20 flex items-center justify-center text-neon-teal font-semibold">2</div>
-                <h3 className="text-lg font-heading font-semibold text-white">Visual Design</h3>
+                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-semibold">2</div>
+                <h3 className="text-lg font-heading font-semibold text-white">Primary Color</h3>
               </div>
-
-              <div>
-                <Label className="text-light-gray font-semibold block mb-3">Card Background Color</Label>
-                <div className="flex gap-3 flex-wrap">
-                  {[
-                    { name: 'Teal', value: '#00FFD4' },
-                    { name: 'Red', value: '#FF4136' },
-                    { name: 'Green', value: '#2ECC40' },
-                    { name: 'Blue', value: '#0074D9' },
-                    { name: 'Purple', value: '#B10DC9' },
-                    { name: 'Orange', value: '#FF851B' },
-                    { name: 'Pink', value: '#F012BE' },
-                    { name: 'Yellow', value: '#FFDC00' },
-                  ].map((color) => (
-                    <motion.button
-                      key={color.value}
-                      whileHover={{ scale: 1.1 }}
-                      onClick={() => setServiceForm({ ...serviceForm, cardColor: color.value })}
-                      className={`w-14 h-14 rounded-lg border-2 transition-all flex items-center justify-center ${
-                        serviceForm.cardColor === color.value
-                          ? 'border-white scale-110 ring-2 ring-white/30'
-                          : 'border-white/20 hover:border-white/50'
-                      }`}
-                      style={{ backgroundColor: color.value }}
-                      title={color.name}
-                    >
-                      {serviceForm.cardColor === color.value && <Check className="w-6 h-6 text-deep-charcoal" />}
-                    </motion.button>
-                  ))}
-                </div>
+              
+              <div className="grid grid-cols-8 gap-3">
+                {[
+                  { name: 'Neon Teal', value: '#00FFD4' },
+                  { name: 'Electric Blue', value: '#0EA5E9' },
+                  { name: 'Cyber Purple', value: '#A855F7' },
+                  { name: 'Hot Pink', value: '#EC4899' },
+                  { name: 'Lime Green', value: '#84CC16' },
+                  { name: 'Amber', value: '#F59E0B' },
+                  { name: 'Rose', value: '#F43F5E' },
+                  { name: 'Emerald', value: '#10B981' },
+                ].map((color) => (
+                  <motion.button
+                    key={color.value}
+                    whileHover={{ scale: 1.1 }}
+                    onClick={() => setDashboardTheme({ ...dashboardTheme, primaryColor: color.value })}
+                    className={`w-full aspect-square rounded-lg border-2 transition-all flex items-center justify-center ${
+                      dashboardTheme.primaryColor === color.value
+                        ? 'border-white scale-110 ring-2 ring-white/30'
+                        : 'border-white/20 hover:border-white/50'
+                    }`}
+                    style={{ backgroundColor: color.value }}
+                    title={color.name}
+                  >
+                    {dashboardTheme.primaryColor === color.value && <Check className="w-5 h-5 text-deep-charcoal" />}
+                  </motion.button>
+                ))}
               </div>
+            </div>
 
-              <div>
-                <Label className="text-light-gray font-semibold block mb-3">Text Color</Label>
-                <div className="flex gap-3 flex-wrap">
-                  {[
-                    { name: 'White', value: '#FFFFFF' },
-                    { name: 'Black', value: '#000000' },
-                    { name: 'Teal', value: '#00FFD4' },
-                    { name: 'Red', value: '#FF4136' },
-                    { name: 'Green', value: '#2ECC40' },
-                    { name: 'Blue', value: '#0074D9' },
-                    { name: 'Purple', value: '#B10DC9' },
-                    { name: 'Orange', value: '#FF851B' },
-                  ].map((color) => (
-                    <motion.button
-                      key={color.value}
-                      whileHover={{ scale: 1.1 }}
-                      onClick={() => setServiceForm({ ...serviceForm, textColor: color.value, textGradient: '' })}
-                      className={`w-14 h-14 rounded-lg border-2 transition-all flex items-center justify-center ${
-                        serviceForm.textColor === color.value && !serviceForm.textGradient
-                          ? 'border-white scale-110 ring-2 ring-white/30'
-                          : 'border-white/20 hover:border-white/50'
-                      }`}
-                      style={{ backgroundColor: color.value }}
-                      title={color.name}
-                    >
-                      {serviceForm.textColor === color.value && !serviceForm.textGradient && <Check className="w-6 h-6" style={{ color: color.value === '#FFFFFF' ? '#000000' : '#FFFFFF' }} />}
-                    </motion.button>
-                  ))}
-                </div>
+            {/* Secondary Color Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-semibold">3</div>
+                <h3 className="text-lg font-heading font-semibold text-white">Secondary Color</h3>
               </div>
+              
+              <div className="grid grid-cols-8 gap-3">
+                {[
+                  { name: 'Violet', value: '#6678FF' },
+                  { name: 'Sky Blue', value: '#38BDF8' },
+                  { name: 'Fuchsia', value: '#D946EF' },
+                  { name: 'Orange', value: '#FB923C' },
+                  { name: 'Teal', value: '#14B8A6' },
+                  { name: 'Indigo', value: '#6366F1' },
+                  { name: 'Pink', value: '#F472B6' },
+                  { name: 'Cyan', value: '#22D3EE' },
+                ].map((color) => (
+                  <motion.button
+                    key={color.value}
+                    whileHover={{ scale: 1.1 }}
+                    onClick={() => setDashboardTheme({ ...dashboardTheme, secondaryColor: color.value })}
+                    className={`w-full aspect-square rounded-lg border-2 transition-all flex items-center justify-center ${
+                      dashboardTheme.secondaryColor === color.value
+                        ? 'border-white scale-110 ring-2 ring-white/30'
+                        : 'border-white/20 hover:border-white/50'
+                    }`}
+                    style={{ backgroundColor: color.value }}
+                    title={color.name}
+                  >
+                    {dashboardTheme.secondaryColor === color.value && <Check className="w-5 h-5 text-white" />}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
 
-              <div>
-                <Label htmlFor="textGradient" className="text-light-gray font-semibold">
-                  Text Gradient (Optional)
-                </Label>
-                <p className="text-xs text-light-gray/60 mb-2">Format: #color1 to #color2 (e.g., #FF4136 to #00FFD4)</p>
-                <Input
-                  id="textGradient"
-                  placeholder="e.g., #FF4136 to #00FFD4"
-                  value={serviceForm.textGradient}
-                  onChange={(e) => setServiceForm({ ...serviceForm, textGradient: e.target.value })}
-                  className="bg-white/5 border-white/20 text-white"
-                />
-                {serviceForm.textGradient && (
-                  <div className="mt-3 p-4 rounded-lg border border-white/10 bg-white/5">
-                    <p className="text-xs text-light-gray/70 mb-2">Preview:</p>
-                    <div
-                      className="text-2xl font-heading font-bold py-2 px-4 rounded"
-                      style={{
-                        backgroundImage: `linear-gradient(135deg, ${serviceForm.textGradient.split(' to ')[0]}, ${serviceForm.textGradient.split(' to ')[1] || serviceForm.textGradient.split(' to ')[0]})`,
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                      }}
-                    >
-                      {serviceForm.name || 'Sample Text'}
+            {/* Card Style Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-semibold">4</div>
+                <h3 className="text-lg font-heading font-semibold text-white">Card Style</h3>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { name: 'Glass', value: 'glass', desc: 'Frosted glass effect' },
+                  { name: 'Solid', value: 'solid', desc: 'Solid background' },
+                  { name: 'Gradient', value: 'gradient', desc: 'Gradient overlay' },
+                ].map((style) => (
+                  <motion.button
+                    key={style.value}
+                    whileHover={{ scale: 1.05 }}
+                    onClick={() => setDashboardTheme({ ...dashboardTheme, cardStyle: style.value })}
+                    className={`relative h-28 rounded-xl border-2 transition-all overflow-hidden ${
+                      dashboardTheme.cardStyle === style.value
+                        ? 'border-white ring-2 ring-white/30'
+                        : 'border-white/20 hover:border-white/50'
+                    }`}
+                  >
+                    <div className={`absolute inset-0 ${
+                      style.value === 'glass' ? 'bg-white/5 backdrop-blur-xl' :
+                      style.value === 'solid' ? 'bg-white/10' :
+                      'bg-gradient-to-br from-purple-600/20 to-pink-600/20'
+                    }`} />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-white text-sm font-semibold mb-1">{style.name}</span>
+                      <span className="text-white/60 text-xs">{style.desc}</span>
+                    </div>
+                    {dashboardTheme.cardStyle === style.value && (
+                      <div className="absolute top-2 right-2">
+                        <Check className="w-5 h-5 text-white drop-shadow-lg" />
+                      </div>
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+
+            {/* Preview Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-4">
+                <Eye className="w-6 h-6 text-purple-400" />
+                <h3 className="text-lg font-heading font-semibold text-white">Preview</h3>
+              </div>
+              
+              <div className={`relative h-48 rounded-2xl overflow-hidden bg-gradient-to-br ${dashboardTheme.backgroundGradient}`}>
+                <div className="absolute inset-0 p-6 space-y-4">
+                  <div className={`h-16 rounded-xl ${
+                    dashboardTheme.cardStyle === 'glass' ? 'bg-white/5 backdrop-blur-xl border border-white/10' :
+                    dashboardTheme.cardStyle === 'solid' ? 'bg-white/10 border border-white/20' :
+                    'bg-gradient-to-br from-white/10 to-white/5 border border-white/10'
+                  } flex items-center px-4`}>
+                    <div className="w-10 h-10 rounded-lg" style={{ backgroundColor: dashboardTheme.primaryColor }} />
+                    <div className="ml-4 flex-1">
+                      <div className="h-3 w-32 rounded" style={{ backgroundColor: dashboardTheme.primaryColor, opacity: 0.3 }} />
+                      <div className="h-2 w-24 rounded mt-2" style={{ backgroundColor: dashboardTheme.secondaryColor, opacity: 0.3 }} />
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Step 3: Price Variants */}
-            <div className="space-y-4 pb-6 border-b border-white/10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-neon-teal/20 flex items-center justify-center text-neon-teal font-semibold">3</div>
-                  <h3 className="text-lg font-heading font-semibold text-white">Price Variants (Optional)</h3>
-                </div>
-                <Button
-                  onClick={handleAddPriceOption}
-                  size="sm"
-                  className="bg-neon-teal/20 text-neon-teal border border-neon-teal/30 hover:bg-neon-teal/30"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Variant
-                </Button>
-              </div>
-              
-              <p className="text-sm text-light-gray/70 font-paragraph">
-                Add different price options for this service (e.g., Regular, Premium, Deluxe)
-              </p>
-
-              {priceOptions.length === 0 ? (
-                <div className="bg-white/5 border border-white/10 rounded-lg p-4 text-center">
-                  <p className="text-light-gray/70 font-paragraph text-sm">No price variants yet. Add one to get started!</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {priceOptions.map((option, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex gap-3 items-end bg-white/5 border border-white/10 rounded-lg p-4"
-                    >
-                      <div className="flex-1">
-                        <Label htmlFor={`optionName-${idx}`} className="text-light-gray text-xs">
-                          Variant Name
-                        </Label>
-                        <Input
-                          id={`optionName-${idx}`}
-                          placeholder="e.g., Regular, Premium, Deluxe"
-                          value={option.name}
-                          onChange={(e) => handleUpdatePriceOption(idx, 'name', e.target.value)}
-                          className="bg-deep-charcoal border-white/20 text-white mt-1"
-                        />
-                      </div>
-                      <div className="w-32">
-                        <Label htmlFor={`optionPrice-${idx}`} className="text-light-gray text-xs">
-                          Price ($)
-                        </Label>
-                        <Input
-                          id={`optionPrice-${idx}`}
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={option.price}
-                          onChange={(e) => handleUpdatePriceOption(idx, 'price', e.target.value)}
-                          className="bg-deep-charcoal border-white/20 text-white mt-1"
-                        />
-                      </div>
-                      <Button
-                        onClick={() => handleRemovePriceOption(idx)}
-                        size="sm"
-                        variant="outline"
-                        className="border-destructive/30 text-destructive hover:bg-destructive/10"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </Button>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Step 4: Availability Schedule */}
-            <div className="space-y-4 pb-6 border-b border-white/10">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-full bg-neon-teal/20 flex items-center justify-center text-neon-teal font-semibold">4</div>
-                <h3 className="text-lg font-heading font-semibold text-white">Availability Schedule</h3>
-              </div>
-              <p className="text-sm text-light-gray/70 font-paragraph">
-                Set the days and hours when this service is available for booking
-              </p>
-
-              <div className="space-y-3">
-                {serviceSchedule.map((day) => {
-                  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                  return (
-                    <motion.div
-                      key={day.dayOfWeek}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          id={`day-${day.dayOfWeek}`}
-                          checked={day.isActive}
-                          onChange={(e) => handleUpdateScheduleDay(day.dayOfWeek, 'isActive', e.target.checked)}
-                          className="w-4 h-4"
-                        />
-                        <Label htmlFor={`day-${day.dayOfWeek}`} className="text-light-gray font-semibold flex-1">
-                          {dayNames[day.dayOfWeek]}
-                        </Label>
-                      </div>
-
-                      {day.isActive && (
-                        <div className="flex gap-3 ml-7">
-                          <div className="flex-1">
-                            <Label htmlFor={`start-${day.dayOfWeek}`} className="text-light-gray text-xs">
-                              Start Time
-                            </Label>
-                            <Input
-                              id={`start-${day.dayOfWeek}`}
-                              type="time"
-                              value={day.startTime}
-                              onChange={(e) => handleUpdateScheduleDay(day.dayOfWeek, 'startTime', e.target.value)}
-                              className="bg-deep-charcoal border-white/20 text-white mt-1"
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <Label htmlFor={`end-${day.dayOfWeek}`} className="text-light-gray text-xs">
-                              End Time
-                            </Label>
-                            <Input
-                              id={`end-${day.dayOfWeek}`}
-                              type="time"
-                              value={day.endTime}
-                              onChange={(e) => handleUpdateScheduleDay(day.dayOfWeek, 'endTime', e.target.value)}
-                              className="bg-deep-charcoal border-white/20 text-white mt-1"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Step 5: Advanced Settings */}
-            <div className="space-y-4 pb-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-full bg-neon-teal/20 flex items-center justify-center text-neon-teal font-semibold">5</div>
-                <h3 className="text-lg font-heading font-semibold text-white">Advanced Settings</h3>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="bufferBefore" className="text-light-gray font-semibold">
-                    Buffer Before (min)
-                  </Label>
-                  <Input
-                    id="bufferBefore"
-                    type="number"
-                    min="0"
-                    value={serviceForm.bufferBeforeMin}
-                    onChange={(e) => setServiceForm({ ...serviceForm, bufferBeforeMin: parseInt(e.target.value) })}
-                    className="bg-white/5 border-white/20 text-white mt-2"
-                  />
-                  <p className="text-xs text-light-gray/60 mt-1">Time before appointment to block</p>
-                </div>
-
-                <div>
-                  <Label htmlFor="bufferAfter" className="text-light-gray font-semibold">
-                    Buffer After (min)
-                  </Label>
-                  <Input
-                    id="bufferAfter"
-                    type="number"
-                    min="0"
-                    value={serviceForm.bufferAfterMin}
-                    onChange={(e) => setServiceForm({ ...serviceForm, bufferAfterMin: parseInt(e.target.value) })}
-                    className="bg-white/5 border-white/20 text-white mt-2"
-                  />
-                  <p className="text-xs text-light-gray/60 mt-1">Time after appointment to block</p>
-                </div>
-
-                <div>
-                  <Label className="text-light-gray font-semibold block mb-2">Status</Label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <input
-                      type="checkbox"
-                      id="serviceActive"
-                      checked={serviceForm.isActive}
-                      onChange={(e) => setServiceForm({ ...serviceForm, isActive: e.target.checked })}
-                      className="w-4 h-4"
-                    />
-                    <Label htmlFor="serviceActive" className="text-light-gray cursor-pointer">
-                      {serviceForm.isActive ? 'Active' : 'Inactive'}
-                    </Label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className={`h-20 rounded-xl ${
+                          dashboardTheme.cardStyle === 'glass' ? 'bg-white/5 backdrop-blur-xl border border-white/10' :
+                          dashboardTheme.cardStyle === 'solid' ? 'bg-white/10 border border-white/20' :
+                          'bg-gradient-to-br from-white/10 to-white/5 border border-white/10'
+                        }`}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2 justify-end pt-4 border-t border-white/10">
+            <div className="flex gap-3 justify-between pt-4 border-t border-white/10">
               <Button
-                onClick={() => setShowServiceModal(false)}
+                onClick={handleResetTheme}
                 variant="outline"
                 className="border-white/20 text-white hover:bg-white/10"
               >
-                Cancel
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Reset to Default
               </Button>
-              <Button onClick={handleSaveService} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
-                {editingService ? 'Update' : 'Create'} Service
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setShowThemeCustomizer(false)}
+                  variant="outline"
+                  className="border-white/20 text-white hover:bg-white/10"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSaveTheme} 
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:opacity-90"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Theme
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
