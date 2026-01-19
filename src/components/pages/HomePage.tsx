@@ -336,48 +336,38 @@ const PageTransition3D = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Ultra-Interactive Architecture Diagram with Real-Time Data Flow
-const ArchitectureDiagram = () => {
-  const [activeNode, setActiveNode] = useState<number | null>(null);
-  const [connectionPulse, setConnectionPulse] = useState(0);
-  const [dataPackets, setDataPackets] = useState<Array<{ id: number; from: number; to: number }>>([]);
+// Ultra-Interactive Booking Flow Diagram with Real-Time Animation
+const BookingFlowDiagram = () => {
+  const [activeStep, setActiveStep] = useState<number | null>(null);
+  const [flowProgress, setFlowProgress] = useState(0);
+  const [animatedData, setAnimatedData] = useState<Array<{ id: number; step: number }>>([]);
   
   useEffect(() => {
     const interval = setInterval(() => {
-      setConnectionPulse(prev => (prev + 1) % 6);
-    }, 700);
+      setFlowProgress(prev => (prev + 1) % 5);
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    const packetInterval = setInterval(() => {
-      const connections = [
-        { from: 1, to: 2 }, { from: 1, to: 3 }, { from: 2, to: 4 }, 
-        { from: 3, to: 4 }, { from: 4, to: 5 }, { from: 4, to: 6 }
-      ];
-      const randomConnection = connections[Math.floor(Math.random() * connections.length)];
-      setDataPackets(prev => [...prev, { ...randomConnection, id: Date.now() }]);
+    const dataInterval = setInterval(() => {
+      const randomStep = Math.floor(Math.random() * 5);
+      setAnimatedData(prev => [...prev, { id: Date.now(), step: randomStep }]);
       
       setTimeout(() => {
-        setDataPackets(prev => prev.slice(1));
-      }, 1500);
-    }, 1200);
+        setAnimatedData(prev => prev.slice(1));
+      }, 2000);
+    }, 1500);
     
-    return () => clearInterval(packetInterval);
+    return () => clearInterval(dataInterval);
   }, []);
 
-  const nodes = [
-    { id: 1, label: 'Client', icon: Users, x: 10, y: 50, color: 'neon-teal', desc: 'User Interface', metric: '2.3K/s' },
-    { id: 2, label: 'API', icon: Layers, x: 35, y: 30, color: 'secondary', desc: 'REST Endpoints', metric: '1.8K/s' },
-    { id: 3, label: 'Auth', icon: Lock, x: 35, y: 70, color: 'secondary', desc: 'Security Layer', metric: '450/s' },
-    { id: 4, label: 'Database', icon: Database, x: 60, y: 50, color: 'neon-teal', desc: 'Data Storage', metric: '3.1K/s' },
-    { id: 5, label: 'Scheduler', icon: Clock, x: 85, y: 30, color: 'secondary', desc: 'Slot Manager', metric: '890/s' },
-    { id: 6, label: 'Notifier', icon: Bell, x: 85, y: 70, color: 'neon-teal', desc: 'Email Service', metric: '320/s' },
-  ];
-
-  const connections = [
-    { from: 1, to: 2 }, { from: 1, to: 3 }, { from: 2, to: 4 }, 
-    { from: 3, to: 4 }, { from: 4, to: 5 }, { from: 4, to: 6 }
+  const steps = [
+    { id: 0, label: 'Cliente Selecciona', icon: MousePointer2, y: 20, color: 'neon-teal', desc: 'Elige fecha y hora', metric: 'Paso 1' },
+    { id: 1, label: 'Verificación', icon: Shield, y: 35, color: 'secondary', desc: 'Valida disponibilidad', metric: 'Paso 2' },
+    { id: 2, label: 'Reserva Slot', icon: Lock, y: 50, color: 'neon-teal', desc: 'Bloqueo instantáneo', metric: 'Paso 3' },
+    { id: 3, label: 'Confirmación', icon: CheckCircle2, y: 65, color: 'secondary', desc: 'Email automático', metric: 'Paso 4' },
+    { id: 4, label: 'Sincronización', icon: Rocket, y: 80, color: 'neon-teal', desc: 'Actualiza calendarios', metric: 'Paso 5' },
   ];
 
   return (
@@ -387,204 +377,210 @@ const ArchitectureDiagram = () => {
         <motion.div 
           className="w-full h-full" 
           style={{
-            backgroundImage: 'linear-gradient(rgba(0,255,212,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,212,0.2) 1px, transparent 1px)',
-            backgroundSize: '35px 35px'
+            backgroundImage: 'radial-gradient(circle, rgba(0,255,212,0.3) 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
           }}
           animate={{
-            backgroundPosition: ['0px 0px', '35px 35px']
+            backgroundPosition: ['0px 0px', '40px 40px']
           }}
           transition={{
-            duration: 18,
+            duration: 20,
             repeat: Infinity,
             ease: 'linear'
           }}
         />
       </div>
 
-      {/* Connection Lines with Enhanced Data Flow */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+      {/* Vertical Flow Line */}
+      <svg className="absolute left-1/2 top-0 bottom-0 w-1 pointer-events-none" style={{ transform: 'translateX(-50%)' }}>
         <defs>
-          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="flowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="rgba(0,255,212,0.1)" />
-            <stop offset="50%" stopColor="rgba(0,255,212,0.4)" />
-            <stop offset="100%" stopColor="rgba(0,255,212,0.1)" />
+            <stop offset="50%" stopColor="rgba(0,255,212,0.6)" />
+            <stop offset="100%" stopColor="rgba(102,120,255,0.4)" />
           </linearGradient>
         </defs>
         
-        {connections.map((conn, i) => {
-          const fromNode = nodes.find(n => n.id === conn.from);
-          const toNode = nodes.find(n => n.id === conn.to);
-          if (!fromNode || !toNode) return null;
-          
-          const isActive = activeNode === conn.from || activeNode === conn.to;
-          const isPulsing = connectionPulse === i;
+        <motion.line
+          x1="50%"
+          y1="10%"
+          x2="50%"
+          y2="90%"
+          stroke="url(#flowGradient)"
+          strokeWidth="3"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ 
+            pathLength: 1,
+            opacity: 1
+          }}
+          transition={{ duration: 2 }}
+        />
+        
+        {/* Animated Flow Particles */}
+        {[...Array(3)].map((_, i) => (
+          <motion.circle
+            key={i}
+            cx="50%"
+            r="6"
+            fill="#00FFD4"
+            initial={{ cy: '10%', opacity: 0 }}
+            animate={{ 
+              cy: '90%',
+              opacity: [0, 1, 1, 0]
+            }}
+            transition={{ 
+              duration: 4,
+              repeat: Infinity,
+              delay: i * 1.3,
+              ease: 'easeInOut'
+            }}
+          />
+        ))}
+      </svg>
+
+      {/* Connection Arrows Between Steps */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+        {steps.slice(0, -1).map((step, i) => {
+          const nextStep = steps[i + 1];
+          const isActive = flowProgress === i;
           
           return (
             <g key={i}>
-              <motion.line
-                x1={`${fromNode.x}%`}
-                y1={`${fromNode.y}%`}
-                x2={`${toNode.x}%`}
-                y2={`${toNode.y}%`}
-                stroke={isActive ? '#00FFD4' : 'url(#lineGradient)'}
-                strokeWidth={isActive ? '3.5' : '2.5'}
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ 
-                  pathLength: 1,
-                  opacity: 1,
-                  stroke: isActive ? '#00FFD4' : 'url(#lineGradient)'
+              {/* Arrow */}
+              <motion.path
+                d={`M 50% ${step.y + 5}% L 50% ${nextStep.y - 5}%`}
+                stroke={isActive ? '#00FFD4' : 'rgba(0,255,212,0.2)'}
+                strokeWidth={isActive ? '3' : '2'}
+                fill="none"
+                markerEnd="url(#arrowhead)"
+                animate={{
+                  stroke: isActive ? '#00FFD4' : 'rgba(0,255,212,0.2)',
+                  strokeWidth: isActive ? '3' : '2'
                 }}
-                transition={{ duration: 2 }}
+                transition={{ duration: 0.5 }}
               />
               
-              {/* Enhanced Data Flow Particles */}
-              {isPulsing && (
-                <>
-                  <motion.circle
-                    r="5"
-                    fill="#00FFD4"
-                    initial={{ 
-                      cx: `${fromNode.x}%`, 
-                      cy: `${fromNode.y}%`,
-                      opacity: 0
-                    }}
-                    animate={{ 
-                      cx: `${toNode.x}%`, 
-                      cy: `${toNode.y}%`,
-                      opacity: [0, 1, 0.8, 0]
-                    }}
-                    transition={{ duration: 1.3, ease: 'easeInOut' }}
-                  />
-                  <motion.circle
-                    r="8"
-                    fill="none"
-                    stroke="#00FFD4"
-                    strokeWidth="2"
-                    initial={{ 
-                      cx: `${fromNode.x}%`, 
-                      cy: `${fromNode.y}%`,
-                      opacity: 0.6
-                    }}
-                    animate={{ 
-                      cx: `${toNode.x}%`, 
-                      cy: `${toNode.y}%`,
-                      opacity: 0,
-                      r: 12
-                    }}
-                    transition={{ duration: 1.3, ease: 'easeOut' }}
-                  />
-                </>
+              {/* Animated Data Pulse */}
+              {isActive && (
+                <motion.circle
+                  r="5"
+                  fill="#6678FF"
+                  initial={{ 
+                    cy: `${step.y + 5}%`,
+                    opacity: 0.8
+                  }}
+                  animate={{ 
+                    cy: `${nextStep.y - 5}%`,
+                    opacity: 0
+                  }}
+                  transition={{ duration: 2, ease: 'easeInOut' }}
+                  cx="50%"
+                />
               )}
             </g>
           );
         })}
         
-        {/* Real-time data packets */}
-        {dataPackets.map((packet) => {
-          const fromNode = nodes.find(n => n.id === packet.from);
-          const toNode = nodes.find(n => n.id === packet.to);
-          if (!fromNode || !toNode) return null;
-          
-          return (
-            <motion.circle
-              key={packet.id}
-              r="4"
-              fill="#6678FF"
-              initial={{ 
-                cx: `${fromNode.x}%`, 
-                cy: `${fromNode.y}%`,
-                opacity: 0.8
-              }}
-              animate={{ 
-                cx: `${toNode.x}%`, 
-                cy: `${toNode.y}%`,
-                opacity: 0
-              }}
-              transition={{ duration: 1.5, ease: 'easeInOut' }}
-            />
-          );
-        })}
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+            <polygon points="0 0, 10 5, 0 10" fill="#00FFD4" />
+          </marker>
+        </defs>
       </svg>
 
-      {/* Enhanced Nodes with Metrics */}
-      {nodes.map((node) => {
-        const Icon = node.icon;
-        const isActive = activeNode === node.id;
+      {/* Enhanced Steps with Metrics */}
+      {steps.map((step, index) => {
+        const Icon = step.icon;
+        const isActive = activeStep === step.id || flowProgress === index;
         
         return (
           <motion.div
-            key={node.id}
+            key={step.id}
             className="absolute cursor-pointer"
             style={{
-              left: `${node.x}%`,
-              top: `${node.y}%`,
+              left: '50%',
+              top: `${step.y}%`,
               transform: 'translate(-50%, -50%)'
             }}
-            onMouseEnter={() => setActiveNode(node.id)}
-            onMouseLeave={() => setActiveNode(null)}
-            whileHover={{ scale: 1.3, z: 60 }}
-            whileTap={{ scale: 0.92 }}
+            onMouseEnter={() => setActiveStep(step.id)}
+            onMouseLeave={() => setActiveStep(null)}
+            whileHover={{ scale: 1.2, z: 60 }}
+            whileTap={{ scale: 0.95 }}
           >
             <motion.div
-              className={`relative w-24 h-24 rounded-2xl bg-${node.color}/10 border-2 border-${node.color}/30 flex items-center justify-center backdrop-blur-md`}
+              className={`relative w-28 h-28 rounded-3xl bg-${step.color}/10 border-2 border-${step.color}/30 flex items-center justify-center backdrop-blur-md`}
               animate={{
-                borderColor: isActive ? '#00FFD4' : `rgba(${node.color === 'neon-teal' ? '0,255,212' : '102,120,255'},0.3)`,
-                boxShadow: isActive ? '0 0 50px rgba(0,255,212,0.6), 0 0 100px rgba(0,255,212,0.3)' : '0 0 0px rgba(0,0,0,0)',
-                scale: isActive ? 1.15 : 1
+                borderColor: isActive ? '#00FFD4' : `rgba(${step.color === 'neon-teal' ? '0,255,212' : '102,120,255'},0.3)`,
+                boxShadow: isActive ? '0 0 60px rgba(0,255,212,0.7), 0 0 120px rgba(0,255,212,0.4)' : '0 0 0px rgba(0,0,0,0)',
+                scale: isActive ? 1.1 : 1
               }}
               style={{ transformStyle: 'preserve-3d' }}
             >
               <motion.div
-                animate={{ rotateY: isActive ? 360 : 0 }}
-                transition={{ duration: 0.7 }}
+                animate={{ 
+                  rotateY: isActive ? 360 : 0,
+                  scale: isActive ? 1.1 : 1
+                }}
+                transition={{ duration: 0.8 }}
               >
-                <Icon className={`w-9 h-9 text-${node.color}`} />
+                <Icon className={`w-10 h-10 text-${step.color}`} />
+              </motion.div>
+              
+              {/* Step Number Badge */}
+              <motion.div
+                className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-neon-teal flex items-center justify-center text-deep-charcoal font-heading font-bold text-xs"
+                animate={{
+                  scale: isActive ? [1, 1.2, 1] : 1
+                }}
+                transition={{ duration: 0.5, repeat: isActive ? Infinity : 0 }}
+              >
+                {index + 1}
               </motion.div>
               
               {/* Enhanced Multi-layer Pulse */}
               {isActive && (
                 <>
                   <motion.div
-                    className="absolute inset-0 rounded-2xl border-2 border-neon-teal"
+                    className="absolute inset-0 rounded-3xl border-2 border-neon-teal"
                     initial={{ scale: 1, opacity: 1 }}
-                    animate={{ scale: 1.7, opacity: 0 }}
-                    transition={{ duration: 0.9, repeat: Infinity }}
+                    animate={{ scale: 1.8, opacity: 0 }}
+                    transition={{ duration: 1, repeat: Infinity }}
                   />
                   <motion.div
-                    className="absolute inset-0 rounded-2xl border-2 border-secondary"
+                    className="absolute inset-0 rounded-3xl border-2 border-secondary"
                     initial={{ scale: 1, opacity: 0.8 }}
-                    animate={{ scale: 1.9, opacity: 0 }}
-                    transition={{ duration: 1.1, repeat: Infinity, delay: 0.2 }}
+                    animate={{ scale: 2, opacity: 0 }}
+                    transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
                   />
                   <motion.div
-                    className="absolute inset-0 rounded-2xl bg-neon-teal/20"
-                    animate={{ scale: [1, 1.25, 1], opacity: [0.4, 0, 0.4] }}
-                    transition={{ duration: 1.4, repeat: Infinity }}
+                    className="absolute inset-0 rounded-3xl bg-neon-teal/20"
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
                   />
                 </>
               )}
             </motion.div>
             
             {/* Enhanced Label with Metrics */}
-            <div className="absolute top-full mt-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
+            <div className="absolute left-full ml-8 top-1/2 -translate-y-1/2 whitespace-nowrap">
               <motion.div 
-                className={`text-sm font-heading font-bold ${isActive ? 'text-neon-teal' : 'text-white/70'}`}
-                animate={{ scale: isActive ? 1.15 : 1 }}
+                className={`text-base font-heading font-bold ${isActive ? 'text-neon-teal' : 'text-white/70'}`}
+                animate={{ scale: isActive ? 1.1 : 1, x: isActive ? 10 : 0 }}
               >
-                {node.label}
+                {step.label}
               </motion.div>
               <AnimatePresence>
                 {isActive && (
                   <motion.div
-                    initial={{ opacity: 0, y: -12, scale: 0.75 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -12, scale: 0.75 }}
-                    className="text-xs text-white/60 mt-2 px-4 py-2 bg-deep-charcoal/95 rounded-full border border-neon-teal/40 backdrop-blur-md"
+                    initial={{ opacity: 0, x: -20, scale: 0.8 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -20, scale: 0.8 }}
+                    className="text-xs text-white/60 mt-2 px-4 py-2 bg-deep-charcoal/95 rounded-lg border border-neon-teal/40 backdrop-blur-md"
                   >
-                    <div className="font-medium">{node.desc}</div>
-                    <div className="text-neon-teal text-[10px] mt-1 flex items-center justify-center gap-1">
-                      <Activity className="w-2.5 h-2.5" />
-                      {node.metric}
+                    <div className="font-medium">{step.desc}</div>
+                    <div className="text-neon-teal text-[10px] mt-1 flex items-center gap-1">
+                      <Zap className="w-2.5 h-2.5" />
+                      {step.metric}
                     </div>
                   </motion.div>
                 )}
@@ -597,12 +593,12 @@ const ArchitectureDiagram = () => {
       {/* Enhanced Title */}
       <div className="absolute top-4 left-4">
         <h4 className="text-lg font-heading font-bold text-white/80 flex items-center gap-2">
-          <Cpu className="w-5 h-5 text-neon-teal" />
-          System Architecture
+          <Waves className="w-5 h-5 text-neon-teal" />
+          Flujo de Reserva
         </h4>
         <p className="text-xs text-white/40 flex items-center gap-2 mt-1">
           <MousePointer2 className="w-3 h-3" />
-          Hover nodes to explore
+          Proceso completo en segundos
         </p>
       </div>
 
@@ -612,10 +608,25 @@ const ArchitectureDiagram = () => {
         animate={{ opacity: [0.7, 1, 0.7] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
-        <Gauge className="w-4 h-4 text-neon-teal" />
-        <span className="text-xs text-white/70 font-heading font-medium">99.9% Uptime</span>
+        <Activity className="w-4 h-4 text-neon-teal" />
+        <span className="text-xs text-white/70 font-heading font-medium">Tiempo promedio: 8s</span>
         <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse" />
       </motion.div>
+
+      {/* Progress Indicator */}
+      <div className="absolute bottom-4 left-4 flex gap-2">
+        {steps.map((_, i) => (
+          <motion.div
+            key={i}
+            className="w-2 h-2 rounded-full"
+            animate={{
+              backgroundColor: flowProgress === i ? '#00FFD4' : 'rgba(255,255,255,0.2)',
+              scale: flowProgress === i ? 1.5 : 1
+            }}
+            transition={{ duration: 0.3 }}
+          />
+        ))}
+      </div>
     </div>
   );
 };
@@ -1114,9 +1125,9 @@ export default function HomePage() {
               </AnimatedElement>
             </div>
 
-            {/* Architecture Diagram */}
+            {/* Booking Flow Diagram */}
             <AnimatedElement delay={200}>
-              <ArchitectureDiagram />
+              <BookingFlowDiagram />
             </AnimatedElement>
 
           {/* Interactive Flow Diagram */}
