@@ -1,0 +1,217 @@
+/**
+ * Appointment Reminders Backend Module
+ * 
+ * This module handles resending appointment reminders via Wix Triggered Emails.
+ * It uses the contactId from the contact created during booking to send personalized emails.
+ * 
+ * SETUP REQUIRED:
+ * 1. Create a Triggered Email template in Wix Dashboard
+ * 2. Add these variables to your template:
+ *    - customerName
+ *    - serviceName
+ *    - date
+ *    - time
+ *    - providerName
+ *    - providerEmail (optional)
+ *    - providerWhatsApp (optional)
+ * 
+ * 3. Get your Template ID from the Triggered Emails section
+ * 4. Update the TEMPLATE_ID constant below with your actual template ID
+ */
+
+import { Permissions, webMethod } from 'wix-web-module';
+import wixCrmBackend from 'wix-crm-backend';
+import { BaseCrudService } from '@/integrations';
+import { Appointments, Providers, Services } from '@/entities';
+import { format, parseISO } from 'date-fns';
+
+// ⚠️ IMPORTANT: Replace this with your actual Triggered Email Template ID
+// You can find this in your Wix Dashboard > Marketing Tools > Triggered Emails
+const TRIGGERED_EMAIL_TEMPLATE_ID = 'YOUR_TEMPLATE_ID_HERE';
+
+/**
+ * Resend appointment reminder email
+ * 
+ * @param {string} appointmentId - The ID of the appointment
+ * @returns {Promise<Object>} Result object with success status and message
+ */
+export const resendAppointmentReminder = webMethod(
+  Permissions.Anyone,
+  async (appointmentId: string) => {
+    try {
+      console.log('📧 Resending appointment reminder for:', appointmentId);
+
+      // Validate input
+      if (!appointmentId) {
+        throw new Error('appointmentId is required');
+      }
+
+      // 1. Get appointment from database
+      const appointment = await BaseCrudService.getById<Appointments>('appointments', appointmentId);
+      if (!appointment) {
+        throw new Error(`Appointment not found: ${appointmentId}`);
+      }
+
+      // 2. Get provider details
+      const provider = await BaseCrudService.getById<Providers>('providers', appointment.providerId!);
+      if (!provider) {
+        throw new Error(`Provider not found: ${appointment.providerId}`);
+      }
+
+      // 3. Get service details
+      const service = await BaseCrudService.getById<Services>('services', appointment.serviceId!);
+      if (!service) {
+        throw new Error(`Service not found: ${appointment.serviceId}`);
+      }
+
+      // 4. Get or create contact for the client
+      // The contactId should have been saved when the appointment was created
+      // If not, we'll search for the contact by email
+      let contactId = appointment.contactId;
+
+      if (!contactId) {
+        console.log('⚠️ No contactId found in appointment, searching by email...');
+        
+        // Search for contact by email
+        const contacts = await wixCrmBackend.queryContacts()
+          .eq('primaryInfo.email', appointment.clientEmail)
+          .find();
+
+        if (contacts.items.length > 0) {
+          contactId = contacts.items[0]._id;
+          console.log('✓ Found existing contact:', contactId);
+          
+          // Update appointment with contactId for future use
+          await BaseCrudService.update<Appointments>('appointments', {
+            _id: appointmentId,
+            contactId: contactId,
+          });
+        } else {
+          // Create new contact if not found
+          console.log('Creating new contact for:', appointment.clientEmail);
+          const newContact = await wixCrmBackend.createContact({
+            primaryInfo: {
+              email: appointment.clientEmail,
+              phone: appointment.clientPhone,
+            },
+            info: {
+              name: {
+                first: appointment.clientName?.split(' ')[0] || '',
+                last: appointment.clientName?.split(' ').slice(1).join(' ') || '',
+              },
+            },
+          });
+          
+          contactId = newContact.contactId;
+          console.log('✓ Created new contact:', contactId);
+          
+          // Update appointment with contactId
+          await BaseCrudService.update<Appointments>('appointments', {
+            _id: appointmentId,
+            contactId: contactId,
+          });
+        }
+      }
+
+      // 5. Format appointment date and time
+      const appointmentDate = typeof appointment.startAt === 'string' 
+        ? parseISO(appointment.startAt) 
+        : appointment.startAt;
+      
+      const formattedDate = format(appointmentDate!, 'EEEE, MMMM d, yyyy');
+      const formattedTime = format(appointmentDate!, 'h:mm a');
+
+      // 6. Prepare email variables for Triggered Email template
+      const emailVariables = {
+        customerName: appointment.clientName || 'Valued Customer',
+        serviceName: service.name || 'Service',
+        date: formattedDate,
+        time: formattedTime,
+        providerName: provider.displayName || 'Provider',
+        providerEmail: provider.contactEmail || '',
+        providerWhatsApp: provider.whatsappNumber || '',
+        appointmentId: appointmentId,
+      };
+
+      console.log('📨 Sending triggered email with variables:', emailVariables);
+
+      // 7. Send Triggered Email using Wix CRM Backend
+      await wixCrmBackend.emailContact(TRIGGERED_EMAIL_TEMPLATE_ID, contactId, {
+        variables: emailVariables,
+      });
+
+      console.log('✓ Triggered email sent successfully to contact:', contactId);
+
+      // 8. Update appointment with resend tracking
+      const now = new Date().toISOString();
+      const currentResendCount = appointment.resendCount || 0;
+
+      await BaseCrudService.update<Appointments>('appointments', {
+        _id: appointmentId,
+        lastReminderSentAt: now,
+        resendCount: currentResendCount + 1,
+        lastResendBy: 'admin', // You can pass the admin user ID if available
+      });
+
+      console.log('✓ Appointment updated with resend tracking');
+
+      // 9. Return success response
+      return {
+        success: true,
+        message: `Reminder sent successfully to ${appointment.clientEmail}`,
+        data: {
+          appointmentId: appointmentId,
+          contactId: contactId,
+          emailSentTo: appointment.clientEmail,
+          resendCount: currentResendCount + 1,
+          sentAt: now,
+        },
+      };
+
+    } catch (error) {
+      console.error('❌ Error resending appointment reminder:', error);
+      
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to resend reminder',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+);
+
+/**
+ * Get appointment reminder history
+ * 
+ * @param {string} appointmentId - The ID of the appointment
+ * @returns {Promise<Object>} Reminder history data
+ */
+export const getAppointmentReminderHistory = webMethod(
+  Permissions.Anyone,
+  async (appointmentId: string) => {
+    try {
+      const appointment = await BaseCrudService.getById<Appointments>('appointments', appointmentId);
+      
+      if (!appointment) {
+        throw new Error(`Appointment not found: ${appointmentId}`);
+      }
+
+      return {
+        success: true,
+        data: {
+          appointmentId: appointmentId,
+          lastReminderSentAt: appointment.lastReminderSentAt || null,
+          resendCount: appointment.resendCount || 0,
+          reminder24hSent: appointment.reminder24hSent || false,
+          reminder2hSent: appointment.reminder2hSent || false,
+        },
+      };
+    } catch (error) {
+      console.error('Error getting reminder history:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to get reminder history',
+      };
+    }
+  }
+);
