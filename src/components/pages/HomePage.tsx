@@ -760,24 +760,59 @@ export default function HomePage() {
 
             <AnimatedElement delay={300}>
               <div className="flex flex-col sm:flex-row gap-6">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                <motion.div 
+                  whileHover={{ scale: 1.08, y: -4 }} 
+                  whileTap={{ scale: 0.96 }}
+                  className="relative"
+                >
+                  {/* Glow effect behind button */}
+                  <motion.div
+                    className="absolute inset-0 bg-neon-teal/30 rounded-2xl blur-2xl"
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      opacity: [0.5, 0.8, 0.5]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  />
                   <Link
                     to="/pro/dashboard"
-                    className="group relative px-8 py-4 bg-neon-teal text-deep-charcoal font-heading font-bold text-lg rounded-lg overflow-hidden transition-all shadow-[0_0_30px_rgba(0,255,212,0.3)] hover:shadow-[0_0_50px_rgba(0,255,212,0.5)]"
+                    className="group relative px-10 py-5 bg-gradient-to-r from-neon-teal via-neon-teal to-[#00E5C0] text-deep-charcoal font-heading font-bold text-xl rounded-2xl overflow-hidden transition-all shadow-[0_0_40px_rgba(0,255,212,0.5),0_10px_30px_rgba(0,0,0,0.3)] hover:shadow-[0_0_60px_rgba(0,255,212,0.7),0_15px_40px_rgba(0,0,0,0.4)] border-2 border-neon-teal/50 flex items-center justify-center gap-3 min-w-[280px]"
                   >
+                    {/* Animated gradient overlay */}
+                    <motion.div 
+                      className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0"
+                      animate={{
+                        x: ['-100%', '200%']
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "linear"
+                      }}
+                    />
+                    {/* Hover slide effect */}
                     <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-                    <span className="relative flex items-center gap-2">
-                      Access Dashboard <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <span className="relative flex items-center gap-3 z-10">
+                      <Zap className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                      Acceder al Dashboard
+                      <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
                     </span>
                   </Link>
                 </motion.div>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                <motion.div 
+                  whileHover={{ scale: 1.05, borderColor: 'rgba(0, 255, 212, 0.6)' }} 
+                  whileTap={{ scale: 0.98 }}
+                >
                   <Link
                     to="/pro/dashboard"
-                    className="px-8 py-4 bg-transparent border-2 border-white/20 text-white font-heading font-bold text-lg rounded-lg hover:bg-white/5 hover:border-neon-teal/50 transition-all flex items-center justify-center gap-2 backdrop-blur-sm"
+                    className="group px-8 py-5 bg-white/5 border-2 border-white/30 text-white font-heading font-bold text-xl rounded-2xl hover:bg-white/10 hover:border-neon-teal/60 transition-all flex items-center justify-center gap-3 backdrop-blur-md shadow-lg hover:shadow-[0_0_30px_rgba(0,255,212,0.2)] min-w-[240px]"
                   >
-                    <Rocket className="w-5 h-5" />
-                    View Demo
+                    <Rocket className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+                    Ver Demo
                   </Link>
                 </motion.div>
               </div>
@@ -1535,21 +1570,53 @@ export default function HomePage() {
 
           <AnimatedElement delay={300}>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <Link
-                to="/pro/dashboard"
-                className="group px-10 py-5 bg-neon-teal text-deep-charcoal font-heading font-bold text-xl rounded-xl hover:bg-neon-teal/90 transition-all shadow-[0_0_30px_rgba(0,255,212,0.3)] hover:shadow-[0_0_50px_rgba(0,255,212,0.5)] relative overflow-hidden"
+              <motion.div
+                whileHover={{ scale: 1.08, y: -4 }}
+                whileTap={{ scale: 0.96 }}
+                className="relative"
               >
+                {/* Glow effect behind button */}
                 <motion.div
-                  className="absolute inset-0 bg-white/20"
-                  initial={{ x: '-100%' }}
-                  whileHover={{ x: '100%' }}
-                  transition={{ duration: 0.6 }}
+                  className="absolute inset-0 bg-neon-teal/30 rounded-2xl blur-2xl"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.5, 0.8, 0.5]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
                 />
-                <span className="relative flex items-center gap-2">
-                  Get Started Now
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                </span>
-              </Link>
+                <Link
+                  to="/pro/dashboard"
+                  className="group relative px-12 py-6 bg-gradient-to-r from-neon-teal via-neon-teal to-[#00E5C0] text-deep-charcoal font-heading font-bold text-2xl rounded-2xl overflow-hidden transition-all shadow-[0_0_40px_rgba(0,255,212,0.5),0_10px_30px_rgba(0,0,0,0.3)] hover:shadow-[0_0_60px_rgba(0,255,212,0.7),0_15px_40px_rgba(0,0,0,0.4)] border-2 border-neon-teal/50 flex items-center justify-center gap-3"
+                >
+                  {/* Animated gradient overlay */}
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0"
+                    animate={{
+                      x: ['-100%', '200%']
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  />
+                  <motion.div
+                    className="absolute inset-0 bg-white/20"
+                    initial={{ x: '-100%' }}
+                    whileHover={{ x: '100%' }}
+                    transition={{ duration: 0.6 }}
+                  />
+                  <span className="relative flex items-center gap-3 z-10">
+                    <Zap className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                    Comenzar Ahora
+                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                  </span>
+                </Link>
+              </motion.div>
             </div>
           </AnimatedElement>
         </div>
