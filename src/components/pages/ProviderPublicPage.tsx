@@ -320,9 +320,10 @@ export default function ProviderPublicPage() {
         </div>
       </motion.header>
 
-      {/* Progress Indicator */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <div className="flex items-center justify-between">
+      {/* Enhanced Progress Indicator with Selection Summary */}
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Progress Steps */}
+        <div className="flex items-center justify-between mb-8">
           {['service', 'date', 'time', 'details'].map((s, idx) => {
             const stepIndex = ['service', 'date', 'time', 'details'].indexOf(step);
             const currentIndex = idx;
@@ -332,10 +333,14 @@ export default function ProviderPublicPage() {
             return (
               <div key={s} className="flex items-center flex-1">
                 <div className="flex flex-col items-center flex-1">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
+                  <motion.div
+                    animate={{
+                      scale: isActive ? [1, 1.1, 1] : 1,
+                    }}
+                    transition={{ duration: 0.5 }}
+                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-base transition-all shadow-lg ${
                       isActive
-                        ? 'ring-2 ring-offset-2 ring-offset-deep-charcoal'
+                        ? 'ring-4 ring-offset-2 ring-offset-deep-charcoal'
                         : isCompleted
                         ? 'bg-opacity-100'
                         : 'bg-white/10'
@@ -346,19 +351,95 @@ export default function ProviderPublicPage() {
                       ringColor: isActive ? dominantColor : undefined,
                     }}
                   >
-                    {isCompleted ? '✓' : idx + 1}
-                  </div>
-                  <span className={`text-xs mt-2 ${isActive ? 'text-white font-semibold' : 'text-light-gray/60'}`}>
-                    {s === 'service' ? 'Servicio' : s === 'date' ? 'Fecha' : s === 'time' ? 'Hora' : 'Datos'}
+                    {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : idx + 1}
+                  </motion.div>
+                  <span className={`text-sm mt-3 font-medium ${isActive ? 'text-white font-bold' : isCompleted ? 'text-light-gray' : 'text-light-gray/60'}`}>
+                    {s === 'service' ? '1. Servicio' : s === 'date' ? '2. Fecha' : s === 'time' ? '3. Hora' : '4. Confirmar'}
                   </span>
                 </div>
                 {idx < 3 && (
-                  <div className={`h-0.5 flex-1 mx-2 ${isCompleted ? 'opacity-100' : 'bg-white/10'}`} style={{ backgroundColor: isCompleted ? dominantColor : undefined }} />
+                  <motion.div 
+                    className={`h-1 flex-1 mx-4 rounded-full transition-all ${isCompleted ? 'opacity-100' : 'bg-white/10'}`} 
+                    style={{ backgroundColor: isCompleted ? dominantColor : undefined }}
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: isCompleted ? 1 : 0 }}
+                    transition={{ duration: 0.5 }}
+                  />
                 )}
               </div>
             );
           })}
         </div>
+
+        {/* Selection Summary Bar - Shows what has been selected */}
+        {(selectedService || selectedDate || selectedSlot) && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10"
+          >
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="text-light-gray/70 text-sm font-medium">Tu selección:</span>
+              
+              {selectedService && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.2)` }}>
+                  <CheckCircle2 className="w-4 h-4" style={{ color: dominantColor }} />
+                  <span className="text-white font-medium text-sm">{selectedService.name}</span>
+                  {step !== 'service' && (
+                    <button
+                      onClick={() => {
+                        setStep('service');
+                        setSelectedService(null);
+                        setSelectedDate(null);
+                        setSelectedSlot(null);
+                      }}
+                      className="ml-2 text-light-gray/60 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
+              
+              {selectedDate && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.2)` }}>
+                  <Calendar className="w-4 h-4" style={{ color: dominantColor }} />
+                  <span className="text-white font-medium text-sm">{format(selectedDate, 'MMM d, yyyy')}</span>
+                  {step !== 'date' && step !== 'service' && (
+                    <button
+                      onClick={() => {
+                        setStep('date');
+                        setSelectedDate(null);
+                        setSelectedSlot(null);
+                      }}
+                      className="ml-2 text-light-gray/60 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
+              
+              {selectedSlot && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.2)` }}>
+                  <Clock className="w-4 h-4" style={{ color: dominantColor }} />
+                  <span className="text-white font-medium text-sm">{format(parseISO(selectedSlot.startAtISO), 'h:mm a')}</span>
+                  {step === 'details' && (
+                    <button
+                      onClick={() => {
+                        setStep('time');
+                        setSelectedSlot(null);
+                      }}
+                      className="ml-2 text-light-gray/60 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {/* Main Content */}
@@ -374,10 +455,19 @@ export default function ProviderPublicPage() {
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2">
-                  Selecciona un Servicio
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="inline-block mb-4 px-6 py-2 rounded-full border-2"
+                  style={{ borderColor: dominantColor, backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}
+                >
+                  <span className="text-sm font-bold" style={{ color: dominantColor }}>PASO 1 DE 4</span>
+                </motion.div>
+                <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-3">
+                  ¿Qué servicio necesitas?
                 </h2>
-                <p className="text-light-gray/70">Elige el servicio que deseas reservar</p>
+                <p className="text-light-gray/70 text-lg">Selecciona el servicio que deseas reservar</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -510,17 +600,20 @@ export default function ProviderPublicPage() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2">
-                    Selecciona una Fecha
-                  </h2>
-                  <p className="text-light-gray/70">{selectedService.name}</p>
-                </div>
-                <Button onClick={handleBack} variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                  <ChevronLeft className="w-4 h-4 mr-2" />
-                  Volver
-                </Button>
+              <div className="text-center mb-8">
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="inline-block mb-4 px-6 py-2 rounded-full border-2"
+                  style={{ borderColor: dominantColor, backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}
+                >
+                  <span className="text-sm font-bold" style={{ color: dominantColor }}>PASO 2 DE 4</span>
+                </motion.div>
+                <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-3">
+                  ¿Qué día prefieres?
+                </h2>
+                <p className="text-light-gray/70 text-lg">Selecciona la fecha para tu cita de <span className="font-semibold" style={{ color: dominantColor }}>{selectedService.name}</span></p>
               </div>
 
               {/* Week Navigation */}
@@ -599,19 +692,22 @@ export default function ProviderPublicPage() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2">
-                    Selecciona una Hora
-                  </h2>
-                  <p className="text-light-gray/70">
-                    {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-                  </p>
-                </div>
-                <Button onClick={handleBack} variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                  <ChevronLeft className="w-4 h-4 mr-2" />
-                  Volver
-                </Button>
+              <div className="text-center mb-8">
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="inline-block mb-4 px-6 py-2 rounded-full border-2"
+                  style={{ borderColor: dominantColor, backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}
+                >
+                  <span className="text-sm font-bold" style={{ color: dominantColor }}>PASO 3 DE 4</span>
+                </motion.div>
+                <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-3">
+                  ¿A qué hora?
+                </h2>
+                <p className="text-light-gray/70 text-lg">
+                  Horarios disponibles para el <span className="font-semibold" style={{ color: dominantColor }}>{format(selectedDate, 'EEEE, d MMMM yyyy')}</span>
+                </p>
               </div>
 
               {loadingAvailability ? (
@@ -666,48 +762,71 @@ export default function ProviderPublicPage() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2">
-                    Completa tus Datos
-                  </h2>
-                  <p className="text-light-gray/70">
-                    {format(selectedDate, 'EEEE, MMMM d')} • {format(parseISO(selectedSlot.startAtISO), 'h:mm a')}
-                  </p>
-                </div>
-                <Button onClick={handleBack} variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                  <ChevronLeft className="w-4 h-4 mr-2" />
-                  Volver
-                </Button>
+              <div className="text-center mb-8">
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="inline-block mb-4 px-6 py-2 rounded-full border-2"
+                  style={{ borderColor: dominantColor, backgroundColor: `rgba(${dominantRgbString}, 0.1)` }}
+                >
+                  <span className="text-sm font-bold" style={{ color: dominantColor }}>PASO 4 DE 4 - ÚLTIMO PASO</span>
+                </motion.div>
+                <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-3">
+                  Confirma tu reserva
+                </h2>
+                <p className="text-light-gray/70 text-lg">
+                  Solo necesitamos algunos datos para completar tu cita
+                </p>
               </div>
 
               <form onSubmit={handleBookingSubmit} className="max-w-2xl mx-auto space-y-6">
-                {/* Selected Details Summary */}
-                <div className="rounded-xl p-6 border-2" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.1)`, borderColor: `rgba(${dominantRgbString}, 0.3)` }}>
-                  <h3 className="font-heading font-bold text-white mb-4">Resumen de tu Reserva</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.2)` }}>
-                        <Calendar className="w-5 h-5" style={{ color: dominantColor }} />
+                {/* Selected Details Summary - Enhanced */}
+                <motion.div 
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="rounded-2xl p-8 border-2 shadow-xl" 
+                  style={{ backgroundColor: `rgba(${dominantRgbString}, 0.15)`, borderColor: `rgba(${dominantRgbString}, 0.4)` }}
+                >
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: dominantColor }}>
+                      <CheckCircle2 className="w-6 h-6 text-deep-charcoal" />
+                    </div>
+                    <div>
+                      <h3 className="font-heading font-bold text-white text-xl">Resumen de tu Reserva</h3>
+                      <p className="text-light-gray/70 text-sm">Verifica que todo esté correcto</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-4 p-4 bg-white/5 rounded-xl">
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.3)` }}>
+                        <Calendar className="w-6 h-6" style={{ color: dominantColor }} />
                       </div>
-                      <div>
-                        <p className="text-xs text-light-gray/60 uppercase tracking-wide">Servicio</p>
-                        <p className="text-white font-medium">{selectedService.name}</p>
+                      <div className="flex-1">
+                        <p className="text-xs text-light-gray/60 uppercase tracking-wide mb-1">Servicio</p>
+                        <p className="text-white font-bold text-lg">{selectedService.name}</p>
+                        {selectedService.durationMin && (
+                          <p className="text-light-gray/70 text-sm mt-1">Duración: {selectedService.durationMin} minutos</p>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.2)` }}>
-                        <Clock className="w-5 h-5" style={{ color: dominantColor }} />
+                    <div className="flex items-start gap-4 p-4 bg-white/5 rounded-xl">
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `rgba(${dominantRgbString}, 0.3)` }}>
+                        <Clock className="w-6 h-6" style={{ color: dominantColor }} />
                       </div>
-                      <div>
-                        <p className="text-xs text-light-gray/60 uppercase tracking-wide">Fecha y Hora</p>
-                        <p className="text-white font-medium">
-                          {format(selectedDate, 'EEEE, MMMM d, yyyy')} • {format(parseISO(selectedSlot.startAtISO), 'h:mm a')}
+                      <div className="flex-1">
+                        <p className="text-xs text-light-gray/60 uppercase tracking-wide mb-1">Fecha y Hora</p>
+                        <p className="text-white font-bold text-lg">
+                          {format(selectedDate, 'EEEE, d MMMM yyyy')}
+                        </p>
+                        <p className="text-white font-bold text-lg mt-1">
+                          {format(parseISO(selectedSlot.startAtISO), 'h:mm a')} - {format(parseISO(selectedSlot.endAtISO), 'h:mm a')}
                         </p>
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Error Message */}
                 {bookingError && (
@@ -761,7 +880,9 @@ export default function ProviderPublicPage() {
                 })()}
 
                 {/* Form Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+                  <h3 className="font-heading font-bold text-white text-xl mb-6">Tus Datos de Contacto</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <Label htmlFor="clientName" className="text-light-gray font-semibold mb-2 block">
                       Nombre Completo *
@@ -821,9 +942,12 @@ export default function ProviderPublicPage() {
                       className="bg-white/5 border-white/20 text-white"
                     />
                   </div>
+                  </div>
                 </div>
 
-                <div>
+                <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+                  <h3 className="font-heading font-bold text-white text-xl mb-6">Información Adicional</h3>
+                  <div>
                   <Label htmlFor="notes" className="text-light-gray font-semibold mb-2 block">
                     Notas Adicionales (Opcional)
                   </Label>
@@ -835,26 +959,37 @@ export default function ProviderPublicPage() {
                     rows={4}
                     placeholder="Alguna información adicional que quieras compartir..."
                   />
+                  </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full text-deep-charcoal hover:opacity-90 font-semibold text-lg py-6"
-                  style={{ backgroundColor: dominantColor }}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
                 >
-                  {submitting ? (
-                    <>
-                      <LoadingSpinner />
-                      {' '}Procesando...
-                    </>
-                  ) : (
-                    <>
-                      Confirmar Reserva
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </>
-                  )}
-                </Button>
+                  <Button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full text-deep-charcoal hover:opacity-90 font-bold text-xl py-8 rounded-xl shadow-2xl transition-all hover:scale-[1.02]"
+                    style={{ backgroundColor: dominantColor }}
+                  >
+                    {submitting ? (
+                      <>
+                        <LoadingSpinner />
+                        {' '}Procesando tu reserva...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-6 h-6 mr-3" />
+                        Confirmar Reserva
+                        <ArrowRight className="w-6 h-6 ml-3" />
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-center text-light-gray/60 text-sm mt-4">
+                    Al confirmar, recibirás un email de confirmación inmediatamente
+                  </p>
+                </motion.div>
               </form>
             </motion.div>
           )}
