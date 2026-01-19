@@ -1936,7 +1936,213 @@ export default function ProviderDashboard() {
 
       {/* Service Modal */}
       <Dialog open={showServiceModal} onOpenChange={setShowServiceModal}>
-        {/* ... keep existing code (service modal content) */}
+        <DialogContent className="bg-deep-charcoal border-white/20 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-2xl">
+              {editingService ? 'Edit Service' : 'Create New Service'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {/* Basic Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="serviceName" className="text-light-gray font-paragraph">Service Name</Label>
+                <Input
+                  id="serviceName"
+                  value={serviceForm.name}
+                  onChange={(e) => setServiceForm({ ...serviceForm, name: e.target.value })}
+                  placeholder="e.g., Consultation, Haircut, Massage"
+                  className="bg-white/5 border-white/20 text-white mt-2"
+                />
+              </div>
+              <div>
+                <Label htmlFor="serviceCategory" className="text-light-gray font-paragraph">Category</Label>
+                <Input
+                  id="serviceCategory"
+                  value={serviceForm.category}
+                  onChange={(e) => setServiceForm({ ...serviceForm, category: e.target.value })}
+                  placeholder="e.g., Health, Beauty, Business"
+                  className="bg-white/5 border-white/20 text-white mt-2"
+                />
+              </div>
+            </div>
+
+            {/* Duration and Price */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <Label htmlFor="serviceDuration" className="text-light-gray font-paragraph">Duration (minutes)</Label>
+                <Input
+                  id="serviceDuration"
+                  type="number"
+                  value={serviceForm.durationMin}
+                  onChange={(e) => setServiceForm({ ...serviceForm, durationMin: parseInt(e.target.value) || 0 })}
+                  className="bg-white/5 border-white/20 text-white mt-2"
+                />
+              </div>
+              <div>
+                <Label htmlFor="servicePrice" className="text-light-gray font-paragraph">Base Price ($)</Label>
+                <Input
+                  id="servicePrice"
+                  type="number"
+                  value={serviceForm.price}
+                  onChange={(e) => setServiceForm({ ...serviceForm, price: parseFloat(e.target.value) || 0 })}
+                  className="bg-white/5 border-white/20 text-white mt-2"
+                />
+              </div>
+              <div>
+                <Label htmlFor="serviceMaxPeople" className="text-light-gray font-paragraph">Max People</Label>
+                <Input
+                  id="serviceMaxPeople"
+                  type="number"
+                  value={serviceForm.maxPeoplePerBooking}
+                  onChange={(e) => setServiceForm({ ...serviceForm, maxPeoplePerBooking: parseInt(e.target.value) || 1 })}
+                  className="bg-white/5 border-white/20 text-white mt-2"
+                />
+              </div>
+            </div>
+
+            {/* Price Options */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-light-gray font-paragraph">Price Variants (Optional)</Label>
+                <Button
+                  type="button"
+                  onClick={handleAddPriceOption}
+                  size="sm"
+                  className="bg-neon-teal/20 text-neon-teal hover:bg-neon-teal/30"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Variant
+                </Button>
+              </div>
+              {priceOptions.map((option, idx) => (
+                <div key={idx} className="flex gap-3 items-end">
+                  <div className="flex-1">
+                    <Input
+                      value={option.name}
+                      onChange={(e) => handleUpdatePriceOption(idx, 'name', e.target.value)}
+                      placeholder="Variant name (e.g., Small, Medium, Large)"
+                      className="bg-white/5 border-white/20 text-white"
+                    />
+                  </div>
+                  <div className="w-32">
+                    <Input
+                      type="number"
+                      value={option.price}
+                      onChange={(e) => handleUpdatePriceOption(idx, 'price', e.target.value)}
+                      placeholder="Price"
+                      className="bg-white/5 border-white/20 text-white"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => handleRemovePriceOption(idx)}
+                    size="sm"
+                    variant="outline"
+                    className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {/* Buffer Times */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="bufferBefore" className="text-light-gray font-paragraph">Buffer Before (minutes)</Label>
+                <Input
+                  id="bufferBefore"
+                  type="number"
+                  value={serviceForm.bufferBeforeMin}
+                  onChange={(e) => setServiceForm({ ...serviceForm, bufferBeforeMin: parseInt(e.target.value) || 0 })}
+                  className="bg-white/5 border-white/20 text-white mt-2"
+                />
+                <p className="text-xs text-light-gray/60 mt-1">Time before appointment starts</p>
+              </div>
+              <div>
+                <Label htmlFor="bufferAfter" className="text-light-gray font-paragraph">Buffer After (minutes)</Label>
+                <Input
+                  id="bufferAfter"
+                  type="number"
+                  value={serviceForm.bufferAfterMin}
+                  onChange={(e) => setServiceForm({ ...serviceForm, bufferAfterMin: parseInt(e.target.value) || 0 })}
+                  className="bg-white/5 border-white/20 text-white mt-2"
+                />
+                <p className="text-xs text-light-gray/60 mt-1">Time after appointment ends</p>
+              </div>
+            </div>
+
+            {/* Service Schedule */}
+            <div className="space-y-4">
+              <Label className="text-light-gray font-paragraph">Service Availability</Label>
+              <div className="space-y-3">
+                {serviceSchedule.map((day) => {
+                  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                  return (
+                    <div key={day.dayOfWeek} className="flex items-center gap-4 bg-white/5 p-4 rounded-lg">
+                      <div className="flex items-center gap-3 w-32">
+                        <input
+                          type="checkbox"
+                          checked={day.isActive}
+                          onChange={(e) => handleUpdateScheduleDay(day.dayOfWeek, 'isActive', e.target.checked)}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-white font-paragraph">{dayNames[day.dayOfWeek]}</span>
+                      </div>
+                      {day.isActive && (
+                        <>
+                          <Input
+                            type="time"
+                            value={day.startTime}
+                            onChange={(e) => handleUpdateScheduleDay(day.dayOfWeek, 'startTime', e.target.value)}
+                            className="bg-white/5 border-white/20 text-white w-32"
+                          />
+                          <span className="text-white/50">to</span>
+                          <Input
+                            type="time"
+                            value={day.endTime}
+                            onChange={(e) => handleUpdateScheduleDay(day.dayOfWeek, 'endTime', e.target.value)}
+                            className="bg-white/5 border-white/20 text-white w-32"
+                          />
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Active Status */}
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="serviceActive"
+                checked={serviceForm.isActive}
+                onChange={(e) => setServiceForm({ ...serviceForm, isActive: e.target.checked })}
+                className="w-5 h-5"
+              />
+              <Label htmlFor="serviceActive" className="text-light-gray font-paragraph cursor-pointer">
+                Service is active and available for booking
+              </Label>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 justify-end pt-4 border-t border-white/10">
+              <Button
+                onClick={() => setShowServiceModal(false)}
+                variant="outline"
+                className="border-white/20 text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleSaveService} className="bg-neon-teal text-deep-charcoal hover:opacity-90">
+                <Save className="w-4 h-4 mr-2" />
+                {editingService ? 'Update Service' : 'Create Service'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
       </Dialog>
 
       {/* Theme Customizer Modal */}
