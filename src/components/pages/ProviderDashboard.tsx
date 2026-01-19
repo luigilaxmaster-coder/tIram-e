@@ -88,9 +88,7 @@ export default function ProviderDashboard() {
   const [showEmailSettings, setShowEmailSettings] = useState(false);
 
   // Appointments filter
-  const [appointmentFilter, setAppointmentFilter] = useState<'today' | 'week' | 'custom'>('today');
-  const [customStartDate, setCustomStartDate] = useState('');
-  const [customEndDate, setCustomEndDate] = useState('');
+  const [appointmentFilter, setAppointmentFilter] = useState<'upcoming' | 'all'>('upcoming');
 
   // Theme customization
   const [showThemeCustomizer, setShowThemeCustomizer] = useState(false);
@@ -180,7 +178,7 @@ export default function ProviderDashboard() {
       loadAppointments();
       checkGoogleCalendarStatus();
     }
-  }, [provider, appointmentFilter, customStartDate, customEndDate]);
+  }, [provider]);
 
   const loadProviderData = async () => {
     if (!member) return;
@@ -243,38 +241,11 @@ export default function ProviderDashboard() {
 
     try {
       const { items: allAppointments } = await BaseCrudService.getAll<Appointments>('appointments');
+      
+      // Filter appointments for this provider
       let filtered = allAppointments.filter((a) => a.providerId === provider._id);
 
-      const now = new Date();
-      let startDate: Date;
-      let endDate: Date;
-
-      if (appointmentFilter === 'today') {
-        startDate = startOfDay(now);
-        endDate = endOfDay(now);
-      } else if (appointmentFilter === 'week') {
-        startDate = startOfWeek(now, { weekStartsOn: 1 });
-        endDate = endOfWeek(now, { weekStartsOn: 1 });
-      } else if (appointmentFilter === 'custom' && customStartDate && customEndDate) {
-        startDate = startOfDay(new Date(customStartDate));
-        endDate = endOfDay(new Date(customEndDate));
-      } else {
-        // Sort all appointments by date
-        filtered.sort((a, b) => {
-          const dateA = typeof a.startAt === 'string' ? parseISO(a.startAt) : a.startAt;
-          const dateB = typeof b.startAt === 'string' ? parseISO(b.startAt) : b.startAt;
-          return dateA!.getTime() - dateB!.getTime();
-        });
-        setAppointments(filtered);
-        return;
-      }
-
-      filtered = filtered.filter((a) => {
-        if (!a.startAt) return false;
-        const apptDate = typeof a.startAt === 'string' ? parseISO(a.startAt) : a.startAt;
-        return apptDate >= startDate && apptDate <= endDate;
-      });
-
+      // Sort all appointments by date (earliest first)
       filtered.sort((a, b) => {
         const dateA = typeof a.startAt === 'string' ? parseISO(a.startAt) : a.startAt;
         const dateB = typeof b.startAt === 'string' ? parseISO(b.startAt) : b.startAt;
@@ -284,6 +255,11 @@ export default function ProviderDashboard() {
       setAppointments(filtered);
     } catch (error) {
       console.error('Error loading appointments:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load appointments',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -595,10 +571,17 @@ export default function ProviderDashboard() {
   };
 
   // Calculate stats
+  const now = new Date();
   const todayAppointments = appointments.filter((a) => {
     if (!a.startAt) return false;
     const apptDate = typeof a.startAt === 'string' ? parseISO(a.startAt) : a.startAt;
-    return apptDate >= startOfDay(new Date()) && apptDate <= endOfDay(new Date());
+    return apptDate >= startOfDay(now) && apptDate <= endOfDay(now);
+  });
+
+  const upcomingAppointments = appointments.filter((a) => {
+    if (!a.startAt) return false;
+    const apptDate = typeof a.startAt === 'string' ? parseISO(a.startAt) : a.startAt;
+    return apptDate >= now;
   });
 
   const totalRevenue = services.reduce((sum, s) => sum + (s.price || 0), 0);
@@ -989,89 +972,81 @@ export default function ProviderDashboard() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-[#1a1a28] border-white/20">
-                      <SelectItem value="today">Today</SelectItem>
-                      <SelectItem value="week">This Week</SelectItem>
-                      <SelectItem value="custom">Custom Range</SelectItem>
+                      <SelectItem value="upcoming">Upcoming</SelectItem>
+                      <SelectItem value="all">All Appointments</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {appointmentFilter === 'custom' && (
-                  <div className="flex gap-4 mb-6">
-                    <Input
-                      type="date"
-                      value={customStartDate}
-                      onChange={(e) => setCustomStartDate(e.target.value)}
-                      className="bg-white/5 border-white/20 text-white rounded-xl"
-                    />
-                    <Input
-                      type="date"
-                      value={customEndDate}
-                      onChange={(e) => setCustomEndDate(e.target.value)}
-                      className="bg-white/5 border-white/20 text-white rounded-xl"
-                    />
-                  </div>
-                )}
+                {(() => {
+                  const displayAppointments = appointmentFilter === 'upcoming' ? upcomingAppointments : appointments;
+                  
+                  if (displayAppointments.length === 0) {
+                    return (
+                      <div className="text-center py-16">
+                        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center mx-auto mb-6">
+                          <AlertCircle className="w-10 h-10 text-white/30" />
+                        </div>
+                        <p className="text-white/40 font-paragraph text-lg">
+                          {appointmentFilter === 'upcoming' ? 'No upcoming appointments' : 'No appointments found'}
+                        </p>
+                      </div>
+                    );
+                  }
 
-                {appointments.length === 0 ? (
-                  <div className="text-center py-16">
-                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center mx-auto mb-6">
-                      <AlertCircle className="w-10 h-10 text-white/30" />
-                    </div>
-                    <p className="text-white/40 font-paragraph text-lg">No appointments found</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {appointments.map((appt, idx) => (
-                      <motion.div
-                        key={appt._id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        whileHover={{ x: 4 }}
-                        className="bg-gradient-to-r from-white/[0.05] to-transparent border border-white/10 rounded-2xl p-5 hover:border-cyan-500/30 transition-all"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <p className="font-heading font-bold text-white text-lg mb-2">{appt.clientName}</p>
-                            <div className="flex flex-wrap items-center gap-4 text-sm text-white/50">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                {appt.startAt &&
-                                  format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'EEE, MMM d • h:mm a')}
+                  return (
+                    <div className="space-y-4">
+                      {displayAppointments.map((appt, idx) => (
+                        <motion.div
+                          key={appt._id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          whileHover={{ x: 4 }}
+                          className="bg-gradient-to-r from-white/[0.05] to-transparent border border-white/10 rounded-2xl p-5 hover:border-cyan-500/30 transition-all"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <p className="font-heading font-bold text-white text-lg mb-2">{appt.clientName}</p>
+                              <div className="flex flex-wrap items-center gap-4 text-sm text-white/50">
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-4 h-4" />
+                                  {appt.startAt &&
+                                    format(typeof appt.startAt === 'string' ? parseISO(appt.startAt) : appt.startAt, 'EEE, MMM d • h:mm a')}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Mail className="w-4 h-4" />
+                                  {appt.clientEmail}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <MessageCircle className="w-4 h-4" />
+                                  {appt.clientPhone}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-right flex flex-col items-end gap-3">
+                              <span
+                                className={`inline-block px-4 py-2 rounded-xl text-sm font-paragraph font-semibold ${
+                                  appt.status === 'CONFIRMED'
+                                    ? 'bg-gradient-to-r from-green-600/20 to-emerald-500/20 text-emerald-400 border border-emerald-500/20'
+                                    : appt.status === 'CANCELLED'
+                                    ? 'bg-gradient-to-r from-red-600/20 to-rose-500/20 text-rose-400 border border-rose-500/20'
+                                    : 'bg-white/5 text-white/50 border border-white/10'
+                                }`}
+                              >
+                                {appt.status}
                               </span>
-                              <span className="flex items-center gap-1">
-                                <Mail className="w-4 h-4" />
-                                {appt.clientEmail}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <MessageCircle className="w-4 h-4" />
-                                {appt.clientPhone}
+                              <span className="flex items-center gap-1 text-sm text-white/50">
+                                <Users className="w-4 h-4" />
+                                {appt.peopleCount} people
                               </span>
                             </div>
                           </div>
-                          <div className="text-right flex flex-col items-end gap-3">
-                            <span
-                              className={`inline-block px-4 py-2 rounded-xl text-sm font-paragraph font-semibold ${
-                                appt.status === 'CONFIRMED'
-                                  ? 'bg-gradient-to-r from-green-600/20 to-emerald-500/20 text-emerald-400 border border-emerald-500/20'
-                                  : appt.status === 'CANCELLED'
-                                  ? 'bg-gradient-to-r from-red-600/20 to-rose-500/20 text-rose-400 border border-rose-500/20'
-                                  : 'bg-white/5 text-white/50 border border-white/10'
-                              }`}
-                            >
-                              {appt.status}
-                            </span>
-                            <span className="flex items-center gap-1 text-sm text-white/50">
-                              <Users className="w-4 h-4" />
-                              {appt.peopleCount} people
-                            </span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             </motion.div>
           </TabsContent>
