@@ -259,6 +259,12 @@ export default function ProviderDashboard() {
         startDate = startOfDay(new Date(customStartDate));
         endDate = endOfDay(new Date(customEndDate));
       } else {
+        // Sort all appointments by date
+        filtered.sort((a, b) => {
+          const dateA = typeof a.startAt === 'string' ? parseISO(a.startAt) : a.startAt;
+          const dateB = typeof b.startAt === 'string' ? parseISO(b.startAt) : b.startAt;
+          return dateA!.getTime() - dateB!.getTime();
+        });
         setAppointments(filtered);
         return;
       }
