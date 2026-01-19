@@ -12,7 +12,7 @@ import { BaseCrudService } from '@/integrations';
 import { Providers, Services, Appointments } from '@/entities';
 import { PriceOption } from '@/types';
 import { format, startOfDay, endOfDay, addDays, startOfWeek, endOfWeek, parseISO } from 'date-fns';
-import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus, LogOut, Link2, MapPin, Mail, MessageCircle, Globe, Info, Palette, RefreshCw } from 'lucide-react';
+import { Calendar, Clock, Users, DollarSign, Plus, Edit, Trash2, Save, X, Copy, Check, TrendingUp, AlertCircle, CheckCircle, Eye, Settings, BarChart3, Zap, Minus, LogOut, Link2, MapPin, Mail, MessageCircle, Globe, Info, Palette, RefreshCw, Send } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { disconnectGoogleCalendar } from '@/backend/googleCalendar';
@@ -89,6 +89,9 @@ export default function ProviderDashboard() {
 
   // Appointments filter
   const [appointmentFilter, setAppointmentFilter] = useState<'upcoming' | 'all'>('upcoming');
+
+  // Resend reminder state
+  const [resendingReminder, setResendingReminder] = useState<string | null>(null);
 
   // Theme customization
   const [showThemeCustomizer, setShowThemeCustomizer] = useState(false);
@@ -536,6 +539,59 @@ export default function ProviderDashboard() {
         description: 'Failed to delete service',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleResendReminder = async (appointmentId: string) => {
+    if (!provider) return;
+
+    try {
+      setResendingReminder(appointmentId);
+
+      // Get appointment details
+      const appointment = appointments.find((a) => a._id === appointmentId);
+      if (!appointment) {
+        throw new Error('Appointment not found');
+      }
+
+      // Get service details
+      const { items: allServices } = await BaseCrudService.getAll<Services>('services');
+      const service = allServices.find((s) => s._id === appointment.serviceId);
+      if (!service) {
+        throw new Error('Service not found');
+      }
+
+      // Call backend to send reminder
+      const response = await fetch('/api/notifications/resend-reminder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          appointmentId: appointment._id,
+          providerId: provider._id,
+          serviceId: service._id,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to resend reminder');
+      }
+
+      toast({
+        title: 'Success',
+        description: 'Reminder sent successfully to ' + appointment.clientEmail,
+      });
+    } catch (error) {
+      console.error('Error resending reminder:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to resend reminder',
+        variant: 'destructive',
+      });
+    } finally {
+      setResendingReminder(null);
     }
   };
 
@@ -1036,10 +1092,21 @@ export default function ProviderDashboard() {
                               >
                                 {appt.status}
                               </span>
-                              <span className="flex items-center gap-1 text-sm text-white/50">
-                                <Users className="w-4 h-4" />
-                                {appt.peopleCount} people
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="flex items-center gap-1 text-sm text-white/50">
+                                  <Users className="w-4 h-4" />
+                                  {appt.peopleCount} people
+                                </span>
+                                <Button
+                                  onClick={() => handleResendReminder(appt._id)}
+                                  disabled={resendingReminder === appt._id}
+                                  size="sm"
+                                  className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-500/20"
+                                >
+                                  <Send className="w-4 h-4 mr-1" />
+                                  {resendingReminder === appt._id ? 'Sending...' : 'Resend'}
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
