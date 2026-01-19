@@ -336,297 +336,83 @@ const PageTransition3D = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Ultra-Interactive Booking Flow Diagram with Real-Time Animation
+// Compact Booking Flow - Simple & Clear
 const BookingFlowDiagram = () => {
   const [activeStep, setActiveStep] = useState<number | null>(null);
-  const [flowProgress, setFlowProgress] = useState(0);
-  const [animatedData, setAnimatedData] = useState<Array<{ id: number; step: number }>>([]);
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFlowProgress(prev => (prev + 1) % 5);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const dataInterval = setInterval(() => {
-      const randomStep = Math.floor(Math.random() * 5);
-      setAnimatedData(prev => [...prev, { id: Date.now(), step: randomStep }]);
-      
-      setTimeout(() => {
-        setAnimatedData(prev => prev.slice(1));
-      }, 2000);
-    }, 1500);
-    
-    return () => clearInterval(dataInterval);
-  }, []);
 
   const steps = [
-    { id: 0, label: 'Cliente Selecciona', icon: MousePointer2, y: 20, color: 'neon-teal', desc: 'Elige fecha y hora', metric: 'Paso 1' },
-    { id: 1, label: 'Verificación', icon: Shield, y: 35, color: 'secondary', desc: 'Valida disponibilidad', metric: 'Paso 2' },
-    { id: 2, label: 'Reserva Slot', icon: Lock, y: 50, color: 'neon-teal', desc: 'Bloqueo instantáneo', metric: 'Paso 3' },
-    { id: 3, label: 'Confirmación', icon: CheckCircle2, y: 65, color: 'secondary', desc: 'Email automático', metric: 'Paso 4' },
-    { id: 4, label: 'Sincronización', icon: Rocket, y: 80, color: 'neon-teal', desc: 'Actualiza calendarios', metric: 'Paso 5' },
+    { icon: Calendar, label: 'Selecciona', desc: 'Elige fecha y hora' },
+    { icon: CheckCircle2, label: 'Confirma', desc: 'Datos del cliente' },
+    { icon: Zap, label: 'Reserva', desc: 'Confirmación instantánea' },
   ];
 
   return (
-    <div className="relative w-full h-[550px] bg-gradient-to-br from-white/5 via-white/3 to-transparent rounded-3xl border border-white/10 p-8 overflow-hidden backdrop-blur-sm">
-      {/* Enhanced Animated Background Grid */}
-      <div className="absolute inset-0 opacity-20">
-        <motion.div 
-          className="w-full h-full" 
-          style={{
-            backgroundImage: 'radial-gradient(circle, rgba(0,255,212,0.3) 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-          }}
-          animate={{
-            backgroundPosition: ['0px 0px', '40px 40px']
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: 'linear'
-          }}
-        />
-      </div>
-
-      {/* Vertical Flow Line */}
-      <svg className="absolute left-1/2 top-0 bottom-0 w-1 pointer-events-none" style={{ transform: 'translateX(-50%)' }}>
-        <defs>
-          <linearGradient id="flowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="rgba(0,255,212,0.1)" />
-            <stop offset="50%" stopColor="rgba(0,255,212,0.6)" />
-            <stop offset="100%" stopColor="rgba(102,120,255,0.4)" />
-          </linearGradient>
-        </defs>
-        
-        <motion.line
-          x1="50%"
-          y1="10%"
-          x2="50%"
-          y2="90%"
-          stroke="url(#flowGradient)"
-          strokeWidth="3"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ 
-            pathLength: 1,
-            opacity: 1
-          }}
-          transition={{ duration: 2 }}
-        />
-        
-        {/* Animated Flow Particles */}
-        {[...Array(3)].map((_, i) => (
-          <motion.circle
-            key={i}
-            cx="50%"
-            r="6"
-            fill="#00FFD4"
-            initial={{ cy: '10%', opacity: 0 }}
-            animate={{ 
-              cy: '90%',
-              opacity: [0, 1, 1, 0]
-            }}
-            transition={{ 
-              duration: 4,
-              repeat: Infinity,
-              delay: i * 1.3,
-              ease: 'easeInOut'
-            }}
-          />
-        ))}
-      </svg>
-
-      {/* Connection Arrows Between Steps */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none">
-        {steps.slice(0, -1).map((step, i) => {
-          const nextStep = steps[i + 1];
-          const isActive = flowProgress === i;
+    <div className="relative w-full max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {steps.map((step, index) => {
+          const Icon = step.icon;
+          const isActive = activeStep === index;
           
           return (
-            <g key={i}>
-              {/* Arrow */}
-              <motion.path
-                d={`M 50% ${step.y + 5}% L 50% ${nextStep.y - 5}%`}
-                stroke={isActive ? '#00FFD4' : 'rgba(0,255,212,0.2)'}
-                strokeWidth={isActive ? '3' : '2'}
-                fill="none"
-                markerEnd="url(#arrowhead)"
-                animate={{
-                  stroke: isActive ? '#00FFD4' : 'rgba(0,255,212,0.2)',
-                  strokeWidth: isActive ? '3' : '2'
-                }}
-                transition={{ duration: 0.5 }}
-              />
-              
-              {/* Animated Data Pulse */}
-              {isActive && (
-                <motion.circle
-                  r="5"
-                  fill="#6678FF"
-                  initial={{ 
-                    cy: `${step.y + 5}%`,
-                    opacity: 0.8
-                  }}
-                  animate={{ 
-                    cy: `${nextStep.y - 5}%`,
-                    opacity: 0
-                  }}
-                  transition={{ duration: 2, ease: 'easeInOut' }}
-                  cx="50%"
-                />
-              )}
-            </g>
-          );
-        })}
-        
-        <defs>
-          <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
-            <polygon points="0 0, 10 5, 0 10" fill="#00FFD4" />
-          </marker>
-        </defs>
-      </svg>
-
-      {/* Enhanced Steps with Metrics */}
-      {steps.map((step, index) => {
-        const Icon = step.icon;
-        const isActive = activeStep === step.id || flowProgress === index;
-        
-        return (
-          <motion.div
-            key={step.id}
-            className="absolute cursor-pointer"
-            style={{
-              left: '50%',
-              top: `${step.y}%`,
-              transform: 'translate(-50%, -50%)'
-            }}
-            onMouseEnter={() => setActiveStep(step.id)}
-            onMouseLeave={() => setActiveStep(null)}
-            whileHover={{ scale: 1.2, z: 60 }}
-            whileTap={{ scale: 0.95 }}
-          >
             <motion.div
-              className={`relative w-28 h-28 rounded-3xl bg-${step.color}/10 border-2 border-${step.color}/30 flex items-center justify-center backdrop-blur-md`}
-              animate={{
-                borderColor: isActive ? '#00FFD4' : `rgba(${step.color === 'neon-teal' ? '0,255,212' : '102,120,255'},0.3)`,
-                boxShadow: isActive ? '0 0 60px rgba(0,255,212,0.7), 0 0 120px rgba(0,255,212,0.4)' : '0 0 0px rgba(0,0,0,0)',
-                scale: isActive ? 1.1 : 1
-              }}
-              style={{ transformStyle: 'preserve-3d' }}
+              key={index}
+              className="relative"
+              onMouseEnter={() => setActiveStep(index)}
+              onMouseLeave={() => setActiveStep(null)}
+              whileHover={{ scale: 1.05 }}
             >
-              <motion.div
-                animate={{ 
-                  rotateY: isActive ? 360 : 0,
-                  scale: isActive ? 1.1 : 1
-                }}
-                transition={{ duration: 0.8 }}
-              >
-                <Icon className={`w-10 h-10 text-${step.color}`} />
-              </motion.div>
-              
-              {/* Step Number Badge */}
-              <motion.div
-                className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-neon-teal flex items-center justify-center text-deep-charcoal font-heading font-bold text-xs"
-                animate={{
-                  scale: isActive ? [1, 1.2, 1] : 1
-                }}
-                transition={{ duration: 0.5, repeat: isActive ? Infinity : 0 }}
-              >
-                {index + 1}
-              </motion.div>
-              
-              {/* Enhanced Multi-layer Pulse */}
-              {isActive && (
-                <>
-                  <motion.div
-                    className="absolute inset-0 rounded-3xl border-2 border-neon-teal"
-                    initial={{ scale: 1, opacity: 1 }}
-                    animate={{ scale: 1.8, opacity: 0 }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
-                  <motion.div
-                    className="absolute inset-0 rounded-3xl border-2 border-secondary"
-                    initial={{ scale: 1, opacity: 0.8 }}
-                    animate={{ scale: 2, opacity: 0 }}
-                    transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
-                  />
-                  <motion.div
-                    className="absolute inset-0 rounded-3xl bg-neon-teal/20"
-                    animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  />
-                </>
+              <div className={`p-6 bg-white/5 border-2 rounded-2xl transition-all ${
+                isActive ? 'border-neon-teal bg-neon-teal/5' : 'border-white/10'
+              }`}>
+                {/* Step Number */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-8 h-8 rounded-full bg-neon-teal/20 flex items-center justify-center">
+                    <span className="text-neon-teal font-heading font-bold text-sm">{index + 1}</span>
+                  </div>
+                  <Icon className={`w-6 h-6 ${isActive ? 'text-neon-teal' : 'text-white/50'}`} />
+                </div>
+
+                {/* Content */}
+                <h3 className="text-xl font-heading font-bold text-white mb-2">
+                  {step.label}
+                </h3>
+                <p className="text-sm text-white/60">
+                  {step.desc}
+                </p>
+
+                {/* Progress bar */}
+                <motion.div
+                  className="absolute bottom-0 left-0 right-0 h-1 bg-neon-teal rounded-b-2xl"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: isActive ? 1 : 0 }}
+                  transition={{ duration: 0.3 }}
+                  style={{ transformOrigin: 'left' }}
+                />
+              </div>
+
+              {/* Arrow connector */}
+              {index < steps.length - 1 && (
+                <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
+                  <ArrowRight className="w-6 h-6 text-neon-teal/30" />
+                </div>
               )}
             </motion.div>
-            
-            {/* Enhanced Label with Metrics */}
-            <div className="absolute left-full ml-8 top-1/2 -translate-y-1/2 whitespace-nowrap">
-              <motion.div 
-                className={`text-base font-heading font-bold ${isActive ? 'text-neon-teal' : 'text-white/70'}`}
-                animate={{ scale: isActive ? 1.1 : 1, x: isActive ? 10 : 0 }}
-              >
-                {step.label}
-              </motion.div>
-              <AnimatePresence>
-                {isActive && (
-                  <motion.div
-                    initial={{ opacity: 0, x: -20, scale: 0.8 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -20, scale: 0.8 }}
-                    className="text-xs text-white/60 mt-2 px-4 py-2 bg-deep-charcoal/95 rounded-lg border border-neon-teal/40 backdrop-blur-md"
-                  >
-                    <div className="font-medium">{step.desc}</div>
-                    <div className="text-neon-teal text-[10px] mt-1 flex items-center gap-1">
-                      <Zap className="w-2.5 h-2.5" />
-                      {step.metric}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </motion.div>
-        );
-      })}
-
-      {/* Enhanced Title */}
-      <div className="absolute top-4 left-4">
-        <h4 className="text-lg font-heading font-bold text-white/80 flex items-center gap-2">
-          <Waves className="w-5 h-5 text-neon-teal" />
-          Flujo de Reserva
-        </h4>
-        <p className="text-xs text-white/40 flex items-center gap-2 mt-1">
-          <MousePointer2 className="w-3 h-3" />
-          Proceso completo en segundos
-        </p>
+          );
+        })}
       </div>
 
-      {/* Enhanced Performance Metrics */}
+      {/* Simple metric */}
       <motion.div 
-        className="absolute bottom-4 right-4 flex items-center gap-3 px-4 py-2.5 bg-deep-charcoal/90 rounded-full border border-neon-teal/30 backdrop-blur-md"
-        animate={{ opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 2, repeat: Infinity }}
+        className="mt-8 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
       >
-        <Activity className="w-4 h-4 text-neon-teal" />
-        <span className="text-xs text-white/70 font-heading font-medium">Tiempo promedio: 8s</span>
-        <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse" />
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-neon-teal/30">
+          <Clock className="w-4 h-4 text-neon-teal" />
+          <span className="text-sm text-white/70">Proceso completo en menos de 30 segundos</span>
+        </div>
       </motion.div>
-
-      {/* Progress Indicator */}
-      <div className="absolute bottom-4 left-4 flex gap-2">
-        {steps.map((_, i) => (
-          <motion.div
-            key={i}
-            className="w-2 h-2 rounded-full"
-            animate={{
-              backgroundColor: flowProgress === i ? '#00FFD4' : 'rgba(255,255,255,0.2)',
-              scale: flowProgress === i ? 1.5 : 1
-            }}
-            transition={{ duration: 0.3 }}
-          />
-        ))}
-      </div>
     </div>
   );
 };
