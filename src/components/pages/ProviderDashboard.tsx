@@ -653,44 +653,44 @@ export default function ProviderDashboard() {
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${dashboardTheme.backgroundGradient} pb-24 md:pb-0`}>
-      {/* Modern Header with animated gradient */}
+      {/* Modern Header with animated gradient - Mobile Optimized */}
       <div className="relative overflow-hidden border-b border-white/5">
         <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 via-fuchsia-600/10 to-cyan-600/10 animate-pulse" />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjAzIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
-        <div className="relative max-w-[100rem] mx-auto px-6 py-16">
+        <div className="relative max-w-[100rem] mx-auto px-4 md:px-6 py-6 md:py-16">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="flex items-center justify-between mb-12">
-              <div>
+            <div className="flex items-start justify-between gap-4 md:mb-12 mb-8">
+              <div className="flex-1 min-w-0">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-3 mb-4"
+                  className="flex items-center gap-2 mb-2 md:mb-4"
                 >
-                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 animate-pulse" />
-                  <span className="text-sm font-paragraph text-emerald-400 font-semibold">Active</span>
+                  <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 animate-pulse flex-shrink-0" />
+                  <span className="text-xs md:text-sm font-paragraph text-emerald-400 font-semibold">Active</span>
                 </motion.div>
-                <h1 className="text-7xl font-heading font-bold bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent mb-3">
+                <h1 className="text-3xl md:text-7xl font-heading font-bold bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent mb-1 md:mb-3 truncate">
                   {provider?.displayName || 'Dashboard'}
                 </h1>
-                <p className="text-xl text-white/60 font-paragraph">Manage your business with ease</p>
+                <p className="text-sm md:text-xl text-white/60 font-paragraph hidden md:block">Manage your business with ease</p>
               </div>
               <motion.div
                 initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
                 animate={{ scale: 1, opacity: 1, rotate: 0 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                className="hidden lg:block"
+                className="hidden lg:block flex-shrink-0"
               >
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-3xl blur-2xl opacity-40 animate-pulse" />
-                  <div className="relative w-28 h-28 rounded-3xl bg-gradient-to-br from-violet-600/30 via-fuchsia-600/30 to-cyan-600/30 border border-white/10 flex items-center justify-center backdrop-blur-xl">
-                    <Zap className="w-14 h-14 text-white drop-shadow-2xl" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl blur-xl opacity-40 animate-pulse" />
+                  <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-600/30 via-fuchsia-600/30 to-cyan-600/30 border border-white/10 flex items-center justify-center backdrop-blur-xl">
+                    <Zap className="w-10 h-10 text-white" />
                   </div>
                 </div>
               </motion.div>
             </div>
 
-            {/* Modern Stats Grid with enhanced visuals */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Modern Stats Grid with enhanced visuals - Mobile Optimized */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
               {[
                 {
                   label: "Today's Appointments",
@@ -742,21 +742,21 @@ export default function ProviderDashboard() {
                   className="group relative"
                 >
                   {/* Animated glow effect on hover */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} rounded-xl md:rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                   
                   {/* Main card */}
-                  <div className="relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 rounded-2xl p-6 backdrop-blur-xl hover:border-white/20 transition-all duration-300 overflow-hidden">
+                  <div className="relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-6 backdrop-blur-xl hover:border-white/20 transition-all duration-300 overflow-hidden">
                     {/* Decorative corner gradient */}
-                    <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.bgGradient} rounded-full blur-3xl opacity-20 -translate-y-16 translate-x-16 group-hover:opacity-40 transition-opacity duration-500`} />
+                    <div className={`absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-gradient-to-br ${stat.bgGradient} rounded-full blur-2xl md:blur-3xl opacity-20 -translate-y-12 md:-translate-y-16 translate-x-12 md:translate-x-16 group-hover:opacity-40 transition-opacity duration-500`} />
                     
                     {/* Header with icon and pulse indicator */}
-                    <div className="relative flex items-start justify-between mb-4">
-                      <div className={`w-16 h-16 rounded-xl ${stat.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 relative`}>
-                        <stat.icon className={`w-8 h-8 text-white`} style={{ 
+                    <div className="relative flex items-start justify-between mb-3 md:mb-4">
+                      <div className={`w-12 md:w-16 h-12 md:h-16 rounded-lg md:rounded-xl ${stat.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 relative flex-shrink-0`}>
+                        <stat.icon className={`w-6 md:w-8 h-6 md:h-8 text-white`} style={{ 
                           filter: `drop-shadow(0 0 8px ${stat.gradient.includes('blue') ? '#0EA5E9' : stat.gradient.includes('purple') ? '#A855F7' : stat.gradient.includes('green') ? '#10B981' : '#F59E0B'})` 
                         }} />
                         {/* Pulse ring animation */}
-                        <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-20 animate-pulse`} />
+                        <div className={`absolute inset-0 rounded-lg md:rounded-xl bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-20 animate-pulse`} />
                       </div>
                       <motion.div
                         initial={{ scale: 0 }}
@@ -779,15 +779,15 @@ export default function ProviderDashboard() {
                     </div>
                     
                     {/* Label */}
-                    <p className="relative text-white/60 font-paragraph text-sm mb-2 font-medium tracking-wide uppercase">{stat.label}</p>
+                    <p className="relative text-white/60 font-paragraph text-xs md:text-sm mb-1 md:mb-2 font-medium tracking-wide uppercase">{stat.label}</p>
                     
                     {/* Value with enhanced styling */}
-                    <div className="relative flex items-baseline gap-2 mb-3">
+                    <div className="relative flex items-baseline gap-2 mb-2 md:mb-3">
                       <motion.p 
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ delay: idx * 0.1 + 0.2, type: "spring", stiffness: 200 }}
-                        className={`text-5xl font-heading font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent leading-none`}
+                        className={`text-2xl md:text-5xl font-heading font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent leading-none`}
                       >
                         {stat.value}
                       </motion.p>
@@ -820,11 +820,11 @@ export default function ProviderDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[100rem] mx-auto px-6 py-12">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+      <div className="max-w-[100rem] mx-auto px-4 md:px-6 py-6 md:py-12">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 md:space-y-8">
           {/* Modern Desktop Navigation with gradient pills */}
-          <div className="flex items-center justify-between mb-4">
-            <TabsList className="hidden md:flex bg-gradient-to-r from-white/[0.07] to-white/[0.03] border border-white/10 rounded-2xl p-2 flex-1 gap-2 backdrop-blur-xl">
+          <div className="flex items-center justify-between mb-4 gap-2">
+            <TabsList className="hidden md:flex bg-gradient-to-r from-white/[0.07] to-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl p-2 flex-1 gap-2 backdrop-blur-xl">
               {[
                 { value: 'overview', label: 'Overview', icon: BarChart3, gradient: 'from-violet-600 to-fuchsia-600' },
                 { value: 'appointments', label: 'Appointments', icon: Calendar, gradient: 'from-blue-600 to-cyan-500' },
@@ -835,16 +835,16 @@ export default function ProviderDashboard() {
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
-                  className={`flex-1 relative group data-[state=active]:bg-gradient-to-r data-[state=active]:${tab.gradient} data-[state=active]:text-white rounded-xl transition-all duration-300 py-4 font-semibold hover:bg-white/5`}
+                  className={`flex-1 relative group data-[state=active]:bg-gradient-to-r data-[state=active]:${tab.gradient} data-[state=active]:text-white rounded-lg md:rounded-xl transition-all duration-300 py-3 md:py-4 font-semibold hover:bg-white/5 text-xs md:text-sm`}
                 >
                   <div className="flex items-center justify-center gap-2">
-                    <tab.icon className="w-5 h-5" />
+                    <tab.icon className="w-4 md:w-5 h-4 md:h-5" />
                     <span className="hidden lg:inline">{tab.label}</span>
                   </div>
                   {activeTab === tab.value && (
                     <motion.div
                       layoutId="activeTab"
-                      className={`absolute inset-0 bg-gradient-to-r ${tab.gradient} rounded-xl -z-10`}
+                      className={`absolute inset-0 bg-gradient-to-r ${tab.gradient} rounded-lg md:rounded-xl -z-10`}
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
